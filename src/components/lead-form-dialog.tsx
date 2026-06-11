@@ -57,6 +57,7 @@ export function LeadFormDialog({ open, onOpenChange, lead, onSubmit, saving }: P
         empresa: lead.empresa,
         segmento: lead.segmento,
         faturamento_mensal: lead.faturamento_mensal,
+        valor_contrato: lead.valor_contrato,
         origem: lead.origem,
         observacoes: lead.observacoes,
       });
