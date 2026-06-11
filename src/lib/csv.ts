@@ -15,6 +15,7 @@ const rowSchema = z.object({
   empresa: z.string().max(200).optional().default(""),
   segmento: z.string().max(200).optional().default(""),
   faturamento_mensal: z.coerce.number().min(0).optional().default(0),
+  valor_contrato: z.coerce.number().min(0).optional().default(0),
   origem: z.string().optional().default("outro"),
   observacoes: z.string().max(2000).optional().default(""),
 });
