@@ -67,9 +67,41 @@ function DashboardPage() {
     const total = leads.length;
     const ganhos = leads.filter((l) => l.stage === "ganho");
     const propostas = leads.filter((l) => l.stage === "proposta").length;
+    const reunioes = leads.filter((l) => l.stage === "reuniao").length;
+    const conversando = leads.filter((l) => l.stage === "conversando").length;
+    const perdidos = leads.filter((l) => l.stage === "perdido").length;
     const faturamento = ganhos.reduce((s, l) => s + l.faturamento_mensal, 0);
     const taxa = total > 0 ? Math.round((ganhos.length / total) * 100) : 0;
-    return { total, ganhos: ganhos.length, propostas, faturamento, taxa };
+
+    // Financial
+    const mrr = ganhos.reduce((s, l) => s + (l.valor_contrato || 0), 0);
+    const clientesAtivos = ganhos.length;
+    const ticketMedio = clientesAtivos > 0 ? Math.round(mrr / clientesAtivos) : 0;
+    const receitaPrevista = leads
+      .filter((l) => ["proposta", "reuniao", "ganho"].includes(l.stage))
+      .reduce((s, l) => s + (l.valor_contrato || 0), 0);
+
+    const pct = (a: number, b: number) => (b > 0 ? Math.round((a / b) * 100) : 0);
+    const funnel = {
+      leadConversando: pct(conversando + reunioes + propostas + ganhos.length, total),
+      conversandoReuniao: pct(reunioes + propostas + ganhos.length, conversando + reunioes + propostas + ganhos.length),
+      reuniaoProposta: pct(propostas + ganhos.length, reunioes + propostas + ganhos.length),
+      propostaGanho: pct(ganhos.length, propostas + ganhos.length),
+    };
+
+    return { total, ganhos: ganhos.length, propostas, reunioes, perdidos, faturamento, taxa, mrr, clientesAtivos, ticketMedio, receitaPrevista, funnel };
+  }, [leads]);
+
+  // Revenue by month (won contracts by updated_at month)
+  const revenueByMonth = useMemo(() => {
+    const map = new Map<string, number>();
+    leads
+      .filter((l) => l.stage === "ganho")
+      .forEach((l) => {
+        const key = new Date(l.updated_at).toLocaleDateString("pt-BR", { month: "short", year: "2-digit" });
+        map.set(key, (map.get(key) ?? 0) + (l.valor_contrato || 0));
+      });
+    return Array.from(map.entries()).map(([name, value]) => ({ name, value }));
   }, [leads]);
 
   const byStage = useMemo(
