@@ -78,14 +78,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Controle de Leads · Pixel Marketing" },
+      { name: "description", content: "CRM de gestão de leads, funil de vendas e follow-up da Pixel Marketing." },
+      { name: "author", content: "Pixel Marketing" },
+      { property: "og:title", content: "Controle de Leads · Pixel Marketing" },
+      { property: "og:description", content: "CRM de gestão de leads, funil de vendas e follow-up da Pixel Marketing." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
