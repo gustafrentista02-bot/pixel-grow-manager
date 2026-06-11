@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticated/tarefas'
 import { Route as AuthenticatedModelosPropostaRouteImport } from './routes/_authenticated/modelos-proposta'
+import { Route as AuthenticatedModelosMensagemRouteImport } from './routes/_authenticated/modelos-mensagem'
 import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/leads'
 import { Route as AuthenticatedFunilRouteImport } from './routes/_authenticated/funil'
 import { Route as AuthenticatedFollowUpRouteImport } from './routes/_authenticated/follow-up'
@@ -49,6 +50,12 @@ const AuthenticatedModelosPropostaRoute =
   AuthenticatedModelosPropostaRouteImport.update({
     id: '/modelos-proposta',
     path: '/modelos-proposta',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedModelosMensagemRoute =
+  AuthenticatedModelosMensagemRouteImport.update({
+    id: '/modelos-mensagem',
+    path: '/modelos-mensagem',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedLeadsRoute = AuthenticatedLeadsRouteImport.update({
@@ -87,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/follow-up': typeof AuthenticatedFollowUpRoute
   '/funil': typeof AuthenticatedFunilRoute
   '/leads': typeof AuthenticatedLeadsRoute
+  '/modelos-mensagem': typeof AuthenticatedModelosMensagemRoute
   '/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
 }
@@ -99,6 +107,7 @@ export interface FileRoutesByTo {
   '/follow-up': typeof AuthenticatedFollowUpRoute
   '/funil': typeof AuthenticatedFunilRoute
   '/leads': typeof AuthenticatedLeadsRoute
+  '/modelos-mensagem': typeof AuthenticatedModelosMensagemRoute
   '/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
 }
@@ -113,6 +122,7 @@ export interface FileRoutesById {
   '/_authenticated/follow-up': typeof AuthenticatedFollowUpRoute
   '/_authenticated/funil': typeof AuthenticatedFunilRoute
   '/_authenticated/leads': typeof AuthenticatedLeadsRoute
+  '/_authenticated/modelos-mensagem': typeof AuthenticatedModelosMensagemRoute
   '/_authenticated/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
 }
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/follow-up'
     | '/funil'
     | '/leads'
+    | '/modelos-mensagem'
     | '/modelos-proposta'
     | '/tarefas'
   fileRoutesByTo: FileRoutesByTo
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/follow-up'
     | '/funil'
     | '/leads'
+    | '/modelos-mensagem'
     | '/modelos-proposta'
     | '/tarefas'
   id:
@@ -152,6 +164,7 @@ export interface FileRouteTypes {
     | '/_authenticated/follow-up'
     | '/_authenticated/funil'
     | '/_authenticated/leads'
+    | '/_authenticated/modelos-mensagem'
     | '/_authenticated/modelos-proposta'
     | '/_authenticated/tarefas'
   fileRoutesById: FileRoutesById
@@ -207,6 +220,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedModelosPropostaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/modelos-mensagem': {
+      id: '/_authenticated/modelos-mensagem'
+      path: '/modelos-mensagem'
+      fullPath: '/modelos-mensagem'
+      preLoaderRoute: typeof AuthenticatedModelosMensagemRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/leads': {
       id: '/_authenticated/leads'
       path: '/leads'
@@ -251,6 +271,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFollowUpRoute: typeof AuthenticatedFollowUpRoute
   AuthenticatedFunilRoute: typeof AuthenticatedFunilRoute
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRoute
+  AuthenticatedModelosMensagemRoute: typeof AuthenticatedModelosMensagemRoute
   AuthenticatedModelosPropostaRoute: typeof AuthenticatedModelosPropostaRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
 }
@@ -261,6 +282,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFollowUpRoute: AuthenticatedFollowUpRoute,
   AuthenticatedFunilRoute: AuthenticatedFunilRoute,
   AuthenticatedLeadsRoute: AuthenticatedLeadsRoute,
+  AuthenticatedModelosMensagemRoute: AuthenticatedModelosMensagemRoute,
   AuthenticatedModelosPropostaRoute: AuthenticatedModelosPropostaRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
 }
