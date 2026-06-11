@@ -125,6 +125,29 @@ export function LeadFormDialog({ open, onOpenChange, lead, onSubmit, saving }: P
                 onChange={(e) => set("faturamento_mensal", Number(e.target.value) || 0)}
               />
             </div>
+            <div className="space-y-2">
+              <Label>Valor do contrato (R$)</Label>
+              <Input
+                type="number"
+                min={0}
+                value={form.valor_contrato}
+                onChange={(e) => set("valor_contrato", Number(e.target.value) || 0)}
+              />
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {CONTRACT_PRESETS.map((v) => (
+                  <Button
+                    key={v}
+                    type="button"
+                    variant={form.valor_contrato === v ? "default" : "outline"}
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    onClick={() => set("valor_contrato", v)}
+                  >
+                    R$ {v.toLocaleString("pt-BR")}
+                  </Button>
+                ))}
+              </div>
+            </div>
             <div className="space-y-2 sm:col-span-2">
               <Label>Origem</Label>
               <Select value={form.origem} onValueChange={(v) => set("origem", v as LeadInput["origem"])}>
