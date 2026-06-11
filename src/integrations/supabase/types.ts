@@ -191,6 +191,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_team_metrics: {
+        Args: never
+        Returns: {
+          faturamento_ganho: number
+          ganhos: number
+          nome: string
+          perdidos: number
+          propostas: number
+          reunioes: number
+          total_leads: number
+          user_id: string
+        }[]
+      }
       handle_signup: { Args: { _nome: string }; Returns: undefined }
       has_role: {
         Args: {
