@@ -37,9 +37,12 @@ const empty: LeadInput = {
   empresa: "",
   segmento: "",
   faturamento_mensal: 0,
+  valor_contrato: 0,
   origem: "outro",
   observacoes: "",
 };
+
+const CONTRACT_PRESETS = [297, 497, 997, 1500];
 
 export function LeadFormDialog({ open, onOpenChange, lead, onSubmit, saving }: Props) {
   const [form, setForm] = useState<LeadInput>(empty);
