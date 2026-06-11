@@ -146,16 +146,32 @@ function DashboardPage() {
   );
 }
 
-type Stats = { total: number; ganhos: number; propostas: number; faturamento: number; taxa: number };
+type Stats = {
+  total: number; ganhos: number; propostas: number; reunioes: number; perdidos: number;
+  faturamento: number; taxa: number; mrr: number; clientesAtivos: number; ticketMedio: number;
+  receitaPrevista: number;
+  funnel: { leadConversando: number; conversandoReuniao: number; reuniaoProposta: number; propostaGanho: number };
+};
+
+function FunnelRate({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-lg border border-border bg-card p-3">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-lg font-bold text-primary">{value}%</p>
+    </div>
+  );
+}
 
 function MyPerformance({
   stats,
   byStage,
   byOrigin,
+  revenueByMonth,
 }: {
   stats: Stats;
   byStage: { name: string; value: number }[];
   byOrigin: { name: string; value: number }[];
+  revenueByMonth: { name: string; value: number }[];
 }) {
   return (
     <div className="space-y-6">
@@ -165,6 +181,52 @@ function MyPerformance({
         <StatCard icon={TrendingUp} label="Taxa de conversão" value={`${stats.taxa}%`} accent="bg-sky-500/15 text-sky-400" />
         <StatCard icon={DollarSign} label="Faturamento ganho" value={formatCurrency(stats.faturamento)} accent="bg-amber-500/15 text-amber-400" />
       </div>
+
+      {/* Dashboard Financeiro */}
+      <div>
+        <h2 className="mb-3 font-display text-lg font-bold">📈 Financeiro</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard icon={DollarSign} label="Receita recorrente (MRR)" value={formatCurrency(stats.mrr)} accent="bg-emerald-500/15 text-emerald-400" />
+          <StatCard icon={Users} label="Clientes ativos" value={String(stats.clientesAtivos)} />
+          <StatCard icon={TrendingUp} label="Ticket médio" value={formatCurrency(stats.ticketMedio)} accent="bg-sky-500/15 text-sky-400" />
+          <StatCard icon={DollarSign} label="Receita total prevista" value={formatCurrency(stats.receitaPrevista)} accent="bg-amber-500/15 text-amber-400" />
+        </div>
+        {revenueByMonth.length > 0 && (
+          <Card className="mt-4">
+            <CardHeader><CardTitle className="text-base">Receita por mês</CardTitle></CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart data={revenueByMonth} margin={{ left: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(0 0% 100% / 0.06)" />
+                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#94a3b8" }} />
+                  <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} />
+                  <Tooltip contentStyle={{ background: "#1e293b", border: "1px solid #334155", borderRadius: 8 }} formatter={(v: number) => formatCurrency(v)} />
+                  <Bar dataKey="value" fill="#fbbf24" radius={[4, 4, 0, 0]} name="Receita" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Dashboard de Conversão */}
+      <div>
+        <h2 className="mb-3 font-display text-lg font-bold">📊 Conversão</h2>
+        <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <StatCard icon={Users} label="Leads" value={String(stats.total)} />
+          <StatCard icon={Users} label="Reuniões" value={String(stats.reunioes)} accent="bg-violet-500/15 text-violet-400" />
+          <StatCard icon={Users} label="Propostas" value={String(stats.propostas)} accent="bg-orange-500/15 text-orange-400" />
+          <StatCard icon={Trophy} label="Ganhos" value={String(stats.ganhos)} accent="bg-emerald-500/15 text-emerald-400" />
+          <StatCard icon={Users} label="Perdidos" value={String(stats.perdidos)} accent="bg-red-500/15 text-red-400" />
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <FunnelRate label="Lead → Conversando" value={stats.funnel.leadConversando} />
+          <FunnelRate label="Conversando → Reunião" value={stats.funnel.conversandoReuniao} />
+          <FunnelRate label="Reunião → Proposta" value={stats.funnel.reuniaoProposta} />
+          <FunnelRate label="Proposta → Ganho" value={stats.funnel.propostaGanho} />
+        </div>
+      </div>
+
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
