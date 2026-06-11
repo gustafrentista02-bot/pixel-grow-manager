@@ -15,6 +15,7 @@ export type LeadInput = {
   empresa: string;
   segmento: string;
   faturamento_mensal: number;
+  valor_contrato: number;
   origem: Lead["origem"];
   observacoes: string;
   stage?: LeadStage;

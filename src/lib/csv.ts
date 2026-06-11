@@ -15,6 +15,7 @@ const rowSchema = z.object({
   empresa: z.string().max(200).optional().default(""),
   segmento: z.string().max(200).optional().default(""),
   faturamento_mensal: z.coerce.number().min(0).optional().default(0),
+  valor_contrato: z.coerce.number().min(0).optional().default(0),
   origem: z.string().optional().default("outro"),
   observacoes: z.string().max(2000).optional().default(""),
 });
@@ -51,6 +52,7 @@ export function parseLeadsCsv(file: File): Promise<ParsedImport> {
             empresa: parsed.data.empresa,
             segmento: parsed.data.segmento,
             faturamento_mensal: parsed.data.faturamento_mensal,
+            valor_contrato: parsed.data.valor_contrato,
             origem,
             observacoes: parsed.data.observacoes,
           });

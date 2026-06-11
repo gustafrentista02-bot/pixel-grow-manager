@@ -37,9 +37,12 @@ const empty: LeadInput = {
   empresa: "",
   segmento: "",
   faturamento_mensal: 0,
+  valor_contrato: 0,
   origem: "outro",
   observacoes: "",
 };
+
+const CONTRACT_PRESETS = [297, 497, 997, 1500];
 
 export function LeadFormDialog({ open, onOpenChange, lead, onSubmit, saving }: Props) {
   const [form, setForm] = useState<LeadInput>(empty);
@@ -54,6 +57,7 @@ export function LeadFormDialog({ open, onOpenChange, lead, onSubmit, saving }: P
         empresa: lead.empresa,
         segmento: lead.segmento,
         faturamento_mensal: lead.faturamento_mensal,
+        valor_contrato: lead.valor_contrato,
         origem: lead.origem,
         observacoes: lead.observacoes,
       });
@@ -120,6 +124,29 @@ export function LeadFormDialog({ open, onOpenChange, lead, onSubmit, saving }: P
                 value={form.faturamento_mensal}
                 onChange={(e) => set("faturamento_mensal", Number(e.target.value) || 0)}
               />
+            </div>
+            <div className="space-y-2">
+              <Label>Valor do contrato (R$)</Label>
+              <Input
+                type="number"
+                min={0}
+                value={form.valor_contrato}
+                onChange={(e) => set("valor_contrato", Number(e.target.value) || 0)}
+              />
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {CONTRACT_PRESETS.map((v) => (
+                  <Button
+                    key={v}
+                    type="button"
+                    variant={form.valor_contrato === v ? "default" : "outline"}
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    onClick={() => set("valor_contrato", v)}
+                  >
+                    R$ {v.toLocaleString("pt-BR")}
+                  </Button>
+                ))}
+              </div>
             </div>
             <div className="space-y-2 sm:col-span-2">
               <Label>Origem</Label>

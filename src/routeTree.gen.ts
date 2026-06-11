@@ -13,6 +13,9 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticated/tarefas'
+import { Route as AuthenticatedModelosPropostaRouteImport } from './routes/_authenticated/modelos-proposta'
+import { Route as AuthenticatedModelosMensagemRouteImport } from './routes/_authenticated/modelos-mensagem'
 import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/leads'
 import { Route as AuthenticatedFunilRouteImport } from './routes/_authenticated/funil'
 import { Route as AuthenticatedFollowUpRouteImport } from './routes/_authenticated/follow-up'
@@ -38,6 +41,23 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTarefasRoute = AuthenticatedTarefasRouteImport.update({
+  id: '/tarefas',
+  path: '/tarefas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedModelosPropostaRoute =
+  AuthenticatedModelosPropostaRouteImport.update({
+    id: '/modelos-proposta',
+    path: '/modelos-proposta',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedModelosMensagemRoute =
+  AuthenticatedModelosMensagemRouteImport.update({
+    id: '/modelos-mensagem',
+    path: '/modelos-mensagem',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLeadsRoute = AuthenticatedLeadsRouteImport.update({
   id: '/leads',
   path: '/leads',
@@ -74,6 +94,9 @@ export interface FileRoutesByFullPath {
   '/follow-up': typeof AuthenticatedFollowUpRoute
   '/funil': typeof AuthenticatedFunilRoute
   '/leads': typeof AuthenticatedLeadsRoute
+  '/modelos-mensagem': typeof AuthenticatedModelosMensagemRoute
+  '/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
+  '/tarefas': typeof AuthenticatedTarefasRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -84,6 +107,9 @@ export interface FileRoutesByTo {
   '/follow-up': typeof AuthenticatedFollowUpRoute
   '/funil': typeof AuthenticatedFunilRoute
   '/leads': typeof AuthenticatedLeadsRoute
+  '/modelos-mensagem': typeof AuthenticatedModelosMensagemRoute
+  '/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
+  '/tarefas': typeof AuthenticatedTarefasRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -96,6 +122,9 @@ export interface FileRoutesById {
   '/_authenticated/follow-up': typeof AuthenticatedFollowUpRoute
   '/_authenticated/funil': typeof AuthenticatedFunilRoute
   '/_authenticated/leads': typeof AuthenticatedLeadsRoute
+  '/_authenticated/modelos-mensagem': typeof AuthenticatedModelosMensagemRoute
+  '/_authenticated/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
+  '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -108,6 +137,9 @@ export interface FileRouteTypes {
     | '/follow-up'
     | '/funil'
     | '/leads'
+    | '/modelos-mensagem'
+    | '/modelos-proposta'
+    | '/tarefas'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -118,6 +150,9 @@ export interface FileRouteTypes {
     | '/follow-up'
     | '/funil'
     | '/leads'
+    | '/modelos-mensagem'
+    | '/modelos-proposta'
+    | '/tarefas'
   id:
     | '__root__'
     | '/'
@@ -129,6 +164,9 @@ export interface FileRouteTypes {
     | '/_authenticated/follow-up'
     | '/_authenticated/funil'
     | '/_authenticated/leads'
+    | '/_authenticated/modelos-mensagem'
+    | '/_authenticated/modelos-proposta'
+    | '/_authenticated/tarefas'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -167,6 +205,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/tarefas': {
+      id: '/_authenticated/tarefas'
+      path: '/tarefas'
+      fullPath: '/tarefas'
+      preLoaderRoute: typeof AuthenticatedTarefasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/modelos-proposta': {
+      id: '/_authenticated/modelos-proposta'
+      path: '/modelos-proposta'
+      fullPath: '/modelos-proposta'
+      preLoaderRoute: typeof AuthenticatedModelosPropostaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/modelos-mensagem': {
+      id: '/_authenticated/modelos-mensagem'
+      path: '/modelos-mensagem'
+      fullPath: '/modelos-mensagem'
+      preLoaderRoute: typeof AuthenticatedModelosMensagemRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/leads': {
       id: '/_authenticated/leads'
@@ -212,6 +271,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFollowUpRoute: typeof AuthenticatedFollowUpRoute
   AuthenticatedFunilRoute: typeof AuthenticatedFunilRoute
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRoute
+  AuthenticatedModelosMensagemRoute: typeof AuthenticatedModelosMensagemRoute
+  AuthenticatedModelosPropostaRoute: typeof AuthenticatedModelosPropostaRoute
+  AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -220,6 +282,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFollowUpRoute: AuthenticatedFollowUpRoute,
   AuthenticatedFunilRoute: AuthenticatedFunilRoute,
   AuthenticatedLeadsRoute: AuthenticatedLeadsRoute,
+  AuthenticatedModelosMensagemRoute: AuthenticatedModelosMensagemRoute,
+  AuthenticatedModelosPropostaRoute: AuthenticatedModelosPropostaRoute,
+  AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

@@ -103,6 +103,7 @@ export type Database = {
           telefone: string
           uf: string
           updated_at: string
+          valor_contrato: number
         }
         Insert: {
           cidade?: string
@@ -122,6 +123,7 @@ export type Database = {
           telefone?: string
           uf?: string
           updated_at?: string
+          valor_contrato?: number
         }
         Update: {
           cidade?: string
@@ -140,6 +142,37 @@ export type Database = {
           stage?: Database["public"]["Enums"]["lead_stage"]
           telefone?: string
           uf?: string
+          updated_at?: string
+          valor_contrato?: number
+        }
+        Relationships: []
+      }
+      message_templates: {
+        Row: {
+          categoria: string
+          conteudo: string
+          created_at: string
+          id: string
+          nome: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          categoria?: string
+          conteudo?: string
+          created_at?: string
+          id?: string
+          nome: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          categoria?: string
+          conteudo?: string
+          created_at?: string
+          id?: string
+          nome?: string
+          owner_id?: string
           updated_at?: string
         }
         Relationships: []
@@ -164,6 +197,89 @@ export type Database = {
           nome?: string
         }
         Relationships: []
+      }
+      proposal_templates: {
+        Row: {
+          conteudo: string
+          created_at: string
+          id: string
+          nome: string
+          owner_id: string
+          tipo: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          conteudo?: string
+          created_at?: string
+          id?: string
+          nome: string
+          owner_id: string
+          tipo?: string
+          updated_at?: string
+          url?: string
+        }
+        Update: {
+          conteudo?: string
+          created_at?: string
+          id?: string
+          nome?: string
+          owner_id?: string
+          tipo?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          created_at: string
+          descricao: string
+          done: boolean
+          done_at: string | null
+          due_date: string | null
+          due_time: string | null
+          id: string
+          lead_id: string | null
+          owner_id: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string
+          done?: boolean
+          done_at?: string | null
+          due_date?: string | null
+          due_time?: string | null
+          id?: string
+          lead_id?: string | null
+          owner_id: string
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string
+          done?: boolean
+          done_at?: string | null
+          due_date?: string | null
+          due_time?: string | null
+          id?: string
+          lead_id?: string | null
+          owner_id?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
