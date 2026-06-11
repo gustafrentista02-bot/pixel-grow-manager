@@ -29,7 +29,7 @@ function Column({ stage, leads }: { stage: FollowupStage; leads: Lead[] }) {
         className={`flex min-h-32 flex-1 flex-col gap-2 rounded-xl border border-dashed p-2 transition ${isOver ? "border-ring bg-accent/5" : "border-border bg-secondary/30"}`}
       >
         {leads.map((l) => (
-          <KanbanCard key={l.id} lead={l} />
+          <KanbanCard key={l.id} lead={l} showFollowupInsights />
         ))}
         {leads.length === 0 && <p className="px-1 py-4 text-center text-xs text-muted-foreground">Vazio</p>}
       </div>
