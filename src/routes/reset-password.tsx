@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import logo from "@/assets/pixel-logo.png";
+import { pixelLogo as logo } from "@/lib/assets";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({

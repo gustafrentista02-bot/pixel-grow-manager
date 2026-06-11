@@ -15,7 +15,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { ROLE_LABELS } from "@/lib/crm";
-import logo from "@/assets/pixel-logo.png";
+import { pixelLogo as logo } from "@/lib/assets";
 
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
