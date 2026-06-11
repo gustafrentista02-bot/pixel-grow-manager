@@ -52,6 +52,7 @@ export function parseLeadsCsv(file: File): Promise<ParsedImport> {
             empresa: parsed.data.empresa,
             segmento: parsed.data.segmento,
             faturamento_mensal: parsed.data.faturamento_mensal,
+            valor_contrato: parsed.data.valor_contrato,
             origem,
             observacoes: parsed.data.observacoes,
           });
