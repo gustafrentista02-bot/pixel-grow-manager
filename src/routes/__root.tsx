@@ -85,6 +85,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "CRM de gestão de leads, funil de vendas e follow-up da Pixel Marketing." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Controle de Leads · Pixel Marketing" },
+      { name: "twitter:description", content: "CRM de gestão de leads, funil de vendas e follow-up da Pixel Marketing." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8c344c07-b208-4aed-8c38-6de5b2747bfa/id-preview-225bf598--9ea74c36-8304-42d3-b13d-f63c25ab9df9.lovable.app-1781204676075.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8c344c07-b208-4aed-8c38-6de5b2747bfa/id-preview-225bf598--9ea74c36-8304-42d3-b13d-f63c25ab9df9.lovable.app-1781204676075.png" },
     ],
     links: [
       {
