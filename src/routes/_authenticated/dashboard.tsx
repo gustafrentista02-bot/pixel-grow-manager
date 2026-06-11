@@ -133,14 +133,14 @@ function DashboardPage() {
             <TabsTrigger value="equipe">Performance da Equipe</TabsTrigger>
           </TabsList>
           <TabsContent value="minha" className="mt-4">
-            <MyPerformance stats={stats} byStage={byStage} byOrigin={byOrigin} />
+            <MyPerformance stats={stats} byStage={byStage} byOrigin={byOrigin} revenueByMonth={revenueByMonth} />
           </TabsContent>
           <TabsContent value="equipe" className="mt-4">
             <TeamPerformance />
           </TabsContent>
         </Tabs>
       ) : (
-        <MyPerformance stats={stats} byStage={byStage} byOrigin={byOrigin} />
+        <MyPerformance stats={stats} byStage={byStage} byOrigin={byOrigin} revenueByMonth={revenueByMonth} />
       )}
     </div>
   );
