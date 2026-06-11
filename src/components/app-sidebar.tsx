@@ -22,6 +22,9 @@ const items = [
   { title: "Leads", url: "/leads", icon: Users },
   { title: "Funil", url: "/funil", icon: KanbanSquare },
   { title: "Follow-up", url: "/follow-up", icon: Repeat },
+  { title: "Tarefas", url: "/tarefas", icon: CheckSquare },
+  { title: "Modelos de Proposta", url: "/modelos-proposta", icon: FileText },
+  { title: "Modelos de Mensagens", url: "/modelos-mensagem", icon: MessageSquare },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
 ] as const;
 
