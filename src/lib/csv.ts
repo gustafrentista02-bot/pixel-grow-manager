@@ -50,14 +50,19 @@ export function parseLeadsCsv(file: File): Promise<ParsedImport> {
             ? (origemRaw as LeadOrigin)
             : "outro";
           valid.push({
+            ...EMPTY_LEAD_INPUT,
             nome: parsed.data.nome,
             telefone: parsed.data.telefone,
+            whatsapp: parsed.data.whatsapp,
             cidade: parsed.data.cidade,
             uf: parsed.data.uf.toUpperCase(),
             empresa: parsed.data.empresa,
+            instagram: parsed.data.instagram,
+            site: parsed.data.site,
             segmento: parsed.data.segmento,
             faturamento_mensal: parsed.data.faturamento_mensal,
             valor_contrato: parsed.data.valor_contrato,
+            plano: parsed.data.plano,
             origem,
             observacoes: parsed.data.observacoes,
           });
