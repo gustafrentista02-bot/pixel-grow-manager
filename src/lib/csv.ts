@@ -1,6 +1,7 @@
 import Papa from "papaparse";
 import { z } from "zod";
 import type { Lead, LeadInput } from "@/lib/leads-api";
+import { EMPTY_LEAD_INPUT } from "@/lib/leads-api";
 import { ORIGINS, STAGE_META, ORIGIN_LABELS } from "@/lib/crm";
 import type { LeadOrigin } from "@/lib/crm";
 import { formatDateTime } from "@/lib/format";
