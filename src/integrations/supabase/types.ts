@@ -14,6 +14,130 @@ export type Database = {
   }
   public: {
     Tables: {
+      company_settings: {
+        Row: {
+          assinatura: string
+          created_at: string
+          id: string
+          instagram: string
+          logo_url: string
+          meet_padrao: string
+          nome_empresa: string
+          site: string
+          telefone: string
+          updated_at: string
+          whatsapp: string
+        }
+        Insert: {
+          assinatura?: string
+          created_at?: string
+          id?: string
+          instagram?: string
+          logo_url?: string
+          meet_padrao?: string
+          nome_empresa?: string
+          site?: string
+          telefone?: string
+          updated_at?: string
+          whatsapp?: string
+        }
+        Update: {
+          assinatura?: string
+          created_at?: string
+          id?: string
+          instagram?: string
+          logo_url?: string
+          meet_padrao?: string
+          nome_empresa?: string
+          site?: string
+          telefone?: string
+          updated_at?: string
+          whatsapp?: string
+        }
+        Relationships: []
+      }
+      lead_events: {
+        Row: {
+          autor_nome: string
+          created_at: string
+          descricao: string
+          id: string
+          lead_id: string
+          tipo: string
+          user_id: string | null
+        }
+        Insert: {
+          autor_nome?: string
+          created_at?: string
+          descricao?: string
+          id?: string
+          lead_id: string
+          tipo?: string
+          user_id?: string | null
+        }
+        Update: {
+          autor_nome?: string
+          created_at?: string
+          descricao?: string
+          id?: string
+          lead_id?: string
+          tipo?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_events_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_files: {
+        Row: {
+          categoria: string
+          created_at: string
+          id: string
+          lead_id: string
+          mime: string
+          nome: string
+          path: string
+          tamanho: number
+          user_id: string
+        }
+        Insert: {
+          categoria?: string
+          created_at?: string
+          id?: string
+          lead_id: string
+          mime?: string
+          nome?: string
+          path: string
+          tamanho?: number
+          user_id: string
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+          mime?: string
+          nome?: string
+          path?: string
+          tamanho?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_files_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_movements: {
         Row: {
           created_at: string
@@ -86,64 +210,121 @@ export type Database = {
       }
       leads: {
         Row: {
+          area_atendimento: string
+          canais_aquisicao: string[]
           cidade: string
           created_at: string
+          dificuldade: string
           empresa: string
           faturamento_mensal: number
+          faz_google_ads: boolean
+          faz_meta_ads: boolean
           followup_stage: Database["public"]["Enums"]["followup_stage"] | null
           id: string
+          instagram: string
           last_interaction_at: string
+          link_perfil_google: string
+          meet_link: string
           nome: string
+          objetivo: string
           observacoes: string
           origem: Database["public"]["Enums"]["lead_origin"]
           owner_id: string
+          plano: string
+          potencial: string
+          proxima_acao: string
+          responsavel_id: string | null
+          reuniao_at: string | null
           segmento: string
           sem_interesse_at: string | null
+          site: string
           stage: Database["public"]["Enums"]["lead_stage"]
+          status_comercial: string
           telefone: string
+          tem_perfil_google: boolean
+          tem_site: boolean
           uf: string
           updated_at: string
           valor_contrato: number
+          whatsapp: string
         }
         Insert: {
+          area_atendimento?: string
+          canais_aquisicao?: string[]
           cidade?: string
           created_at?: string
+          dificuldade?: string
           empresa?: string
           faturamento_mensal?: number
+          faz_google_ads?: boolean
+          faz_meta_ads?: boolean
           followup_stage?: Database["public"]["Enums"]["followup_stage"] | null
           id?: string
+          instagram?: string
           last_interaction_at?: string
+          link_perfil_google?: string
+          meet_link?: string
           nome: string
+          objetivo?: string
           observacoes?: string
           origem?: Database["public"]["Enums"]["lead_origin"]
           owner_id: string
+          plano?: string
+          potencial?: string
+          proxima_acao?: string
+          responsavel_id?: string | null
+          reuniao_at?: string | null
           segmento?: string
           sem_interesse_at?: string | null
+          site?: string
           stage?: Database["public"]["Enums"]["lead_stage"]
+          status_comercial?: string
           telefone?: string
+          tem_perfil_google?: boolean
+          tem_site?: boolean
           uf?: string
           updated_at?: string
           valor_contrato?: number
+          whatsapp?: string
         }
         Update: {
+          area_atendimento?: string
+          canais_aquisicao?: string[]
           cidade?: string
           created_at?: string
+          dificuldade?: string
           empresa?: string
           faturamento_mensal?: number
+          faz_google_ads?: boolean
+          faz_meta_ads?: boolean
           followup_stage?: Database["public"]["Enums"]["followup_stage"] | null
           id?: string
+          instagram?: string
           last_interaction_at?: string
+          link_perfil_google?: string
+          meet_link?: string
           nome?: string
+          objetivo?: string
           observacoes?: string
           origem?: Database["public"]["Enums"]["lead_origin"]
           owner_id?: string
+          plano?: string
+          potencial?: string
+          proxima_acao?: string
+          responsavel_id?: string | null
+          reuniao_at?: string | null
           segmento?: string
           sem_interesse_at?: string | null
+          site?: string
           stage?: Database["public"]["Enums"]["lead_stage"]
+          status_comercial?: string
           telefone?: string
+          tem_perfil_google?: boolean
+          tem_site?: boolean
           uf?: string
           updated_at?: string
           valor_contrato?: number
+          whatsapp?: string
         }
         Relationships: []
       }
@@ -330,7 +511,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "gerente" | "vendedor"
+      app_role: "gerente" | "vendedor" | "administrador"
       followup_stage: "followup_1" | "followup_2" | "followup_3" | "followup_4"
       lead_origin:
         | "google"
@@ -477,7 +658,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["gerente", "vendedor"],
+      app_role: ["gerente", "vendedor", "administrador"],
       followup_stage: ["followup_1", "followup_2", "followup_3", "followup_4"],
       lead_origin: [
         "google",
