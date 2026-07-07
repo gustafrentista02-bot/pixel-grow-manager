@@ -6,18 +6,37 @@ import { SEM_INTERESSE_TTL_HOURS } from "@/lib/crm";
 export type Lead = Tables<"leads">;
 export type LeadNote = Tables<"lead_notes">;
 export type LeadMovement = Tables<"lead_movements">;
+export type LeadEvent = Tables<"lead_events">;
+export type LeadFile = Tables<"lead_files">;
 
 export type LeadInput = {
   nome: string;
   telefone: string;
+  whatsapp: string;
   cidade: string;
   uf: string;
   empresa: string;
+  instagram: string;
+  site: string;
+  area_atendimento: string;
   segmento: string;
   faturamento_mensal: number;
   valor_contrato: number;
+  plano: string;
+  status_comercial: string;
+  potencial: string;
   origem: Lead["origem"];
+  responsavel_id: string | null;
   observacoes: string;
+  tem_perfil_google: boolean;
+  link_perfil_google: string;
+  tem_site: boolean;
+  faz_google_ads: boolean;
+  faz_meta_ads: boolean;
+  canais_aquisicao: string[];
+  objetivo: string;
+  dificuldade: string;
+  proxima_acao: string;
   stage?: LeadStage;
 };
 
