@@ -130,11 +130,13 @@ export async function createLead(input: LeadInput): Promise<Lead> {
   const payload: TablesInsert<"leads"> = {
     ...input,
     owner_id: uid,
+    responsavel_id: input.responsavel_id ?? uid,
     stage: input.stage ?? "lead_novo",
     last_interaction_at: new Date().toISOString(),
   };
   const { data, error } = await supabase.from("leads").insert(payload).select("*").single();
   if (error) throw error;
+  await logLeadEvent(data.id, "criado", "Lead criado.").catch(() => {});
   return data;
 }
 
