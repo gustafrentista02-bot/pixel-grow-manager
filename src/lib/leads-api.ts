@@ -156,7 +156,22 @@ export async function deleteLead(id: string): Promise<void> {
   if (error) throw error;
 }
 
-export async function moveLeadStage(lead: Lead, to: LeadStage): Promise<Lead> {
+const STAGE_EVENT_LABEL: Record<string, string> = {
+  lead_novo: "Movido para Lead Novo.",
+  conversando: "Iniciou conversa (Conversando).",
+  reuniao: "Reunião agendada.",
+  proposta: "Proposta enviada.",
+  ganho: "Negócio ganho! 🎉",
+  perdido: "Lead marcado como perdido.",
+  follow_up: "Movido para Follow-up.",
+  sem_interesse: "Marcado como sem interesse.",
+};
+
+export async function moveLeadStage(
+  lead: Lead,
+  to: LeadStage,
+  extra?: { reuniao_at?: string | null; meet_link?: string | null; proxima_acao?: string | null },
+): Promise<Lead> {
   const { data: userData } = await supabase.auth.getUser();
   const uid = userData.user?.id;
   if (!uid) throw new Error("Não autenticado");
@@ -177,6 +192,10 @@ export async function moveLeadStage(lead: Lead, to: LeadStage): Promise<Lead> {
     patch.sem_interesse_at = null;
   }
 
+  if (extra?.reuniao_at !== undefined) patch.reuniao_at = extra.reuniao_at;
+  if (extra?.meet_link !== undefined) patch.meet_link = extra.meet_link ?? "";
+  if (extra?.proxima_acao !== undefined) patch.proxima_acao = extra.proxima_acao ?? "";
+
   const { data, error } = await supabase
     .from("leads")
     .update(patch)
@@ -185,7 +204,7 @@ export async function moveLeadStage(lead: Lead, to: LeadStage): Promise<Lead> {
     .single();
   if (error) throw error;
 
-  // log movement (best-effort)
+  // log movement + timeline event (best-effort)
   if (lead.stage !== to) {
     await supabase.from("lead_movements").insert({
       lead_id: lead.id,
@@ -193,6 +212,11 @@ export async function moveLeadStage(lead: Lead, to: LeadStage): Promise<Lead> {
       from_stage: lead.stage,
       to_stage: to,
     });
+    let desc = STAGE_EVENT_LABEL[to] ?? `Movido para ${to}.`;
+    if (to === "reuniao" && extra?.reuniao_at) {
+      desc = `Reunião agendada para ${new Date(extra.reuniao_at).toLocaleString("pt-BR")}.`;
+    }
+    await logLeadEvent(lead.id, "movimentacao", desc).catch(() => {});
   }
   return data;
 }
