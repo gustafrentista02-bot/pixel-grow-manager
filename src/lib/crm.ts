@@ -76,6 +76,52 @@ export const FOLLOWUP_META: Record<FollowupStage, FollowupMeta> = Object.fromEnt
 export const SEM_INTERESSE_TTL_HOURS = 24;
 
 export const ROLE_LABELS: Record<AppRole, string> = {
+  administrador: "Administrador",
   gerente: "Gerente Geral",
   vendedor: "Vendedor",
 };
+
+/** roles with elevated (team-wide) access */
+export const MANAGER_ROLES: AppRole[] = ["administrador", "gerente"];
+
+export type Potencial = "alta" | "media" | "baixa";
+
+export const POTENCIAL_OPTIONS: { value: Potencial; label: string; dot: string; badge: string }[] = [
+  { value: "alta", label: "Alta", dot: "bg-emerald-400", badge: "bg-emerald-400/15 text-emerald-300 border-emerald-400/30" },
+  { value: "media", label: "Média", dot: "bg-amber-400", badge: "bg-amber-400/15 text-amber-300 border-amber-400/30" },
+  { value: "baixa", label: "Baixa", dot: "bg-zinc-400", badge: "bg-zinc-400/15 text-zinc-300 border-zinc-400/30" },
+];
+
+export const POTENCIAL_META: Record<Potencial, (typeof POTENCIAL_OPTIONS)[number]> = Object.fromEntries(
+  POTENCIAL_OPTIONS.map((p) => [p.value, p]),
+) as Record<Potencial, (typeof POTENCIAL_OPTIONS)[number]>;
+
+/** SEO-local oriented plans (editable text stored on lead) */
+export const PLANO_OPTIONS = [
+  "SEO Local",
+  "Google Meu Negócio",
+  "Gestão de Tráfego",
+  "Combo Completo",
+  "Social Media",
+  "Site / Landing Page",
+  "Outro",
+] as const;
+
+export const STATUS_COMERCIAL_OPTIONS = [
+  "Novo",
+  "Em negociação",
+  "Aguardando retorno",
+  "Proposta enviada",
+  "Fechado",
+  "Perdido",
+] as const;
+
+/** how leads currently acquire customers (marketing tab) */
+export const CANAIS_AQUISICAO_OPTIONS = [
+  "Google",
+  "Instagram",
+  "Indicação",
+  "Meta Ads",
+  "Google Ads",
+  "Outros",
+] as const;
