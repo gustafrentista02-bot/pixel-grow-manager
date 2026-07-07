@@ -11,12 +11,16 @@ const originValues = ORIGINS.map((o) => o.value) as [LeadOrigin, ...LeadOrigin[]
 const rowSchema = z.object({
   nome: z.string().min(1).max(200),
   telefone: z.string().max(40).optional().default(""),
+  whatsapp: z.string().max(40).optional().default(""),
   cidade: z.string().max(120).optional().default(""),
   uf: z.string().max(2).optional().default(""),
   empresa: z.string().max(200).optional().default(""),
+  instagram: z.string().max(200).optional().default(""),
+  site: z.string().max(200).optional().default(""),
   segmento: z.string().max(200).optional().default(""),
   faturamento_mensal: z.coerce.number().min(0).optional().default(0),
   valor_contrato: z.coerce.number().min(0).optional().default(0),
+  plano: z.string().max(120).optional().default(""),
   origem: z.string().optional().default("outro"),
   observacoes: z.string().max(2000).optional().default(""),
 });
