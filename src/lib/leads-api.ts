@@ -40,7 +40,67 @@ export type LeadInput = {
   stage?: LeadStage;
 };
 
-/** Remove leads marked "sem_interesse" older than the TTL. Runs on app load. */
+export const EMPTY_LEAD_INPUT: LeadInput = {
+  nome: "",
+  telefone: "",
+  whatsapp: "",
+  cidade: "",
+  uf: "",
+  empresa: "",
+  instagram: "",
+  site: "",
+  area_atendimento: "",
+  segmento: "",
+  faturamento_mensal: 0,
+  valor_contrato: 0,
+  plano: "",
+  status_comercial: "",
+  potencial: "media",
+  origem: "outro",
+  responsavel_id: null,
+  observacoes: "",
+  tem_perfil_google: false,
+  link_perfil_google: "",
+  tem_site: false,
+  faz_google_ads: false,
+  faz_meta_ads: false,
+  canais_aquisicao: [],
+  objetivo: "",
+  dificuldade: "",
+  proxima_acao: "",
+};
+
+export function leadToInput(lead: Lead): LeadInput {
+  return {
+    nome: lead.nome,
+    telefone: lead.telefone,
+    whatsapp: lead.whatsapp,
+    cidade: lead.cidade,
+    uf: lead.uf,
+    empresa: lead.empresa,
+    instagram: lead.instagram,
+    site: lead.site,
+    area_atendimento: lead.area_atendimento,
+    segmento: lead.segmento,
+    faturamento_mensal: lead.faturamento_mensal,
+    valor_contrato: lead.valor_contrato,
+    plano: lead.plano,
+    status_comercial: lead.status_comercial,
+    potencial: lead.potencial,
+    origem: lead.origem,
+    responsavel_id: lead.responsavel_id,
+    observacoes: lead.observacoes,
+    tem_perfil_google: lead.tem_perfil_google,
+    link_perfil_google: lead.link_perfil_google,
+    tem_site: lead.tem_site,
+    faz_google_ads: lead.faz_google_ads,
+    faz_meta_ads: lead.faz_meta_ads,
+    canais_aquisicao: lead.canais_aquisicao,
+    objetivo: lead.objetivo,
+    dificuldade: lead.dificuldade,
+    proxima_acao: lead.proxima_acao,
+  };
+}
 export async function purgeExpiredLeads(): Promise<number> {
   const cutoff = new Date(Date.now() - SEM_INTERESSE_TTL_HOURS * 3600_000).toISOString();
   const { data, error } = await supabase
