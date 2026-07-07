@@ -62,7 +62,11 @@ function LeadsPage() {
         !q ||
         l.nome.toLowerCase().includes(q) ||
         l.empresa.toLowerCase().includes(q) ||
-        l.telefone.includes(q);
+        l.telefone.includes(q) ||
+        l.whatsapp.includes(q) ||
+        l.instagram.toLowerCase().includes(q) ||
+        l.cidade.toLowerCase().includes(q) ||
+        l.segmento.toLowerCase().includes(q);
       const matchStage = stageFilter === "todos" || l.stage === stageFilter;
       return matchSearch && matchStage;
     });
