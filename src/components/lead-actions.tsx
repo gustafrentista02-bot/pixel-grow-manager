@@ -16,8 +16,9 @@ export function LeadActions({
   variant?: "outline" | "ghost";
 }) {
   const [proposalOpen, setProposalOpen] = useState(false);
-  const wa = buildWhatsappLink(lead.telefone);
-  const tel = buildTelLink(lead.telefone);
+  const phone = lead.whatsapp || lead.telefone;
+  const wa = buildWhatsappLink(phone);
+  const tel = buildTelLink(phone);
 
   if (size === "icon") {
     return (

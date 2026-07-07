@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus, Upload, Download, Search, Pencil, Trash2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,7 +62,11 @@ function LeadsPage() {
         !q ||
         l.nome.toLowerCase().includes(q) ||
         l.empresa.toLowerCase().includes(q) ||
-        l.telefone.includes(q);
+        l.telefone.includes(q) ||
+        l.whatsapp.includes(q) ||
+        l.instagram.toLowerCase().includes(q) ||
+        l.cidade.toLowerCase().includes(q) ||
+        l.segmento.toLowerCase().includes(q);
       const matchStage = stageFilter === "todos" || l.stage === stageFilter;
       return matchSearch && matchStage;
     });
@@ -146,7 +150,9 @@ function LeadsPage() {
               filtered.map((l) => (
                 <TableRow key={l.id}>
                   <TableCell>
-                    <div className="font-medium">{l.nome}</div>
+                    <Link to="/leads/$leadId" params={{ leadId: l.id }} className="font-medium hover:text-accent hover:underline">
+                      {l.nome}
+                    </Link>
                     <div className="text-xs text-muted-foreground">{l.telefone || "—"}</div>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">{l.empresa || "—"}</TableCell>

@@ -21,6 +21,7 @@ import { Route as AuthenticatedFunilRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedFollowUpRouteImport } from './routes/_authenticated/follow-up'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
+import { Route as AuthenticatedLeadsLeadIdRouteImport } from './routes/_authenticated/leads.$leadId'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -84,6 +85,12 @@ const AuthenticatedConfiguracoesRoute =
     path: '/configuracoes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedLeadsLeadIdRoute =
+  AuthenticatedLeadsLeadIdRouteImport.update({
+    id: '/$leadId',
+    path: '/$leadId',
+    getParentRoute: () => AuthenticatedLeadsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -93,10 +100,11 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/follow-up': typeof AuthenticatedFollowUpRoute
   '/funil': typeof AuthenticatedFunilRoute
-  '/leads': typeof AuthenticatedLeadsRoute
+  '/leads': typeof AuthenticatedLeadsRouteWithChildren
   '/modelos-mensagem': typeof AuthenticatedModelosMensagemRoute
   '/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
+  '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -106,10 +114,11 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/follow-up': typeof AuthenticatedFollowUpRoute
   '/funil': typeof AuthenticatedFunilRoute
-  '/leads': typeof AuthenticatedLeadsRoute
+  '/leads': typeof AuthenticatedLeadsRouteWithChildren
   '/modelos-mensagem': typeof AuthenticatedModelosMensagemRoute
   '/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
+  '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -121,10 +130,11 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/follow-up': typeof AuthenticatedFollowUpRoute
   '/_authenticated/funil': typeof AuthenticatedFunilRoute
-  '/_authenticated/leads': typeof AuthenticatedLeadsRoute
+  '/_authenticated/leads': typeof AuthenticatedLeadsRouteWithChildren
   '/_authenticated/modelos-mensagem': typeof AuthenticatedModelosMensagemRoute
   '/_authenticated/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
+  '/_authenticated/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/modelos-mensagem'
     | '/modelos-proposta'
     | '/tarefas'
+    | '/leads/$leadId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/modelos-mensagem'
     | '/modelos-proposta'
     | '/tarefas'
+    | '/leads/$leadId'
   id:
     | '__root__'
     | '/'
@@ -167,6 +179,7 @@ export interface FileRouteTypes {
     | '/_authenticated/modelos-mensagem'
     | '/_authenticated/modelos-proposta'
     | '/_authenticated/tarefas'
+    | '/_authenticated/leads/$leadId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -262,15 +275,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/leads/$leadId': {
+      id: '/_authenticated/leads/$leadId'
+      path: '/$leadId'
+      fullPath: '/leads/$leadId'
+      preLoaderRoute: typeof AuthenticatedLeadsLeadIdRouteImport
+      parentRoute: typeof AuthenticatedLeadsRoute
+    }
   }
 }
+
+interface AuthenticatedLeadsRouteChildren {
+  AuthenticatedLeadsLeadIdRoute: typeof AuthenticatedLeadsLeadIdRoute
+}
+
+const AuthenticatedLeadsRouteChildren: AuthenticatedLeadsRouteChildren = {
+  AuthenticatedLeadsLeadIdRoute: AuthenticatedLeadsLeadIdRoute,
+}
+
+const AuthenticatedLeadsRouteWithChildren =
+  AuthenticatedLeadsRoute._addFileChildren(AuthenticatedLeadsRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFollowUpRoute: typeof AuthenticatedFollowUpRoute
   AuthenticatedFunilRoute: typeof AuthenticatedFunilRoute
-  AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRoute
+  AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRouteWithChildren
   AuthenticatedModelosMensagemRoute: typeof AuthenticatedModelosMensagemRoute
   AuthenticatedModelosPropostaRoute: typeof AuthenticatedModelosPropostaRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
@@ -281,7 +312,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFollowUpRoute: AuthenticatedFollowUpRoute,
   AuthenticatedFunilRoute: AuthenticatedFunilRoute,
-  AuthenticatedLeadsRoute: AuthenticatedLeadsRoute,
+  AuthenticatedLeadsRoute: AuthenticatedLeadsRouteWithChildren,
   AuthenticatedModelosMensagemRoute: AuthenticatedModelosMensagemRoute,
   AuthenticatedModelosPropostaRoute: AuthenticatedModelosPropostaRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
@@ -299,13 +330,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -40,7 +40,8 @@ export function useLeadMutations() {
   });
 
   const move = useMutation({
-    mutationFn: ({ lead, to }: { lead: Lead; to: LeadStage }) => moveLeadStage(lead, to),
+    mutationFn: ({ lead, to, extra }: { lead: Lead; to: LeadStage; extra?: { reuniao_at?: string | null; meet_link?: string | null; proxima_acao?: string | null } }) =>
+      moveLeadStage(lead, to, extra),
     onMutate: async ({ lead, to }) => {
       await qc.cancelQueries({ queryKey: ["leads"] });
       const prev = qc.getQueryData<Lead[]>(["leads"]);
