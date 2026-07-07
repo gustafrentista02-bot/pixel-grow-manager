@@ -281,3 +281,99 @@ export async function getTeamMetrics(): Promise<TeamMetric[]> {
   if (error) throw error;
   return (data ?? []) as TeamMetric[];
 }
+
+// ---------- Timeline events ----------
+export async function logLeadEvent(leadId: string, tipo: string, descricao: string): Promise<void> {
+  const { data: userData } = await supabase.auth.getUser();
+  const uid = userData.user?.id;
+  let autor = "";
+  if (uid) {
+    const { data: prof } = await supabase.from("profiles").select("nome").eq("id", uid).maybeSingle();
+    autor = prof?.nome ?? "";
+  }
+  const { error } = await supabase.from("lead_events").insert({
+    lead_id: leadId,
+    user_id: uid ?? null,
+    autor_nome: autor,
+    tipo,
+    descricao,
+  });
+  if (error) throw error;
+}
+
+export async function listEvents(leadId: string): Promise<LeadEvent[]> {
+  const { data, error } = await supabase
+    .from("lead_events")
+    .select("*")
+    .eq("lead_id", leadId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
+// ---------- Files ----------
+const FILES_BUCKET = "lead-files";
+
+export async function listFiles(leadId: string): Promise<LeadFile[]> {
+  const { data, error } = await supabase
+    .from("lead_files")
+    .select("*")
+    .eq("lead_id", leadId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function uploadLeadFile(leadId: string, file: File, categoria: string): Promise<LeadFile> {
+  const { data: userData } = await supabase.auth.getUser();
+  const uid = userData.user?.id;
+  if (!uid) throw new Error("Não autenticado");
+  const safeName = file.name.replace(/[^\w.\-]+/g, "_");
+  const path = `${leadId}/${Date.now()}-${safeName}`;
+  const up = await supabase.storage.from(FILES_BUCKET).upload(path, file, { upsert: false });
+  if (up.error) throw up.error;
+  const { data, error } = await supabase
+    .from("lead_files")
+    .insert({
+      lead_id: leadId,
+      user_id: uid,
+      nome: file.name,
+      categoria,
+      path,
+      tamanho: file.size,
+      mime: file.type,
+    })
+    .select("*")
+    .single();
+  if (error) throw error;
+  await logLeadEvent(leadId, "arquivo", `Arquivo anexado: ${file.name}`).catch(() => {});
+  return data;
+}
+
+export async function getFileUrl(path: string): Promise<string> {
+  const { data, error } = await supabase.storage.from(FILES_BUCKET).createSignedUrl(path, 3600);
+  if (error) throw error;
+  return data.signedUrl;
+}
+
+export async function deleteLeadFile(f: LeadFile): Promise<void> {
+  await supabase.storage.from(FILES_BUCKET).remove([f.path]);
+  const { error } = await supabase.from("lead_files").delete().eq("id", f.id);
+  if (error) throw error;
+}
+
+// ---------- Team members (for responsável selector) ----------
+export type Member = { id: string; nome: string; email: string };
+
+export async function listMembers(): Promise<Member[]> {
+  const { data, error } = await supabase.from("profiles").select("id, nome, email").order("nome");
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function getLead(id: string): Promise<Lead | null> {
+  const { data, error } = await supabase.from("leads").select("*").eq("id", id).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
