@@ -29,6 +29,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { getTeamMetrics } from "@/lib/leads-api";
 import { STAGE_META, KANBAN_STAGES, ORIGINS, ORIGIN_LABELS } from "@/lib/crm";
 import { formatCurrency } from "@/lib/format";
+import { TodayPanel } from "@/components/today-panel";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard · Pixel CRM" }] }),
@@ -125,6 +126,8 @@ function DashboardPage() {
         <h1 className="font-display text-2xl font-bold">Dashboard</h1>
         <p className="text-sm text-muted-foreground">Olá, {auth?.nome?.split(" ")[0] || "vendedor"} 👋</p>
       </div>
+
+      <TodayPanel />
 
       {isGerente ? (
         <Tabs defaultValue="minha">
