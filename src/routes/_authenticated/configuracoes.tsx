@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { CompanySettingsCard } from "@/components/company-settings-card";
 import { ROLE_LABELS } from "@/lib/crm";
 import type { AppRole } from "@/lib/crm";
 
@@ -107,6 +108,10 @@ function ConfigPage() {
           </Button>
         </CardContent>
       </Card>
+
+      <CompanySettingsCard canEdit={isGerente} />
+
+
 
       {isGerente && (
         <Card>
