@@ -109,6 +109,10 @@ function ConfigPage() {
         </CardContent>
       </Card>
 
+      <CompanySettingsCard canEdit={isGerente} />
+
+
+
       {isGerente && (
         <Card>
           <CardHeader>
