@@ -76,21 +76,44 @@ function LeadsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     const { valid, errors } = await parseLeadsCsv(file);
-    if (errors.length) toast.warning(`${errors.length} linha(s) ignorada(s) por erro de formato.`);
-    if (!valid.length) {
-      toast.error("Nenhum lead válido encontrado no arquivo.");
-    } else {
-      let ok = 0;
-      for (const input of valid) {
-        try {
-          await create.mutateAsync(input);
-          ok++;
-        } catch { /* toast handled */ }
+
+    let importados = 0;
+    const falhas: { row: number; message: string }[] = [...errors];
+
+    for (let i = 0; i < valid.length; i++) {
+      try {
+        await create.mutateAsync(valid[i]);
+        importados++;
+      } catch (err) {
+        falhas.push({
+          row: i + 2,
+          message: err instanceof Error ? err.message : "Erro ao salvar no banco.",
+        });
       }
-      toast.success(`${ok} lead(s) importado(s).`);
     }
+
+    const ignorados = falhas.length;
+    if (importados > 0) {
+      toast.success(`${importados} lead(s) importado(s), ${ignorados} ignorado(s).`);
+    } else {
+      toast.error(`Nenhum lead importado. ${ignorados} linha(s) ignorada(s).`);
+    }
+
+    if (ignorados > 0) {
+      const detalhe = falhas
+        .slice(0, 8)
+        .map((f) => `Linha ${f.row}: ${f.message}`)
+        .join("\n");
+      const extra = ignorados > 8 ? `\n… e mais ${ignorados - 8}.` : "";
+      toast.warning("Motivos das linhas ignoradas", {
+        description: detalhe + extra,
+        duration: 10000,
+      });
+    }
+
     if (fileRef.current) fileRef.current.value = "";
   }
+
 
   return (
     <div className="space-y-5">
