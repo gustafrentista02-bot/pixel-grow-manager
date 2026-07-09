@@ -42,7 +42,7 @@ export function AttentionBlock({ leads, tasks }: { leads: Lead[]; tasks: Task[] 
         href: true,
       },
       {
-        icon: Repeat2Safe,
+        icon: Repeat,
         title: "Follow-ups atrasados",
         leads: followupsAtrasados,
         count: followupsAtrasados.length,
@@ -147,5 +147,3 @@ function AttentionTile({ card }: { card: AttentionCard }) {
   );
 }
 
-// lucide "Repeat" alias kept local to avoid import churn
-import { Repeat as Repeat2Safe } from "lucide-react";
