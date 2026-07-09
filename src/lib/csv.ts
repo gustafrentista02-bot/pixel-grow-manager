@@ -1,7 +1,7 @@
 import Papa from "papaparse";
 import type { Lead, LeadInput } from "@/lib/leads-api";
 import { EMPTY_LEAD_INPUT } from "@/lib/leads-api";
-import { ORIGINS, STAGE_META, STAGES, ORIGIN_LABELS, KANBAN_STAGES } from "@/lib/crm";
+import { ORIGINS, STAGE_META, STAGES, ORIGIN_LABELS } from "@/lib/crm";
 import type { LeadOrigin, LeadStage } from "@/lib/crm";
 import { formatDateTime } from "@/lib/format";
 
