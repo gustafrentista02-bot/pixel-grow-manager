@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Filter } from "lucide-react";
+
 import type { Lead } from "@/lib/leads-api";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -63,4 +63,3 @@ export function FunnelBlock({ leads }: { leads: Lead[] }) {
   );
 }
 
-FunnelBlock.icon = Filter;
