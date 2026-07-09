@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
-import { AlertTriangle, Clock, CalendarClock, FileClock, CheckSquare, ChevronRight } from "lucide-react";
+import { AlertTriangle, Clock, CalendarClock, FileClock, CheckSquare, ChevronRight, Repeat } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { Lead } from "@/lib/leads-api";
 import type { Task } from "@/lib/tasks-api";
