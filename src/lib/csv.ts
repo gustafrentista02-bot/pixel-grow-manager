@@ -121,6 +121,3 @@ export function exportLeadsCsv(leads: Lead[]) {
   a.click();
   URL.revokeObjectURL(url);
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _kanbanStages = KANBAN_STAGES;
