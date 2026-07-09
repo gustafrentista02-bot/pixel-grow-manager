@@ -311,6 +311,17 @@ export async function listEvents(leadId: string): Promise<LeadEvent[]> {
   return data ?? [];
 }
 
+/** Recent activity feed across all leads the user can see (RLS scoped). */
+export async function listRecentEvents(limit = 15): Promise<LeadEvent[]> {
+  const { data, error } = await supabase
+    .from("lead_events")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return data ?? [];
+}
+
 // ---------- Files ----------
 const FILES_BUCKET = "lead-files";
 
