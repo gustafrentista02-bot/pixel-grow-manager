@@ -140,14 +140,47 @@ export async function createLead(input: LeadInput): Promise<Lead> {
   return data;
 }
 
+/** Fields that can be written to the leads table (guards against stray/object values). */
+const LEAD_WRITABLE_KEYS: (keyof LeadInput)[] = [
+  "nome", "telefone", "whatsapp", "cidade", "uf", "empresa", "instagram", "site",
+  "area_atendimento", "segmento", "faturamento_mensal", "valor_contrato", "plano",
+  "status_comercial", "potencial", "origem", "responsavel_id", "observacoes",
+  "tem_perfil_google", "link_perfil_google", "tem_site", "faz_google_ads",
+  "faz_meta_ads", "canais_aquisicao", "objetivo", "dificuldade", "proxima_acao", "stage",
+];
+
+/** Coerce enum/select fields to primitives in case a UI ever passes an option object. */
+function sanitizeLeadInput(input: Partial<LeadInput>): Partial<LeadInput> {
+  const out: Record<string, unknown> = {};
+  for (const key of LEAD_WRITABLE_KEYS) {
+    if (!(key in input)) continue;
+    let value = (input as Record<string, unknown>)[key];
+    // Selects sometimes hand back { value, label } objects — keep only the value.
+    if (value && typeof value === "object" && !Array.isArray(value) && "value" in (value as object)) {
+      value = (value as { value: unknown }).value;
+    }
+    out[key] = value;
+  }
+  return out as Partial<LeadInput>;
+}
+
 export async function updateLead(id: string, input: Partial<LeadInput>): Promise<Lead> {
+  if (!id) throw new Error("ID do lead ausente.");
+  const patch = { ...sanitizeLeadInput(input), last_interaction_at: new Date().toISOString() };
+
   const { data, error } = await supabase
     .from("leads")
-    .update({ ...input, last_interaction_at: new Date().toISOString() })
+    .update(patch)
     .eq("id", id)
     .select("*")
-    .single();
+    .maybeSingle();
+
   if (error) throw error;
+  if (!data) {
+    throw new Error(
+      "Não foi possível salvar: lead não encontrado ou você não tem permissão para editá-lo.",
+    );
+  }
   return data;
 }
 
