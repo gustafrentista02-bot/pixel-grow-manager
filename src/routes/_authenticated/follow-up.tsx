@@ -9,7 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { KanbanCard } from "@/components/kanban-card";
+import { ScheduledMessagesTab } from "@/components/automation/scheduled-messages-tab";
+import { CadencesTab } from "@/components/automation/cadences-tab";
 import { useLeads, useLeadMutations } from "@/hooks/use-leads";
 import { FOLLOWUP_STAGES, FOLLOWUP_META } from "@/lib/crm";
 import type { FollowupStage } from "@/lib/crm";
@@ -124,6 +127,24 @@ function FollowUpPage() {
           {stale > 0 && <> · <span className="text-amber-400">{stale} sem contato há 2+ dias</span></>}
         </p>
       </div>
+
+      <Tabs defaultValue="manual" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="manual">Manual</TabsTrigger>
+          <TabsTrigger value="scheduled">Mensagem única</TabsTrigger>
+          <TabsTrigger value="cadences">Cadências</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="scheduled" className="space-y-4">
+          <ScheduledMessagesTab />
+        </TabsContent>
+
+        <TabsContent value="cadences" className="space-y-4">
+          <CadencesTab />
+        </TabsContent>
+
+        <TabsContent value="manual" className="space-y-4">
+
 
       {followUpLeads.length > 0 && (
         <Card>
@@ -256,6 +277,8 @@ function FollowUpPage() {
           </div>
         </DndContext>
       )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

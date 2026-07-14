@@ -9,6 +9,7 @@ import { ORIGIN_LABELS, FOLLOWUP_META, POTENCIAL_META } from "@/lib/crm";
 import type { FollowupStage, Potencial } from "@/lib/crm";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 import { daysSince } from "@/lib/notifications";
+import { EnrollCadenceButton, LeadCadenceBadge } from "@/components/cadence-controls";
 
 const NEXT_FOLLOWUP: Record<FollowupStage, FollowupStage | null> = {
   followup_1: "followup_2",
@@ -164,7 +165,16 @@ export function KanbanCard({
         </p>
       )}
 
-      {showFollowupInsights && <FollowupInsights lead={lead} />}
+      <LeadCadenceBadge leadId={lead.id} compact />
+
+      {showFollowupInsights && (
+        <>
+          <FollowupInsights lead={lead} />
+          <div className="mt-2 flex justify-end" onPointerDown={(e) => e.stopPropagation()}>
+            <EnrollCadenceButton leadId={lead.id} />
+          </div>
+        </>
+      )}
     </div>
   );
 }
