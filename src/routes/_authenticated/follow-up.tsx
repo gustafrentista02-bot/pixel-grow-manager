@@ -4,7 +4,7 @@ import {
   DndContext, PointerSensor, useSensor, useSensors, useDroppable, type DragEndEvent,
 } from "@dnd-kit/core";
 import { toast } from "sonner";
-import { Copy, MessageCircle, Sparkles, AlertTriangle, ExternalLink } from "lucide-react";
+import { Copy, MessageCircle, Sparkles, AlertTriangle, ExternalLink, Trophy, XCircle, ArrowRightCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
@@ -75,7 +75,7 @@ function Column({ stage, leads }: { stage: FollowupStage; leads: Lead[] }) {
 
 function FollowUpPage() {
   const { data: leads = [] } = useLeads();
-  const { moveFollowup } = useLeadMutations();
+  const { moveFollowup, moveStage } = useLeadMutations();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const [template, setTemplate] = useState(DEFAULT_MESSAGE);
 
