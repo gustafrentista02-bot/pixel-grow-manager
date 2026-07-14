@@ -277,6 +277,8 @@ function FollowUpPage() {
           </div>
         </DndContext>
       )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
