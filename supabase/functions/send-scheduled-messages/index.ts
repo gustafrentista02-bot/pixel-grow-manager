@@ -104,7 +104,7 @@ async function processScheduledMessages() {
     }
     const phone = lead.whatsapp || lead.telefone;
     const text = fillTemplate(row.mensagem, lead);
-    const result = await sendWhatsApp(phone, text);
+    const result = await sendWhatsApp(row.owner_id, phone, text);
     if (result.ok) {
       await supabase.from("scheduled_messages").update({
         status: "enviada", enviado_em: new Date().toISOString(), erro: "",
@@ -147,7 +147,7 @@ async function processCadences() {
     }
     const text = fillTemplate(current.mensagem, lead);
     const phone = lead.whatsapp || lead.telefone;
-    const result = await sendWhatsApp(phone, text);
+    const result = await sendWhatsApp(row.owner_id, phone, text);
     if (result.ok) {
       const nextIdx = enr.current_step + 1;
       const nextStep = steps?.[nextIdx];
