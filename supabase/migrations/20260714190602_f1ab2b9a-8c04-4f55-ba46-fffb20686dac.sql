@@ -1,0 +1,2 @@
+DROP POLICY "Owner manages proposal sends" ON public.proposal_sends;
+CREATE POLICY "Owner manages proposal sends" ON public.proposal_sends FOR ALL TO authenticated USING (auth.uid() = owner_id) WITH CHECK (auth.uid() = owner_id);
