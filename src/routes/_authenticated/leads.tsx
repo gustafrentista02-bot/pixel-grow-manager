@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Plus, Upload, Download, Search, Pencil, Trash2, MessageCircle } from "lucide-react";
+import { Plus, Upload, Download, Search, Pencil, Trash2, MessageCircle, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -31,8 +31,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { LeadFormDialog } from "@/components/lead-form-dialog";
 import { useLeads, useLeadMutations } from "@/hooks/use-leads";
-import { STAGE_META, KANBAN_STAGES, ORIGIN_LABELS } from "@/lib/crm";
-import type { LeadStage } from "@/lib/crm";
+import { STAGE_META, KANBAN_STAGES, ORIGIN_LABELS, ORIGINS, POTENCIAL_OPTIONS, PLANO_OPTIONS } from "@/lib/crm";
+import type { LeadStage, LeadOrigin, Potencial } from "@/lib/crm";
 import type { Lead } from "@/lib/leads-api";
 import { formatCurrency } from "@/lib/format";
 import { buildWhatsappLink } from "@/lib/whatsapp";
