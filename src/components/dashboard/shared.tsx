@@ -73,13 +73,13 @@ export function StatTile({
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-2xl border bg-card/40 p-5 transition-all duration-300 hover:-translate-y-0.5",
+        "group relative overflow-hidden rounded-2xl border p-5 card-premium card-premium-hover",
         t.border,
       )}
     >
       <div
         className={cn(
-          "mb-4 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-105",
+          "mb-4 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110",
           t.chip,
         )}
       >
