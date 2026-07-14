@@ -18,22 +18,25 @@ import type { Cadence } from "@/lib/automation-api";
 type EditableStep = { delay_dias: number; horario: string; mensagem: string };
 const VARIAVEIS = ["{nome}", "{empresa}", "{cidade}"];
 
-function CadenceEditor({ cadence, open, onOpenChange }: {
+function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
   cadence: Cadence;
   open: boolean;
   onOpenChange: (v: boolean) => void;
+  isManager: boolean;
 }) {
   const { data: existingSteps = [] } = useCadenceSteps(open ? cadence.id : null);
   const { saveSteps, updateCadence } = useAutomationMutations();
   const [nome, setNome] = useState(cadence.nome);
+  const [compartilhada, setCompartilhada] = useState(cadence.compartilhada);
   const [steps, setSteps] = useState<EditableStep[]>([]);
 
   useEffect(() => {
     if (open) {
       setNome(cadence.nome);
+      setCompartilhada(cadence.compartilhada);
       setSteps(existingSteps.map((s) => ({ delay_dias: s.delay_dias, horario: s.horario, mensagem: s.mensagem })));
     }
-  }, [open, cadence.nome, existingSteps]);
+  }, [open, cadence.nome, cadence.compartilhada, existingSteps]);
 
   function addStep() {
     setSteps((s) => [...s, { delay_dias: s.length === 0 ? 0 : 2, horario: "09:00", mensagem: "" }]);
