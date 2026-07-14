@@ -25,7 +25,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, FileText, ExternalLink, Star, FileDown } from "lucide-react";
+import { Plus, Pencil, Trash2, FileText, ExternalLink, Star, FileDown, CopyPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -198,6 +198,16 @@ function ProposalsPage() {
                   <div className="flex gap-1">
                     <Button variant="ghost" size="icon" className="h-8 w-8" title="Preview PDF" onClick={() => previewPdf(p)}>
                       <FileDown className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      title="Duplicar"
+                      disabled={atLimit}
+                      onClick={() => create.mutate({ nome: `${p.nome} (cópia)`, tipo: p.tipo, url: p.url, conteudo: p.conteudo, favorito: false })}
+                    >
+                      <CopyPlus className="h-4 w-4" />
                     </Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(p); setOpen(true); }}>
                       <Pencil className="h-4 w-4" />
