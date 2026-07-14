@@ -106,6 +106,7 @@ export type Database = {
       cadences: {
         Row: {
           ativa: boolean
+          compartilhada: boolean
           created_at: string
           id: string
           nome: string
@@ -114,6 +115,7 @@ export type Database = {
         }
         Insert: {
           ativa?: boolean
+          compartilhada?: boolean
           created_at?: string
           id?: string
           nome: string
@@ -122,6 +124,7 @@ export type Database = {
         }
         Update: {
           ativa?: boolean
+          compartilhada?: boolean
           created_at?: string
           id?: string
           nome?: string
@@ -453,6 +456,7 @@ export type Database = {
       message_templates: {
         Row: {
           categoria: string
+          compartilhada: boolean
           conteudo: string
           created_at: string
           favorito: boolean
@@ -463,6 +467,7 @@ export type Database = {
         }
         Insert: {
           categoria?: string
+          compartilhada?: boolean
           conteudo?: string
           created_at?: string
           favorito?: boolean
@@ -473,6 +478,7 @@ export type Database = {
         }
         Update: {
           categoria?: string
+          compartilhada?: boolean
           conteudo?: string
           created_at?: string
           favorito?: boolean
