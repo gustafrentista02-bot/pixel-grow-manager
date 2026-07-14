@@ -79,6 +79,15 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
             <Label className="text-xs">Nome</Label>
             <Input value={nome} onChange={(e) => setNome(e.target.value)} />
           </div>
+          {isManager && (
+            <div className="flex items-center justify-between rounded-md border border-border bg-secondary/40 p-3">
+              <div>
+                <Label className="text-sm">Compartilhar com a equipe</Label>
+                <p className="text-[11px] text-muted-foreground">Toda a equipe verá e poderá usar esta cadência.</p>
+              </div>
+              <Switch checked={compartilhada} onCheckedChange={setCompartilhada} />
+            </div>
+          )}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label className="text-xs">Etapas ({steps.length})</Label>
