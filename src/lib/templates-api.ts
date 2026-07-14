@@ -47,6 +47,7 @@ export type MessageInput = {
   categoria: string;
   conteudo: string;
   favorito?: boolean;
+  compartilhada?: boolean;
 };
 
 // ---- Proposal templates ----
