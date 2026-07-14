@@ -75,6 +75,7 @@ function LeadDetailPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [note, setNote] = useState("");
   const [fileCat, setFileCat] = useState("Proposta");
+  const [timelineFilter, setTimelineFilter] = useState<string>("todos");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const leadQ = useQuery({ queryKey: ["lead", leadId], queryFn: () => getLead(leadId) });
@@ -310,21 +311,12 @@ function LeadDetailPage() {
                 </CardContent>
               </Card>
               <Card className="border-border/60 bg-card/60">
-                <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Timeline</CardTitle></CardHeader>
+                <CardHeader className="pb-2 flex-row items-center justify-between space-y-0">
+                  <CardTitle className="text-sm font-semibold">Timeline</CardTitle>
+                  <TimelineFilters value={timelineFilter} onChange={setTimelineFilter} />
+                </CardHeader>
                 <CardContent>
-                  {eventsQ.data && eventsQ.data.length > 0 ? (
-                    <ol className="relative space-y-4 border-l border-border/60 pl-4">
-                      {eventsQ.data.map((ev) => (
-                        <li key={ev.id} className="relative">
-                          <span className="absolute -left-[21px] top-1.5 h-2 w-2 rounded-full bg-accent" />
-                          <p className="text-[11px] text-muted-foreground">{formatDateTime(ev.created_at)}{ev.autor_nome ? ` · ${ev.autor_nome}` : ""}</p>
-                          <p className="text-sm">{ev.descricao}</p>
-                        </li>
-                      ))}
-                    </ol>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">Nenhum evento ainda.</p>
-                  )}
+                  <TimelineList events={eventsQ.data ?? []} filter={timelineFilter} />
                 </CardContent>
               </Card>
             </TabsContent>
