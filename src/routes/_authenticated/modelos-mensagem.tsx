@@ -153,6 +153,10 @@ function MessageDialog({
 function MessagesPage() {
   const { data: messages = [], isLoading } = useMessages();
   const { create, update, remove } = useMessageMutations();
+  const { data: auth } = useAuth();
+  const { data: profileMap } = useProfiles();
+  const uid = auth?.user?.id ?? "";
+  const isManager = auth?.role === "gerente";
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<MessageTemplate | null>(null);
   const [deleting, setDeleting] = useState<MessageTemplate | null>(null);
