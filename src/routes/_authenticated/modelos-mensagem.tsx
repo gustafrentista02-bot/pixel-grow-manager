@@ -46,7 +46,7 @@ export const Route = createFileRoute("/_authenticated/modelos-mensagem")({
   component: MessagesPage,
 });
 
-const empty: MessageInput = { nome: "", categoria: "outro", conteudo: "", favorito: false };
+const empty: MessageInput = { nome: "", categoria: "outro", conteudo: "", favorito: false, compartilhada: false };
 
 const DEFAULT_MESSAGES: MessageInput[] = [
   { nome: "Primeiro Contato", categoria: "primeiro_contato", conteudo: "Olá {primeiro_nome}! Tudo bem? Sou da Pixel Marketing. Vi seu interesse e gostaria de entender melhor como podemos ajudar a {empresa} a crescer. Podemos conversar?" },
