@@ -5,7 +5,6 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const EVOLUTION_API_URL = Deno.env.get("EVOLUTION_API_URL") ?? "";
 const EVOLUTION_API_KEY = Deno.env.get("EVOLUTION_API_KEY") ?? "";
-const EVOLUTION_INSTANCE = Deno.env.get("EVOLUTION_INSTANCE") ?? "";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -34,14 +33,27 @@ function normalizePhone(phone: string): string {
   return digits.startsWith("55") ? digits : `55${digits}`;
 }
 
-async function sendWhatsApp(phone: string, text: string): Promise<{ ok: boolean; error?: string }> {
-  if (!EVOLUTION_API_URL || !EVOLUTION_API_KEY || !EVOLUTION_INSTANCE) {
-    return { ok: false, error: "Evolution API não configurada (URL/KEY/INSTANCE ausentes)." };
+async function getInstanceForOwner(ownerId: string): Promise<{ name: string; connected: boolean } | null> {
+  const { data } = await supabase
+    .from("whatsapp_instances")
+    .select("instance_name, status")
+    .eq("owner_id", ownerId)
+    .maybeSingle();
+  if (!data) return null;
+  return { name: data.instance_name, connected: data.status === "conectado" };
+}
+
+async function sendWhatsApp(ownerId: string, phone: string, text: string): Promise<{ ok: boolean; error?: string }> {
+  if (!EVOLUTION_API_URL || !EVOLUTION_API_KEY) {
+    return { ok: false, error: "Evolution API não configurada (URL/KEY ausentes)." };
   }
+  const inst = await getInstanceForOwner(ownerId);
+  if (!inst) return { ok: false, error: "Usuário sem WhatsApp conectado." };
+  if (!inst.connected) return { ok: false, error: "WhatsApp do usuário está desconectado." };
   const number = normalizePhone(phone);
   if (!number) return { ok: false, error: "Lead sem telefone válido." };
   try {
-    const res = await fetch(`${EVOLUTION_API_URL}/message/sendText/${EVOLUTION_INSTANCE}`, {
+    const res = await fetch(`${EVOLUTION_API_URL}/message/sendText/${inst.name}`, {
       method: "POST",
       headers: { "Content-Type": "application/json", apikey: EVOLUTION_API_KEY },
       body: JSON.stringify({ number, text }),
@@ -92,7 +104,7 @@ async function processScheduledMessages() {
     }
     const phone = lead.whatsapp || lead.telefone;
     const text = fillTemplate(row.mensagem, lead);
-    const result = await sendWhatsApp(phone, text);
+    const result = await sendWhatsApp(row.owner_id, phone, text);
     if (result.ok) {
       await supabase.from("scheduled_messages").update({
         status: "enviada", enviado_em: new Date().toISOString(), erro: "",
@@ -135,7 +147,7 @@ async function processCadences() {
     }
     const text = fillTemplate(current.mensagem, lead);
     const phone = lead.whatsapp || lead.telefone;
-    const result = await sendWhatsApp(phone, text);
+    const result = await sendWhatsApp(enr.owner_id, phone, text);
     if (result.ok) {
       const nextIdx = enr.current_step + 1;
       const nextStep = steps?.[nextIdx];

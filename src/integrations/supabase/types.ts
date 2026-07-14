@@ -495,18 +495,21 @@ export type Database = {
           email: string
           id: string
           nome: string
+          status: string
         }
         Insert: {
           created_at?: string
           email?: string
           id: string
           nome?: string
+          status?: string
         }
         Update: {
           created_at?: string
           email?: string
           id?: string
           nome?: string
+          status?: string
         }
         Relationships: []
       }
@@ -724,6 +727,39 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      whatsapp_instances: {
+        Row: {
+          connected_at: string | null
+          created_at: string
+          id: string
+          instance_name: string
+          numero_conectado: string
+          owner_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          connected_at?: string | null
+          created_at?: string
+          id?: string
+          instance_name: string
+          numero_conectado?: string
+          owner_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          connected_at?: string | null
+          created_at?: string
+          id?: string
+          instance_name?: string
+          numero_conectado?: string
+          owner_id?: string
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }

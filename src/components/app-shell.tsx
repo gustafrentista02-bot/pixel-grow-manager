@@ -1,14 +1,49 @@
 import type { ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { NotificationBell } from "@/components/notification-bell";
 import { CommandPalette } from "@/components/command-palette";
 import { ShortcutsHelp, useGlobalShortcuts } from "@/components/shortcuts";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, Clock, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+import { pixelLogo } from "@/lib/assets";
 
 export function AppShell({ children }: { children: ReactNode }) {
   useGlobalShortcuts();
+  const { data: auth, isLoading } = useAuth();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  async function signOut() {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  }
+
+  if (!isLoading && auth?.user && auth.status === "pendente") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-6">
+        <div className="w-full max-w-md rounded-lg border border-border bg-card p-8 text-center shadow-lg">
+          <img src={pixelLogo} alt="Pixel" className="mx-auto mb-4 h-12 w-12 object-contain" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Clock className="h-6 w-6" />
+          </div>
+          <h1 className="font-display text-xl font-bold">Aguardando aprovação</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Seu cadastro está aguardando aprovação do gerente. Você receberá acesso assim que for liberado.
+          </p>
+          <Button className="mt-6 gap-2" variant="outline" onClick={signOut}>
+            <LogOut className="h-4 w-4" /> Sair
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider>
