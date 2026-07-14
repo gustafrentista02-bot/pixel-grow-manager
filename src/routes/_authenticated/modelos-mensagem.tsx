@@ -25,15 +25,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Copy, Sparkles, MessageSquare, Star, Search, CopyPlus } from "lucide-react";
+import { Plus, Pencil, Trash2, Copy, Sparkles, MessageSquare, Star, Search, CopyPlus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useMessages, useMessageMutations } from "@/hooks/use-templates";
+import { useAuth } from "@/hooks/use-auth";
+import { useProfiles } from "@/hooks/use-profiles";
 import { MESSAGE_CATEGORY_LABELS, type MessageCategory, type MessageInput, type MessageTemplate } from "@/lib/templates-api";
 import { TEMPLATE_VARS } from "@/lib/template-vars";
 import { cn } from "@/lib/utils";
