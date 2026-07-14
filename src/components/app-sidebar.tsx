@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Users, KanbanSquare, Repeat, Settings, LogOut, CheckSquare, FileText, MessageSquare } from "lucide-react";
+import { LayoutDashboard, Users, KanbanSquare, Repeat, Settings, LogOut, CheckSquare, FileText, MessageSquare, Calendar } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Sidebar,
