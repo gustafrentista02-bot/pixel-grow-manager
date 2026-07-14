@@ -51,26 +51,65 @@ function LeadsPage() {
 
   const [search, setSearch] = useState("");
   const [stageFilter, setStageFilter] = useState<LeadStage | "todos">("todos");
+  const [origemFilter, setOrigemFilter] = useState<LeadOrigin | "todos">("todos");
+  const [potFilter, setPotFilter] = useState<Potencial | "todos">("todos");
+  const [planoFilter, setPlanoFilter] = useState<string>("todos");
+  const [cidadeFilter, setCidadeFilter] = useState("");
+  const [valorMin, setValorMin] = useState<string>("");
+  const [diasMin, setDiasMin] = useState<string>("");
+  const [showFilters, setShowFilters] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Lead | null>(null);
   const [deleting, setDeleting] = useState<Lead | null>(null);
 
+  const activeFilters =
+    (stageFilter !== "todos" ? 1 : 0) +
+    (origemFilter !== "todos" ? 1 : 0) +
+    (potFilter !== "todos" ? 1 : 0) +
+    (planoFilter !== "todos" ? 1 : 0) +
+    (cidadeFilter ? 1 : 0) +
+    (valorMin ? 1 : 0) +
+    (diasMin ? 1 : 0);
+
+  function clearFilters() {
+    setStageFilter("todos"); setOrigemFilter("todos"); setPotFilter("todos");
+    setPlanoFilter("todos"); setCidadeFilter(""); setValorMin(""); setDiasMin("");
+  }
+
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
+    const vMin = valorMin ? Number(valorMin) : 0;
+    const dMin = diasMin ? Number(diasMin) : 0;
+    const cQ = cidadeFilter.toLowerCase();
+    const now = Date.now();
     return leads.filter((l) => {
       const matchSearch =
         !q ||
         l.nome.toLowerCase().includes(q) ||
         l.empresa.toLowerCase().includes(q) ||
-        l.telefone.includes(q) ||
-        l.whatsapp.includes(q) ||
-        l.instagram.toLowerCase().includes(q) ||
-        l.cidade.toLowerCase().includes(q) ||
-        l.segmento.toLowerCase().includes(q);
-      const matchStage = stageFilter === "todos" || l.stage === stageFilter;
-      return matchSearch && matchStage;
+        (l.telefone ?? "").includes(q) ||
+        (l.whatsapp ?? "").includes(q) ||
+        (l.instagram ?? "").toLowerCase().includes(q) ||
+        (l.cidade ?? "").toLowerCase().includes(q) ||
+        (l.segmento ?? "").toLowerCase().includes(q) ||
+        (l.plano ?? "").toLowerCase().includes(q) ||
+        (l.site ?? "").toLowerCase().includes(q) ||
+        (l.observacoes ?? "").toLowerCase().includes(q);
+      if (!matchSearch) return false;
+      if (stageFilter !== "todos" && l.stage !== stageFilter) return false;
+      if (origemFilter !== "todos" && l.origem !== origemFilter) return false;
+      if (potFilter !== "todos" && l.potencial !== potFilter) return false;
+      if (planoFilter !== "todos" && l.plano !== planoFilter) return false;
+      if (cQ && !(l.cidade ?? "").toLowerCase().includes(cQ)) return false;
+      if (vMin && (l.valor_contrato ?? 0) < vMin) return false;
+      if (dMin) {
+        const last = l.last_interaction_at ? new Date(l.last_interaction_at).getTime() : new Date(l.created_at).getTime();
+        const dias = Math.floor((now - last) / 86400000);
+        if (dias < dMin) return false;
+      }
+      return true;
     });
-  }, [leads, search, stageFilter]);
+  }, [leads, search, stageFilter, origemFilter, potFilter, planoFilter, cidadeFilter, valorMin, diasMin]);
 
   async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
