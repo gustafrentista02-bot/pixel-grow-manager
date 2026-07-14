@@ -20,6 +20,7 @@ import {
   type ProposalType,
   type ProposalTemplate,
 } from "@/lib/templates-api";
+import { logLeadEvent } from "@/lib/leads-api";
 import { buildWhatsappLink } from "@/lib/whatsapp";
 import { downloadProposalPdf } from "@/lib/pdf-proposal";
 import { useCompanySettings } from "@/hooks/use-company";
@@ -61,6 +62,9 @@ export function ProposalSendDialog({
         observacao: "",
       });
       qc.invalidateQueries({ queryKey: ["proposal-sends", lead.id] });
+      qc.invalidateQueries({ queryKey: ["lead-events", lead.id] });
+      const valorFmt = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor || lead.valor_contrato || 0);
+      logLeadEvent(lead.id, "proposta", `Proposta enviada: ${p.nome} (${valorFmt})`).catch(() => {});
     } catch (e) {
       toast.error("Não foi possível registrar o envio", { description: e instanceof Error ? e.message : "" });
     }
