@@ -1,15 +1,18 @@
 import { useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Calendar, CalendarClock, CheckCircle2, Circle, Video, Users, MapPin } from "lucide-react";
+import { Calendar, CalendarClock, CheckCircle2, Circle, Video, Users, MapPin, XCircle, Pencil } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTasks, useTaskMutations } from "@/hooks/use-tasks";
-import { useLeads } from "@/hooks/use-leads";
+import { useLeads, useLeadMutations } from "@/hooks/use-leads";
 import type { Task, TaskCategoria, TaskPrioridade } from "@/lib/tasks-api";
 import { TASK_CATEGORIES, TASK_PRIORITIES } from "@/lib/tasks-api";
+import { updateLead } from "@/lib/leads-api";
 import type { Lead } from "@/lib/leads-api";
 import { formatDate } from "@/lib/format";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/agenda")({
   head: () => ({ meta: [{ title: "Agenda · Pixel CRM" }] }),
@@ -70,6 +73,28 @@ function AgendaPage() {
   const { data: tasks = [] } = useTasks();
   const { data: leads = [] } = useLeads();
   const { toggle } = useTaskMutations();
+  const { move } = useLeadMutations();
+  const qc = useQueryClient();
+
+  async function cancelMeeting(l: Lead) {
+    if (!confirm(`Cancelar a reunião com ${l.nome}?`)) return;
+    try {
+      await updateLead(l.id, { proxima_acao: "" });
+      // Zera reuniao_at diretamente pois não faz parte do LeadInput
+      const { supabase } = await import("@/integrations/supabase/client");
+      await supabase.from("leads").update({ reuniao_at: null, meet_link: "" }).eq("id", l.id);
+      qc.invalidateQueries({ queryKey: ["leads"] });
+      qc.invalidateQueries({ queryKey: ["lead", l.id] });
+      toast.success("Reunião cancelada");
+    } catch (e) {
+      toast.error("Erro ao cancelar", { description: e instanceof Error ? e.message : "" });
+    }
+  }
+
+  function concludeMeeting(l: Lead) {
+    move.mutate({ lead: l, to: "ganho" });
+    toast.success("Marcado como ganho 🎉");
+  }
 
   const items = useMemo(() => {
     const out: AgendaItem[] = [];
@@ -131,11 +156,21 @@ function AgendaPage() {
             <div className="flex flex-col gap-1">
               {l.meet_link && (
                 <Button asChild size="sm" variant="outline" className="h-8 text-xs">
-                  <a href={l.meet_link} target="_blank" rel="noopener noreferrer">Abrir Meet</a>
+                  <a href={l.meet_link} target="_blank" rel="noopener noreferrer">
+                    <Video className="mr-1 h-3 w-3" /> Meet
+                  </a>
                 </Button>
               )}
               <Button asChild size="sm" variant="ghost" className="h-8 text-xs">
-                <Link to="/leads/$leadId" params={{ leadId: l.id }}>Abrir lead</Link>
+                <Link to="/leads/$leadId" params={{ leadId: l.id }}>
+                  <Pencil className="mr-1 h-3 w-3" /> Editar
+                </Link>
+              </Button>
+              <Button size="sm" variant="ghost" className="h-8 text-xs text-emerald-300" onClick={() => concludeMeeting(l)}>
+                <CheckCircle2 className="mr-1 h-3 w-3" /> Concluir
+              </Button>
+              <Button size="sm" variant="ghost" className="h-8 text-xs text-destructive" onClick={() => cancelMeeting(l)}>
+                <XCircle className="mr-1 h-3 w-3" /> Cancelar
               </Button>
             </div>
           </CardContent>
