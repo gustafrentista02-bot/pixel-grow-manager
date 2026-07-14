@@ -420,6 +420,7 @@ export type Database = {
       }
       tasks: {
         Row: {
+          categoria: string
           created_at: string
           descricao: string
           done: boolean
@@ -429,10 +430,12 @@ export type Database = {
           id: string
           lead_id: string | null
           owner_id: string
+          prioridade: string
           titulo: string
           updated_at: string
         }
         Insert: {
+          categoria?: string
           created_at?: string
           descricao?: string
           done?: boolean
@@ -442,10 +445,12 @@ export type Database = {
           id?: string
           lead_id?: string | null
           owner_id: string
+          prioridade?: string
           titulo: string
           updated_at?: string
         }
         Update: {
+          categoria?: string
           created_at?: string
           descricao?: string
           done?: boolean
@@ -455,6 +460,7 @@ export type Database = {
           id?: string
           lead_id?: string | null
           owner_id?: string
+          prioridade?: string
           titulo?: string
           updated_at?: string
         }

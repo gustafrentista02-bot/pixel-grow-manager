@@ -3,13 +3,33 @@ import type { Tables } from "@/integrations/supabase/types";
 
 export type Task = Tables<"tasks">;
 
+export const TASK_CATEGORIES = [
+  { value: "ligacao", label: "Ligação", emoji: "📞" },
+  { value: "email", label: "E-mail", emoji: "✉️" },
+  { value: "reuniao", label: "Reunião", emoji: "🗓️" },
+  { value: "proposta", label: "Proposta", emoji: "📄" },
+  { value: "followup", label: "Follow-up", emoji: "🔁" },
+  { value: "outro", label: "Outro", emoji: "•" },
+] as const;
+export type TaskCategoria = (typeof TASK_CATEGORIES)[number]["value"];
+
+export const TASK_PRIORITIES = [
+  { value: "alta", label: "Alta", color: "text-rose-300 border-rose-500/30 bg-rose-500/10" },
+  { value: "media", label: "Média", color: "text-amber-300 border-amber-500/30 bg-amber-500/10" },
+  { value: "baixa", label: "Baixa", color: "text-sky-300 border-sky-500/30 bg-sky-500/10" },
+] as const;
+export type TaskPrioridade = (typeof TASK_PRIORITIES)[number]["value"];
+
 export type TaskInput = {
   titulo: string;
   descricao: string;
   due_date: string | null;
   due_time: string | null;
   lead_id: string | null;
+  categoria: TaskCategoria;
+  prioridade: TaskPrioridade;
 };
+
 
 export async function listTasks(): Promise<Task[]> {
   const { data, error } = await supabase
