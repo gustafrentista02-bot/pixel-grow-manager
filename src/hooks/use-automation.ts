@@ -47,7 +47,8 @@ export function useAutomationMutations() {
       onError: (e: Error) => toast.error("Erro", { description: e.message }),
     }),
     createCadence: useMutation({
-      mutationFn: (nome: string) => createCadence(nome),
+      mutationFn: ({ nome, compartilhada }: { nome: string; compartilhada?: boolean }) =>
+        createCadence(nome, compartilhada),
       onSuccess: () => { invCad(); toast.success("Cadência criada!"); },
       onError: (e: Error) => toast.error("Erro", { description: e.message }),
     }),
