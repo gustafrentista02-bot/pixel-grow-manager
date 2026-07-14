@@ -339,6 +339,7 @@ export type Database = {
           categoria: string
           conteudo: string
           created_at: string
+          favorito: boolean
           id: string
           nome: string
           owner_id: string
@@ -348,6 +349,7 @@ export type Database = {
           categoria?: string
           conteudo?: string
           created_at?: string
+          favorito?: boolean
           id?: string
           nome: string
           owner_id: string
@@ -357,6 +359,7 @@ export type Database = {
           categoria?: string
           conteudo?: string
           created_at?: string
+          favorito?: boolean
           id?: string
           nome?: string
           owner_id?: string
@@ -385,10 +388,68 @@ export type Database = {
         }
         Relationships: []
       }
+      proposal_sends: {
+        Row: {
+          created_at: string
+          enviada_em: string
+          id: string
+          lead_id: string
+          nome: string
+          observacao: string
+          owner_id: string
+          proposal_id: string | null
+          status: string
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          enviada_em?: string
+          id?: string
+          lead_id: string
+          nome?: string
+          observacao?: string
+          owner_id: string
+          proposal_id?: string | null
+          status?: string
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          created_at?: string
+          enviada_em?: string
+          id?: string
+          lead_id?: string
+          nome?: string
+          observacao?: string
+          owner_id?: string
+          proposal_id?: string | null
+          status?: string
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_sends_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposal_sends_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposal_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       proposal_templates: {
         Row: {
           conteudo: string
           created_at: string
+          favorito: boolean
           id: string
           nome: string
           owner_id: string
@@ -399,6 +460,7 @@ export type Database = {
         Insert: {
           conteudo?: string
           created_at?: string
+          favorito?: boolean
           id?: string
           nome: string
           owner_id: string
@@ -409,6 +471,7 @@ export type Database = {
         Update: {
           conteudo?: string
           created_at?: string
+          favorito?: boolean
           id?: string
           nome?: string
           owner_id?: string

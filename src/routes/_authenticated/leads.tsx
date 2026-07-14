@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Plus, Upload, Download, Search, Pencil, Trash2, MessageCircle } from "lucide-react";
+import { Plus, Upload, Download, Search, Pencil, Trash2, MessageCircle, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -31,8 +31,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { LeadFormDialog } from "@/components/lead-form-dialog";
 import { useLeads, useLeadMutations } from "@/hooks/use-leads";
-import { STAGE_META, KANBAN_STAGES, ORIGIN_LABELS } from "@/lib/crm";
-import type { LeadStage } from "@/lib/crm";
+import { STAGE_META, KANBAN_STAGES, ORIGIN_LABELS, ORIGINS, POTENCIAL_OPTIONS, PLANO_OPTIONS } from "@/lib/crm";
+import type { LeadStage, LeadOrigin, Potencial } from "@/lib/crm";
 import type { Lead } from "@/lib/leads-api";
 import { formatCurrency } from "@/lib/format";
 import { buildWhatsappLink } from "@/lib/whatsapp";
@@ -51,26 +51,65 @@ function LeadsPage() {
 
   const [search, setSearch] = useState("");
   const [stageFilter, setStageFilter] = useState<LeadStage | "todos">("todos");
+  const [origemFilter, setOrigemFilter] = useState<LeadOrigin | "todos">("todos");
+  const [potFilter, setPotFilter] = useState<Potencial | "todos">("todos");
+  const [planoFilter, setPlanoFilter] = useState<string>("todos");
+  const [cidadeFilter, setCidadeFilter] = useState("");
+  const [valorMin, setValorMin] = useState<string>("");
+  const [diasMin, setDiasMin] = useState<string>("");
+  const [showFilters, setShowFilters] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Lead | null>(null);
   const [deleting, setDeleting] = useState<Lead | null>(null);
 
+  const activeFilters =
+    (stageFilter !== "todos" ? 1 : 0) +
+    (origemFilter !== "todos" ? 1 : 0) +
+    (potFilter !== "todos" ? 1 : 0) +
+    (planoFilter !== "todos" ? 1 : 0) +
+    (cidadeFilter ? 1 : 0) +
+    (valorMin ? 1 : 0) +
+    (diasMin ? 1 : 0);
+
+  function clearFilters() {
+    setStageFilter("todos"); setOrigemFilter("todos"); setPotFilter("todos");
+    setPlanoFilter("todos"); setCidadeFilter(""); setValorMin(""); setDiasMin("");
+  }
+
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
+    const vMin = valorMin ? Number(valorMin) : 0;
+    const dMin = diasMin ? Number(diasMin) : 0;
+    const cQ = cidadeFilter.toLowerCase();
+    const now = Date.now();
     return leads.filter((l) => {
       const matchSearch =
         !q ||
         l.nome.toLowerCase().includes(q) ||
         l.empresa.toLowerCase().includes(q) ||
-        l.telefone.includes(q) ||
-        l.whatsapp.includes(q) ||
-        l.instagram.toLowerCase().includes(q) ||
-        l.cidade.toLowerCase().includes(q) ||
-        l.segmento.toLowerCase().includes(q);
-      const matchStage = stageFilter === "todos" || l.stage === stageFilter;
-      return matchSearch && matchStage;
+        (l.telefone ?? "").includes(q) ||
+        (l.whatsapp ?? "").includes(q) ||
+        (l.instagram ?? "").toLowerCase().includes(q) ||
+        (l.cidade ?? "").toLowerCase().includes(q) ||
+        (l.segmento ?? "").toLowerCase().includes(q) ||
+        (l.plano ?? "").toLowerCase().includes(q) ||
+        (l.site ?? "").toLowerCase().includes(q) ||
+        (l.observacoes ?? "").toLowerCase().includes(q);
+      if (!matchSearch) return false;
+      if (stageFilter !== "todos" && l.stage !== stageFilter) return false;
+      if (origemFilter !== "todos" && l.origem !== origemFilter) return false;
+      if (potFilter !== "todos" && l.potencial !== potFilter) return false;
+      if (planoFilter !== "todos" && l.plano !== planoFilter) return false;
+      if (cQ && !(l.cidade ?? "").toLowerCase().includes(cQ)) return false;
+      if (vMin && (l.valor_contrato ?? 0) < vMin) return false;
+      if (dMin) {
+        const last = l.last_interaction_at ? new Date(l.last_interaction_at).getTime() : new Date(l.created_at).getTime();
+        const dias = Math.floor((now - last) / 86400000);
+        if (dias < dMin) return false;
+      }
+      return true;
     });
-  }, [leads, search, stageFilter]);
+  }, [leads, search, stageFilter, origemFilter, potFilter, planoFilter, cidadeFilter, valorMin, diasMin]);
 
   async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -136,20 +175,78 @@ function LeadsPage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <div className="relative flex-1 min-w-48">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-8" placeholder="Buscar por nome, empresa ou telefone" value={search} onChange={(e) => setSearch(e.target.value)} />
+      <div className="space-y-2">
+        <div className="flex flex-wrap gap-2">
+          <div className="relative flex-1 min-w-48">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input className="pl-8" placeholder="Buscar em nome, empresa, telefone, cidade, plano, obs..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          </div>
+          <Select value={stageFilter} onValueChange={(v) => setStageFilter(v as LeadStage | "todos")}>
+            <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os estágios</SelectItem>
+              {KANBAN_STAGES.map((s) => (
+                <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button variant={showFilters ? "default" : "outline"} size="sm" onClick={() => setShowFilters((v) => !v)}>
+            <SlidersHorizontal className="mr-1.5 h-4 w-4" /> Filtros
+            {activeFilters > 0 && <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-[10px]">{activeFilters}</Badge>}
+          </Button>
+          {activeFilters > 0 && (
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <X className="mr-1 h-3.5 w-3.5" /> Limpar
+            </Button>
+          )}
         </div>
-        <Select value={stageFilter} onValueChange={(v) => setStageFilter(v as LeadStage | "todos")}>
-          <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os estágios</SelectItem>
-            {KANBAN_STAGES.map((s) => (
-              <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+
+        {showFilters && (
+          <div className="grid gap-2 rounded-lg border border-border bg-secondary/30 p-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Origem</label>
+              <Select value={origemFilter} onValueChange={(v) => setOrigemFilter(v as LeadOrigin | "todos")}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todas</SelectItem>
+                  {ORIGINS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Potencial</label>
+              <Select value={potFilter} onValueChange={(v) => setPotFilter(v as Potencial | "todos")}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {POTENCIAL_OPTIONS.map((p) => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Plano</label>
+              <Select value={planoFilter} onValueChange={setPlanoFilter}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {PLANO_OPTIONS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Cidade contém</label>
+              <Input className="h-9" value={cidadeFilter} onChange={(e) => setCidadeFilter(e.target.value)} placeholder="Ex.: Curitiba" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Valor contrato ≥</label>
+              <Input className="h-9" type="number" min={0} value={valorMin} onChange={(e) => setValorMin(e.target.value)} placeholder="1000" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Sem contato há ≥ dias</label>
+              <Input className="h-9" type="number" min={0} value={diasMin} onChange={(e) => setDiasMin(e.target.value)} placeholder="3" />
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="rounded-xl border border-border bg-card">
