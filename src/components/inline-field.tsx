@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 type Props = {
   label: string;
   value: string | number | null | undefined;
-  onSave: (v: string) => Promise<void> | void;
+  onSave: (v: string) => Promise<unknown> | unknown;
   placeholder?: string;
   type?: "text" | "number" | "url" | "tel" | "email";
   className?: string;
