@@ -10,6 +10,8 @@ import {
   Activity,
   Trophy,
   ArrowRight,
+  MapPin,
+  Target,
 } from "lucide-react";
 import {
   Table,
@@ -32,6 +34,7 @@ import { FinanceBlock } from "@/components/dashboard/finance-block";
 import { MeetingsBlock } from "@/components/dashboard/meetings-block";
 import { RecentLeadsBlock } from "@/components/dashboard/recent-leads-block";
 import { ActivityBlock } from "@/components/dashboard/activity-block";
+import { SeoLocalBlock, ForecastBlock } from "@/components/dashboard/seo-local-block";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard · Pixel CRM" }] }),
@@ -80,6 +83,24 @@ function DashboardPage() {
       {/* BLOCO 4 — FINANCEIRO */}
       <Block title="Financeiro" icon={Wallet}>
         <FinanceBlock leads={leads} />
+      </Block>
+
+      {/* BLOCO 4.5 — PREVISÃO PONDERADA */}
+      <Block title="Previsão de fechamento" icon={Target}>
+        <ForecastBlock leads={leads} />
+      </Block>
+
+      {/* BLOCO 4.75 — SEO LOCAL (foco do negócio) */}
+      <Block
+        title="Oportunidades de SEO Local"
+        icon={MapPin}
+        action={
+          <Link to="/leads" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+            Ver leads <ArrowRight className="h-3 w-3" />
+          </Link>
+        }
+      >
+        <SeoLocalBlock leads={leads} />
       </Block>
 
       {/* BLOCOS 5 + 6 lado a lado */}
