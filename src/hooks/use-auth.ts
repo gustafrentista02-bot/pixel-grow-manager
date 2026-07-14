@@ -9,6 +9,7 @@ export type AuthContext = {
   nome: string;
   email: string;
   role: AppRole | null;
+  status: "pendente" | "aprovado" | null;
 };
 
 async function loadAuthContext(): Promise<AuthContext> {
