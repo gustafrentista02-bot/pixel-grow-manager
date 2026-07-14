@@ -33,14 +33,27 @@ function normalizePhone(phone: string): string {
   return digits.startsWith("55") ? digits : `55${digits}`;
 }
 
-async function sendWhatsApp(phone: string, text: string): Promise<{ ok: boolean; error?: string }> {
-  if (!EVOLUTION_API_URL || !EVOLUTION_API_KEY || !EVOLUTION_INSTANCE) {
-    return { ok: false, error: "Evolution API não configurada (URL/KEY/INSTANCE ausentes)." };
+async function getInstanceForOwner(ownerId: string): Promise<{ name: string; connected: boolean } | null> {
+  const { data } = await supabase
+    .from("whatsapp_instances")
+    .select("instance_name, status")
+    .eq("owner_id", ownerId)
+    .maybeSingle();
+  if (!data) return null;
+  return { name: data.instance_name, connected: data.status === "conectado" };
+}
+
+async function sendWhatsApp(ownerId: string, phone: string, text: string): Promise<{ ok: boolean; error?: string }> {
+  if (!EVOLUTION_API_URL || !EVOLUTION_API_KEY) {
+    return { ok: false, error: "Evolution API não configurada (URL/KEY ausentes)." };
   }
+  const inst = await getInstanceForOwner(ownerId);
+  if (!inst) return { ok: false, error: "Usuário sem WhatsApp conectado." };
+  if (!inst.connected) return { ok: false, error: "WhatsApp do usuário está desconectado." };
   const number = normalizePhone(phone);
   if (!number) return { ok: false, error: "Lead sem telefone válido." };
   try {
-    const res = await fetch(`${EVOLUTION_API_URL}/message/sendText/${EVOLUTION_INSTANCE}`, {
+    const res = await fetch(`${EVOLUTION_API_URL}/message/sendText/${inst.name}`, {
       method: "POST",
       headers: { "Content-Type": "application/json", apikey: EVOLUTION_API_KEY },
       body: JSON.stringify({ number, text }),
