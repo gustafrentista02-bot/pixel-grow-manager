@@ -147,13 +147,60 @@
     border-color: var(--color-border);
   }
 
+  html {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv11", "ss01", "ss03";
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    background-image:
+      radial-gradient(1200px 600px at 100% -10%, color-mix(in oklab, var(--primary) 6%, transparent), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, color-mix(in oklab, var(--accent) 5%, transparent), transparent 55%);
+    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);
+    letter-spacing: -0.015em;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--accent) 35%, transparent);
+    color: var(--foreground);
+  }
+
+  /* Refined scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background-color: color-mix(in oklab, var(--foreground) 12%, transparent);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in oklab, var(--foreground) 22%, transparent);
+    background-clip: content-box;
   }
 }
+
+@utility card-premium {
+  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  background-color: color-mix(in oklab, var(--card) 60%, transparent);
+  backdrop-filter: blur(6px);
+  transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+}
+
+@utility card-premium-hover {
+  &:hover {
+    border-color: color-mix(in oklab, var(--accent) 30%, var(--border));
+    transform: translateY(-1px);
+    box-shadow: 0 10px 30px -18px color-mix(in oklab, var(--accent) 40%, transparent);
+  }
+}
+
