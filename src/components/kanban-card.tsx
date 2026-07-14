@@ -165,7 +165,16 @@ export function KanbanCard({
         </p>
       )}
 
-      {showFollowupInsights && <FollowupInsights lead={lead} />}
+      <LeadCadenceBadge leadId={lead.id} compact />
+
+      {showFollowupInsights && (
+        <>
+          <FollowupInsights lead={lead} />
+          <div className="mt-2 flex justify-end" onPointerDown={(e) => e.stopPropagation()}>
+            <EnrollCadenceButton leadId={lead.id} />
+          </div>
+        </>
+      )}
     </div>
   );
 }
