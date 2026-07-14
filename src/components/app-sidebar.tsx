@@ -35,6 +35,20 @@ export function AppSidebar() {
   const queryClient = useQueryClient();
   const { data: auth } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isGerente = auth?.role === "gerente";
+
+  const { data: pendingCount = 0 } = useQuery({
+    queryKey: ["pending-count"],
+    enabled: isGerente,
+    refetchInterval: 30_000,
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pendente");
+      return count ?? 0;
+    },
+  });
 
   async function signOut() {
     await queryClient.cancelQueries();
