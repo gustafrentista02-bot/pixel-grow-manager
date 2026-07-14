@@ -13,7 +13,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { ROLE_LABELS } from "@/lib/crm";
 import { pixelLogo as logo } from "@/lib/assets";
