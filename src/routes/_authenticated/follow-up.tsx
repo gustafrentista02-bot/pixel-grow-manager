@@ -128,6 +128,24 @@ function FollowUpPage() {
         </p>
       </div>
 
+      <Tabs defaultValue="manual" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="manual">Manual</TabsTrigger>
+          <TabsTrigger value="scheduled">Mensagem única</TabsTrigger>
+          <TabsTrigger value="cadences">Cadências</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="scheduled" className="space-y-4">
+          <ScheduledMessagesTab />
+        </TabsContent>
+
+        <TabsContent value="cadences" className="space-y-4">
+          <CadencesTab />
+        </TabsContent>
+
+        <TabsContent value="manual" className="space-y-4">
+
+
       {followUpLeads.length > 0 && (
         <Card>
           <CardContent className="grid gap-4 p-4 lg:grid-cols-[1fr_1fr]">
