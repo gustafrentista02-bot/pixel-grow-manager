@@ -23,6 +23,7 @@ import { LeadFormDialog } from "@/components/lead-form-dialog";
 import { LeadSidebar } from "@/components/lead-sidebar";
 import { LeadQuickNotes } from "@/components/lead-quick-notes";
 import { LeadProposalsList } from "@/components/lead-proposals-list";
+import { InlineField } from "@/components/inline-field";
 import {
   getLead, listEvents, listFiles, uploadLeadFile, getFileUrl, deleteLeadFile,
   addNote, updateLead, deleteLead, logLeadEvent, type LeadFile,
@@ -65,6 +66,66 @@ function YesNo({ v }: { v: boolean }) {
   );
 }
 
+const EVENT_META: Record<string, { label: string; color: string; dot: string }> = {
+  criado:        { label: "Criado",       color: "text-sky-400",     dot: "bg-sky-400" },
+  atualizado:    { label: "Atualizado",   color: "text-muted-foreground", dot: "bg-muted-foreground" },
+  nota:          { label: "Nota",         color: "text-accent",      dot: "bg-accent" },
+  movimentacao:  { label: "Movimentação", color: "text-violet-400",  dot: "bg-violet-400" },
+  arquivo:       { label: "Arquivo",      color: "text-amber-400",   dot: "bg-amber-400" },
+  proposta:      { label: "Proposta",     color: "text-emerald-400", dot: "bg-emerald-400" },
+};
+
+const FILTER_ORDER = ["todos", "nota", "movimentacao", "atualizado", "arquivo", "proposta"];
+
+function TimelineFilters({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="flex flex-wrap gap-1">
+      {FILTER_ORDER.map((f) => {
+        const meta = f === "todos" ? { label: "Todos", color: "text-foreground" } : EVENT_META[f] ?? { label: f, color: "text-foreground" };
+        const active = value === f;
+        return (
+          <button
+            key={f}
+            onClick={() => onChange(f)}
+            className={`rounded-full border px-2 py-0.5 text-[11px] transition ${
+              active
+                ? "border-accent/50 bg-accent/10 text-foreground"
+                : "border-border/60 text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {meta.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function TimelineList({ events, filter }: { events: Array<{ id: string; tipo: string; descricao: string; created_at: string; autor_nome: string | null }>; filter: string }) {
+  const filtered = filter === "todos" ? events : events.filter((e) => e.tipo === filter);
+  if (filtered.length === 0) {
+    return <p className="text-sm text-muted-foreground">Nenhum evento {filter !== "todos" ? "desse tipo " : ""}ainda.</p>;
+  }
+  return (
+    <ol className="relative space-y-4 border-l border-border/60 pl-4">
+      {filtered.map((ev) => {
+        const meta = EVENT_META[ev.tipo] ?? { label: ev.tipo, color: "text-muted-foreground", dot: "bg-muted-foreground" };
+        return (
+          <li key={ev.id} className="relative">
+            <span className={`absolute -left-[21px] top-1.5 h-2 w-2 rounded-full ${meta.dot}`} />
+            <p className="text-[11px] text-muted-foreground">
+              <span className={`font-medium ${meta.color}`}>{meta.label}</span>
+              {" · "}{formatDateTime(ev.created_at)}
+              {ev.autor_nome ? ` · ${ev.autor_nome}` : ""}
+            </p>
+            <p className="text-sm">{ev.descricao}</p>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 function LeadDetailPage() {
   const { leadId } = useParams({ from: "/_authenticated/leads/$leadId" });
   const navigate = useNavigate();
@@ -74,6 +135,7 @@ function LeadDetailPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [note, setNote] = useState("");
   const [fileCat, setFileCat] = useState("Proposta");
+  const [timelineFilter, setTimelineFilter] = useState<string>("todos");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const leadQ = useQuery({ queryKey: ["lead", leadId], queryFn: () => getLead(leadId) });
@@ -222,10 +284,34 @@ function LeadDetailPage() {
             <TabsContent value="comercial" className="mt-4">
               <Card className="border-border/60 bg-card/60">
                 <CardContent className="grid gap-4 pt-6 sm:grid-cols-2 lg:grid-cols-3">
-                  <Field label="Plano" value={lead.plano} />
-                  <Field label="Valor do contrato" value={formatCurrency(lead.valor_contrato)} />
-                  <Field label="Faturamento mensal" value={formatCurrency(lead.faturamento_mensal)} />
-                  <Field label="Status" value={lead.status_comercial} />
+                  <InlineField
+                    label="Plano"
+                    value={lead.plano}
+                    placeholder="Ex.: SEO Local Premium"
+                    onSave={(v) => saveEdit.mutateAsync({ plano: v })}
+                  />
+                  <InlineField
+                    label="Valor do contrato"
+                    value={lead.valor_contrato}
+                    type="number"
+                    placeholder="R$ 0,00"
+                    displayFormat={(v) => formatCurrency(Number(v))}
+                    onSave={(v) => saveEdit.mutateAsync({ valor_contrato: Number(v) || 0 })}
+                  />
+                  <InlineField
+                    label="Faturamento mensal"
+                    value={lead.faturamento_mensal}
+                    type="number"
+                    placeholder="R$ 0,00"
+                    displayFormat={(v) => formatCurrency(Number(v))}
+                    onSave={(v) => saveEdit.mutateAsync({ faturamento_mensal: Number(v) || 0 })}
+                  />
+                  <InlineField
+                    label="Status"
+                    value={lead.status_comercial}
+                    placeholder="—"
+                    onSave={(v) => saveEdit.mutateAsync({ status_comercial: v })}
+                  />
                   <Field label="Potencial" value={pot.label} />
                   <Field label="Origem" value={ORIGIN_LABELS[lead.origem]} />
                   <div className="sm:col-span-2 lg:col-span-3">
@@ -285,21 +371,12 @@ function LeadDetailPage() {
                 </CardContent>
               </Card>
               <Card className="border-border/60 bg-card/60">
-                <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Timeline</CardTitle></CardHeader>
+                <CardHeader className="pb-2 flex-row items-center justify-between space-y-0">
+                  <CardTitle className="text-sm font-semibold">Timeline</CardTitle>
+                  <TimelineFilters value={timelineFilter} onChange={setTimelineFilter} />
+                </CardHeader>
                 <CardContent>
-                  {eventsQ.data && eventsQ.data.length > 0 ? (
-                    <ol className="relative space-y-4 border-l border-border/60 pl-4">
-                      {eventsQ.data.map((ev) => (
-                        <li key={ev.id} className="relative">
-                          <span className="absolute -left-[21px] top-1.5 h-2 w-2 rounded-full bg-accent" />
-                          <p className="text-[11px] text-muted-foreground">{formatDateTime(ev.created_at)}{ev.autor_nome ? ` · ${ev.autor_nome}` : ""}</p>
-                          <p className="text-sm">{ev.descricao}</p>
-                        </li>
-                      ))}
-                    </ol>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">Nenhum evento ainda.</p>
-                  )}
+                  <TimelineList events={eventsQ.data ?? []} filter={timelineFilter} />
                 </CardContent>
               </Card>
             </TabsContent>
