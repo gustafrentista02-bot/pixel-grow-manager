@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Save, Edit, Power, PowerOff, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
+import { Plus, Trash2, Save, Edit, Power, PowerOff, GripVertical, ChevronUp, ChevronDown, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { useCadences, useCadenceSteps, useAutomationMutations, useEnrollments } from "@/hooks/use-automation";
+import { useAuth } from "@/hooks/use-auth";
+import { useProfiles } from "@/hooks/use-profiles";
 import type { Cadence } from "@/lib/automation-api";
 
 type EditableStep = { delay_dias: number; horario: string; mensagem: string };
