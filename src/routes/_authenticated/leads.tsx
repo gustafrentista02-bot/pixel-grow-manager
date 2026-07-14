@@ -264,12 +264,64 @@ function LeadsPage() {
               <Input className="h-9" value={cidadeFilter} onChange={(e) => setCidadeFilter(e.target.value)} placeholder="Ex.: Curitiba" />
             </div>
             <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Estado (UF)</label>
+              <Input className="h-9" maxLength={2} value={ufFilter} onChange={(e) => setUfFilter(e.target.value.toUpperCase())} placeholder="PR" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Segmento contém</label>
+              <Input className="h-9" value={segmentoFilter} onChange={(e) => setSegmentoFilter(e.target.value)} placeholder="Ex.: advocacia" />
+            </div>
+            <div className="space-y-1">
               <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Valor contrato ≥</label>
               <Input className="h-9" type="number" min={0} value={valorMin} onChange={(e) => setValorMin(e.target.value)} placeholder="1000" />
             </div>
             <div className="space-y-1">
               <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Sem contato há ≥ dias</label>
               <Input className="h-9" type="number" min={0} value={diasMin} onChange={(e) => setDiasMin(e.target.value)} placeholder="3" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Perfil Google</label>
+              <Select value={googleFilter} onValueChange={(v) => setGoogleFilter(v as "todos" | "sim" | "nao")}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="sim">Com Perfil Google</SelectItem>
+                  <SelectItem value="nao">Sem Perfil Google</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Possui Site</label>
+              <Select value={siteFilter} onValueChange={(v) => setSiteFilter(v as "todos" | "sim" | "nao")}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="sim">Com site</SelectItem>
+                  <SelectItem value="nao">Sem site</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Google Ads</label>
+              <Select value={gadsFilter} onValueChange={(v) => setGadsFilter(v as "todos" | "sim" | "nao")}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="sim">Faz Google Ads</SelectItem>
+                  <SelectItem value="nao">Não faz Google Ads</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Meta Ads</label>
+              <Select value={madsFilter} onValueChange={(v) => setMadsFilter(v as "todos" | "sim" | "nao")}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="sim">Faz Meta Ads</SelectItem>
+                  <SelectItem value="nao">Não faz Meta Ads</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         )}
