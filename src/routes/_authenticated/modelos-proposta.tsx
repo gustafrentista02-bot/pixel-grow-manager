@@ -138,7 +138,7 @@ function ProposalsPage() {
       cidade: "São Paulo", uf: "SP", segmento: "", valor_contrato: 1500, faturamento_mensal: 0,
     } as never;
     try {
-      downloadProposalPdf(p, mockLead, { empresa: company?.nome, valor: 1500 });
+      downloadProposalPdf(p, mockLead, { empresa: company?.nome_empresa, valor: 1500 });
       toast.success("Preview do PDF baixado");
     } catch (e) {
       toast.error("Erro ao gerar PDF", { description: e instanceof Error ? e.message : "" });
