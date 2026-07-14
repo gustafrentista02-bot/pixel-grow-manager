@@ -77,7 +77,7 @@ function MessageDialog({
 
   useEffect(() => {
     if (message) {
-      setForm({ nome: message.nome, categoria: message.categoria, conteudo: message.conteudo, favorito: message.favorito });
+      setForm({ nome: message.nome, categoria: message.categoria, conteudo: message.conteudo, favorito: message.favorito, compartilhada: message.compartilhada });
     } else {
       setForm(empty);
     }
