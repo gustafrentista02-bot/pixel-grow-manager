@@ -58,8 +58,11 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
   }
 
   async function save() {
-    if (nome !== cadence.nome) {
-      await updateCadence.mutateAsync({ id: cadence.id, input: { nome } });
+    const patch: Partial<Pick<Cadence, "nome" | "compartilhada">> = {};
+    if (nome !== cadence.nome) patch.nome = nome;
+    if (isManager && compartilhada !== cadence.compartilhada) patch.compartilhada = compartilhada;
+    if (Object.keys(patch).length > 0) {
+      await updateCadence.mutateAsync({ id: cadence.id, input: patch });
     }
     await saveSteps.mutateAsync({ cadence_id: cadence.id, steps });
     onOpenChange(false);
