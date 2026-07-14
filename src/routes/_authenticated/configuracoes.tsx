@@ -25,26 +25,47 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { CompanySettingsCard } from "@/components/company-settings-card";
+import { WhatsAppCard } from "@/components/whatsapp-card";
 import { ROLE_LABELS } from "@/lib/crm";
 import type { AppRole } from "@/lib/crm";
+import { CheckCircle2, XCircle } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações · Pixel CRM" }] }),
   component: ConfigPage,
 });
 
-type Member = { id: string; nome: string; email: string; role: AppRole | null };
+type Member = {
+  id: string;
+  nome: string;
+  email: string;
+  role: AppRole | null;
+  status: string;
+  whatsapp_status?: string | null;
+  whatsapp_numero?: string | null;
+};
 
 async function loadTeam(): Promise<Member[]> {
-  const [{ data: profiles }, { data: roles }] = await Promise.all([
-    supabase.from("profiles").select("id, nome, email").order("nome"),
+  const [{ data: profiles }, { data: roles }, { data: wa }] = await Promise.all([
+    supabase.from("profiles").select("id, nome, email, status").order("nome"),
     supabase.from("user_roles").select("user_id, role"),
+    supabase.from("whatsapp_instances").select("owner_id, status, numero_conectado"),
   ]);
   const roleMap = new Map<string, AppRole>();
   (roles ?? []).forEach((r) => {
     if (r.role === "gerente" || !roleMap.has(r.user_id)) roleMap.set(r.user_id, r.role);
   });
-  return (profiles ?? []).map((p) => ({ ...p, role: roleMap.get(p.id) ?? null }));
+  const waMap = new Map<string, { status: string; numero: string }>();
+  (wa ?? []).forEach((w: any) => waMap.set(w.owner_id, { status: w.status, numero: w.numero_conectado }));
+  return (profiles ?? []).map((p: any) => ({
+    id: p.id,
+    nome: p.nome,
+    email: p.email,
+    status: p.status ?? "aprovado",
+    role: roleMap.get(p.id) ?? null,
+    whatsapp_status: waMap.get(p.id)?.status ?? null,
+    whatsapp_numero: waMap.get(p.id)?.numero ?? null,
+  }));
 }
 
 function ConfigPage() {
@@ -82,6 +103,36 @@ function ConfigPage() {
     onError: (e: Error) => toast.error("Erro ao alterar perfil", { description: e.message }),
   });
 
+  const approve = useMutation({
+    mutationFn: async (userId: string) => {
+      const { error } = await supabase.from("profiles").update({ status: "aprovado" }).eq("id", userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["team"] });
+      queryClient.invalidateQueries({ queryKey: ["pending-count"] });
+      toast.success("Usuário aprovado!");
+    },
+    onError: (e: Error) => toast.error("Erro", { description: e.message }),
+  });
+
+  const reject = useMutation({
+    mutationFn: async (userId: string) => {
+      await supabase.from("user_roles").delete().eq("user_id", userId);
+      const { error } = await supabase.from("profiles").delete().eq("id", userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["team"] });
+      queryClient.invalidateQueries({ queryKey: ["pending-count"] });
+      toast.success("Cadastro recusado");
+    },
+    onError: (e: Error) => toast.error("Erro", { description: e.message }),
+  });
+
+  const pending = team.filter((m) => m.status === "pendente");
+  const approved = team.filter((m) => m.status !== "pendente");
+
   return (
     <div className="space-y-6">
       <div>
@@ -109,9 +160,47 @@ function ConfigPage() {
         </CardContent>
       </Card>
 
+      {auth?.user?.id && <WhatsAppCard userId={auth.user.id} />}
+
       <CompanySettingsCard canEdit={isGerente} />
 
-
+      {isGerente && pending.length > 0 && (
+        <Card className="border-amber-500/40">
+          <CardHeader>
+            <CardTitle className="text-base">Aguardando aprovação ({pending.length})</CardTitle>
+            <CardDescription>Novos cadastros pendentes de liberação.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead className="hidden sm:table-cell">E-mail</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pending.map((m) => (
+                  <TableRow key={m.id}>
+                    <TableCell className="font-medium">{m.nome || "—"}</TableCell>
+                    <TableCell className="hidden sm:table-cell text-muted-foreground">{m.email}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button size="sm" variant="outline" onClick={() => reject.mutate(m.id)} disabled={reject.isPending}>
+                          <XCircle className="mr-1 h-4 w-4" /> Recusar
+                        </Button>
+                        <Button size="sm" onClick={() => approve.mutate(m.id)} disabled={approve.isPending}>
+                          <CheckCircle2 className="mr-1 h-4 w-4" /> Aprovar
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
 
       {isGerente && (
         <Card>
@@ -125,14 +214,29 @@ function ConfigPage() {
                 <TableRow>
                   <TableHead>Nome</TableHead>
                   <TableHead className="hidden sm:table-cell">E-mail</TableHead>
+                  <TableHead>WhatsApp</TableHead>
                   <TableHead className="text-right">Perfil de acesso</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {team.map((m) => (
+                {approved.map((m) => (
                   <TableRow key={m.id}>
                     <TableCell className="font-medium">{m.nome || "—"}</TableCell>
                     <TableCell className="hidden sm:table-cell text-muted-foreground">{m.email}</TableCell>
+                    <TableCell>
+                      {m.whatsapp_status === "conectado" ? (
+                        <div className="flex flex-col">
+                          <Badge className="w-fit bg-primary/20 text-primary hover:bg-primary/25">Conectado</Badge>
+                          {m.whatsapp_numero && (
+                            <span className="mt-0.5 text-xs text-muted-foreground">+{m.whatsapp_numero}</span>
+                          )}
+                        </div>
+                      ) : m.whatsapp_status === "conectando" ? (
+                        <Badge variant="outline" className="border-amber-500/40 text-amber-500">Conectando</Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-muted-foreground">Desconectado</Badge>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right">
                       <Select
                         value={m.role ?? "vendedor"}
