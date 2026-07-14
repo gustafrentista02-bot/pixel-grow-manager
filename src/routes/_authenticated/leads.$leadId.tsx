@@ -23,6 +23,7 @@ import { LeadFormDialog } from "@/components/lead-form-dialog";
 import { LeadSidebar } from "@/components/lead-sidebar";
 import { LeadQuickNotes } from "@/components/lead-quick-notes";
 import { LeadProposalsList } from "@/components/lead-proposals-list";
+import { InlineField } from "@/components/inline-field";
 import {
   getLead, listEvents, listFiles, uploadLeadFile, getFileUrl, deleteLeadFile,
   addNote, updateLead, deleteLead, logLeadEvent, type LeadFile,
@@ -222,10 +223,34 @@ function LeadDetailPage() {
             <TabsContent value="comercial" className="mt-4">
               <Card className="border-border/60 bg-card/60">
                 <CardContent className="grid gap-4 pt-6 sm:grid-cols-2 lg:grid-cols-3">
-                  <Field label="Plano" value={lead.plano} />
-                  <Field label="Valor do contrato" value={formatCurrency(lead.valor_contrato)} />
-                  <Field label="Faturamento mensal" value={formatCurrency(lead.faturamento_mensal)} />
-                  <Field label="Status" value={lead.status_comercial} />
+                  <InlineField
+                    label="Plano"
+                    value={lead.plano}
+                    placeholder="Ex.: SEO Local Premium"
+                    onSave={(v) => saveEdit.mutateAsync({ plano: v })}
+                  />
+                  <InlineField
+                    label="Valor do contrato"
+                    value={lead.valor_contrato}
+                    type="number"
+                    placeholder="R$ 0,00"
+                    displayFormat={(v) => formatCurrency(Number(v))}
+                    onSave={(v) => saveEdit.mutateAsync({ valor_contrato: Number(v) || 0 })}
+                  />
+                  <InlineField
+                    label="Faturamento mensal"
+                    value={lead.faturamento_mensal}
+                    type="number"
+                    placeholder="R$ 0,00"
+                    displayFormat={(v) => formatCurrency(Number(v))}
+                    onSave={(v) => saveEdit.mutateAsync({ faturamento_mensal: Number(v) || 0 })}
+                  />
+                  <InlineField
+                    label="Status"
+                    value={lead.status_comercial}
+                    placeholder="—"
+                    onSave={(v) => saveEdit.mutateAsync({ status_comercial: v })}
+                  />
                   <Field label="Potencial" value={pot.label} />
                   <Field label="Origem" value={ORIGIN_LABELS[lead.origem]} />
                   <div className="sm:col-span-2 lg:col-span-3">
