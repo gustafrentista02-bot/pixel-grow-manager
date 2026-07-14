@@ -66,6 +66,66 @@ function YesNo({ v }: { v: boolean }) {
   );
 }
 
+const EVENT_META: Record<string, { label: string; color: string; dot: string }> = {
+  criado:        { label: "Criado",       color: "text-sky-400",     dot: "bg-sky-400" },
+  atualizado:    { label: "Atualizado",   color: "text-muted-foreground", dot: "bg-muted-foreground" },
+  nota:          { label: "Nota",         color: "text-accent",      dot: "bg-accent" },
+  movimentacao:  { label: "Movimentação", color: "text-violet-400",  dot: "bg-violet-400" },
+  arquivo:       { label: "Arquivo",      color: "text-amber-400",   dot: "bg-amber-400" },
+  proposta:      { label: "Proposta",     color: "text-emerald-400", dot: "bg-emerald-400" },
+};
+
+const FILTER_ORDER = ["todos", "nota", "movimentacao", "atualizado", "arquivo", "proposta"];
+
+function TimelineFilters({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="flex flex-wrap gap-1">
+      {FILTER_ORDER.map((f) => {
+        const meta = f === "todos" ? { label: "Todos", color: "text-foreground" } : EVENT_META[f] ?? { label: f, color: "text-foreground" };
+        const active = value === f;
+        return (
+          <button
+            key={f}
+            onClick={() => onChange(f)}
+            className={`rounded-full border px-2 py-0.5 text-[11px] transition ${
+              active
+                ? "border-accent/50 bg-accent/10 text-foreground"
+                : "border-border/60 text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {meta.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function TimelineList({ events, filter }: { events: Array<{ id: string; tipo: string; descricao: string; created_at: string; autor_nome: string | null }>; filter: string }) {
+  const filtered = filter === "todos" ? events : events.filter((e) => e.tipo === filter);
+  if (filtered.length === 0) {
+    return <p className="text-sm text-muted-foreground">Nenhum evento {filter !== "todos" ? "desse tipo " : ""}ainda.</p>;
+  }
+  return (
+    <ol className="relative space-y-4 border-l border-border/60 pl-4">
+      {filtered.map((ev) => {
+        const meta = EVENT_META[ev.tipo] ?? { label: ev.tipo, color: "text-muted-foreground", dot: "bg-muted-foreground" };
+        return (
+          <li key={ev.id} className="relative">
+            <span className={`absolute -left-[21px] top-1.5 h-2 w-2 rounded-full ${meta.dot}`} />
+            <p className="text-[11px] text-muted-foreground">
+              <span className={`font-medium ${meta.color}`}>{meta.label}</span>
+              {" · "}{formatDateTime(ev.created_at)}
+              {ev.autor_nome ? ` · ${ev.autor_nome}` : ""}
+            </p>
+            <p className="text-sm">{ev.descricao}</p>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 function LeadDetailPage() {
   const { leadId } = useParams({ from: "/_authenticated/leads/$leadId" });
   const navigate = useNavigate();
