@@ -131,6 +131,15 @@ function MessageDialog({
               ))}
             </div>
           </div>
+          {isManager && (
+            <div className="flex items-center justify-between rounded-md border border-border bg-secondary/40 p-3">
+              <div>
+                <Label className="text-sm">Compartilhar com a equipe</Label>
+                <p className="text-[11px] text-muted-foreground">Todo o time verá este modelo (somente leitura).</p>
+              </div>
+              <Switch checked={!!form.compartilhada} onCheckedChange={(v) => set("compartilhada", v)} />
+            </div>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
             <Button type="submit" disabled={saving}>{saving ? "Salvando..." : "Salvar"}</Button>
