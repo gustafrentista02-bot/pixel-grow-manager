@@ -22,6 +22,7 @@ import {
 import { LeadFormDialog } from "@/components/lead-form-dialog";
 import { LeadSidebar } from "@/components/lead-sidebar";
 import { LeadQuickNotes } from "@/components/lead-quick-notes";
+import { LeadProposalsList } from "@/components/lead-proposals-list";
 import {
   getLead, listEvents, listFiles, uploadLeadFile, getFileUrl, deleteLeadFile,
   addNote, updateLead, deleteLead, logLeadEvent, type LeadFile,
@@ -191,6 +192,7 @@ function LeadDetailPage() {
               <TabsTrigger value="geral">Geral</TabsTrigger>
               <TabsTrigger value="comercial">Comercial</TabsTrigger>
               <TabsTrigger value="marketing">Marketing</TabsTrigger>
+              <TabsTrigger value="propostas">Propostas</TabsTrigger>
               <TabsTrigger value="historico">Histórico</TabsTrigger>
               <TabsTrigger value="arquivos">Arquivos</TabsTrigger>
             </TabsList>
@@ -267,6 +269,9 @@ function LeadDetailPage() {
                   <div className="sm:col-span-2 lg:col-span-3"><Field label="Principal dificuldade" value={lead.dificuldade} /></div>
                 </CardContent>
               </Card>
+            </TabsContent>
+            <TabsContent value="propostas" className="mt-4">
+              <LeadProposalsList leadId={leadId} />
             </TabsContent>
 
             <TabsContent value="historico" className="mt-4 space-y-4">
