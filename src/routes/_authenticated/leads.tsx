@@ -55,8 +55,14 @@ function LeadsPage() {
   const [potFilter, setPotFilter] = useState<Potencial | "todos">("todos");
   const [planoFilter, setPlanoFilter] = useState<string>("todos");
   const [cidadeFilter, setCidadeFilter] = useState("");
+  const [ufFilter, setUfFilter] = useState("");
+  const [segmentoFilter, setSegmentoFilter] = useState("");
   const [valorMin, setValorMin] = useState<string>("");
   const [diasMin, setDiasMin] = useState<string>("");
+  const [googleFilter, setGoogleFilter] = useState<"todos" | "sim" | "nao">("todos");
+  const [siteFilter, setSiteFilter] = useState<"todos" | "sim" | "nao">("todos");
+  const [gadsFilter, setGadsFilter] = useState<"todos" | "sim" | "nao">("todos");
+  const [madsFilter, setMadsFilter] = useState<"todos" | "sim" | "nao">("todos");
   const [showFilters, setShowFilters] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Lead | null>(null);
@@ -68,12 +74,20 @@ function LeadsPage() {
     (potFilter !== "todos" ? 1 : 0) +
     (planoFilter !== "todos" ? 1 : 0) +
     (cidadeFilter ? 1 : 0) +
+    (ufFilter ? 1 : 0) +
+    (segmentoFilter ? 1 : 0) +
     (valorMin ? 1 : 0) +
-    (diasMin ? 1 : 0);
+    (diasMin ? 1 : 0) +
+    (googleFilter !== "todos" ? 1 : 0) +
+    (siteFilter !== "todos" ? 1 : 0) +
+    (gadsFilter !== "todos" ? 1 : 0) +
+    (madsFilter !== "todos" ? 1 : 0);
 
   function clearFilters() {
     setStageFilter("todos"); setOrigemFilter("todos"); setPotFilter("todos");
-    setPlanoFilter("todos"); setCidadeFilter(""); setValorMin(""); setDiasMin("");
+    setPlanoFilter("todos"); setCidadeFilter(""); setUfFilter(""); setSegmentoFilter("");
+    setValorMin(""); setDiasMin("");
+    setGoogleFilter("todos"); setSiteFilter("todos"); setGadsFilter("todos"); setMadsFilter("todos");
   }
 
   const filtered = useMemo(() => {
@@ -81,7 +95,13 @@ function LeadsPage() {
     const vMin = valorMin ? Number(valorMin) : 0;
     const dMin = diasMin ? Number(diasMin) : 0;
     const cQ = cidadeFilter.toLowerCase();
+    const ufQ = ufFilter.toLowerCase();
+    const segQ = segmentoFilter.toLowerCase();
     const now = Date.now();
+    function boolMatch(f: "todos" | "sim" | "nao", v: boolean) {
+      if (f === "todos") return true;
+      return f === "sim" ? v : !v;
+    }
     return leads.filter((l) => {
       const matchSearch =
         !q ||
@@ -101,6 +121,12 @@ function LeadsPage() {
       if (potFilter !== "todos" && l.potencial !== potFilter) return false;
       if (planoFilter !== "todos" && l.plano !== planoFilter) return false;
       if (cQ && !(l.cidade ?? "").toLowerCase().includes(cQ)) return false;
+      if (ufQ && !(l.uf ?? "").toLowerCase().includes(ufQ)) return false;
+      if (segQ && !(l.segmento ?? "").toLowerCase().includes(segQ)) return false;
+      if (!boolMatch(googleFilter, l.tem_perfil_google)) return false;
+      if (!boolMatch(siteFilter, l.tem_site)) return false;
+      if (!boolMatch(gadsFilter, l.faz_google_ads)) return false;
+      if (!boolMatch(madsFilter, l.faz_meta_ads)) return false;
       if (vMin && (l.valor_contrato ?? 0) < vMin) return false;
       if (dMin) {
         const last = l.last_interaction_at ? new Date(l.last_interaction_at).getTime() : new Date(l.created_at).getTime();
@@ -109,7 +135,7 @@ function LeadsPage() {
       }
       return true;
     });
-  }, [leads, search, stageFilter, origemFilter, potFilter, planoFilter, cidadeFilter, valorMin, diasMin]);
+  }, [leads, search, stageFilter, origemFilter, potFilter, planoFilter, cidadeFilter, ufFilter, segmentoFilter, valorMin, diasMin, googleFilter, siteFilter, gadsFilter, madsFilter]);
 
   async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -238,12 +264,64 @@ function LeadsPage() {
               <Input className="h-9" value={cidadeFilter} onChange={(e) => setCidadeFilter(e.target.value)} placeholder="Ex.: Curitiba" />
             </div>
             <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Estado (UF)</label>
+              <Input className="h-9" maxLength={2} value={ufFilter} onChange={(e) => setUfFilter(e.target.value.toUpperCase())} placeholder="PR" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Segmento contém</label>
+              <Input className="h-9" value={segmentoFilter} onChange={(e) => setSegmentoFilter(e.target.value)} placeholder="Ex.: advocacia" />
+            </div>
+            <div className="space-y-1">
               <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Valor contrato ≥</label>
               <Input className="h-9" type="number" min={0} value={valorMin} onChange={(e) => setValorMin(e.target.value)} placeholder="1000" />
             </div>
             <div className="space-y-1">
               <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Sem contato há ≥ dias</label>
               <Input className="h-9" type="number" min={0} value={diasMin} onChange={(e) => setDiasMin(e.target.value)} placeholder="3" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Perfil Google</label>
+              <Select value={googleFilter} onValueChange={(v) => setGoogleFilter(v as "todos" | "sim" | "nao")}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="sim">Com Perfil Google</SelectItem>
+                  <SelectItem value="nao">Sem Perfil Google</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Possui Site</label>
+              <Select value={siteFilter} onValueChange={(v) => setSiteFilter(v as "todos" | "sim" | "nao")}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="sim">Com site</SelectItem>
+                  <SelectItem value="nao">Sem site</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Google Ads</label>
+              <Select value={gadsFilter} onValueChange={(v) => setGadsFilter(v as "todos" | "sim" | "nao")}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="sim">Faz Google Ads</SelectItem>
+                  <SelectItem value="nao">Não faz Google Ads</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Meta Ads</label>
+              <Select value={madsFilter} onValueChange={(v) => setMadsFilter(v as "todos" | "sim" | "nao")}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="sim">Faz Meta Ads</SelectItem>
+                  <SelectItem value="nao">Não faz Meta Ads</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         )}

@@ -4,10 +4,16 @@ import type { Tables } from "@/integrations/supabase/types";
 export type Task = Tables<"tasks">;
 
 export const TASK_CATEGORIES = [
-  { value: "ligacao", label: "Ligação", emoji: "📞" },
-  { value: "email", label: "E-mail", emoji: "✉️" },
+  { value: "ligacao", label: "Ligar", emoji: "📞" },
+  { value: "proposta", label: "Enviar proposta", emoji: "📄" },
+  { value: "contrato", label: "Enviar contrato", emoji: "📝" },
+  { value: "meet", label: "Enviar Meet", emoji: "📹" },
+  { value: "documentos", label: "Solicitar documentos", emoji: "📎" },
+  { value: "avaliacoes", label: "Solicitar avaliações", emoji: "⭐" },
+  { value: "editar_google", label: "Editar Perfil Google", emoji: "📍" },
+  { value: "postagem", label: "Criar postagem", emoji: "📸" },
   { value: "reuniao", label: "Reunião", emoji: "🗓️" },
-  { value: "proposta", label: "Proposta", emoji: "📄" },
+  { value: "email", label: "E-mail", emoji: "✉️" },
   { value: "followup", label: "Follow-up", emoji: "🔁" },
   { value: "outro", label: "Outro", emoji: "•" },
 ] as const;

@@ -4,7 +4,7 @@ import {
   DndContext, PointerSensor, useSensor, useSensors, useDroppable, type DragEndEvent,
 } from "@dnd-kit/core";
 import { toast } from "sonner";
-import { Copy, MessageCircle, Sparkles, AlertTriangle, ExternalLink } from "lucide-react";
+import { Copy, MessageCircle, Sparkles, AlertTriangle, ExternalLink, Trophy, XCircle, ArrowRightCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
@@ -75,7 +75,7 @@ function Column({ stage, leads }: { stage: FollowupStage; leads: Lead[] }) {
 
 function FollowUpPage() {
   const { data: leads = [] } = useLeads();
-  const { moveFollowup } = useLeadMutations();
+  const { moveFollowup, move } = useLeadMutations();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const [template, setTemplate] = useState(DEFAULT_MESSAGE);
 
@@ -203,6 +203,33 @@ function FollowUpPage() {
                       <Link to="/leads/$leadId" params={{ leadId: selected.id }}>
                         <ExternalLink className="mr-1 h-3 w-3" /> Abrir lead
                       </Link>
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs text-sky-300"
+                      title="Mover para Conversando"
+                      onClick={() => selected && move.mutate({ lead: selected, to: "conversando" })}
+                    >
+                      <ArrowRightCircle className="mr-1 h-3 w-3" /> Mover para Conversando
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs text-emerald-300"
+                      onClick={() => selected && move.mutate({ lead: selected, to: "ganho" })}
+                    >
+                      <Trophy className="mr-1 h-3 w-3" /> Concluir (Ganho)
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs text-destructive"
+                      onClick={() => selected && move.mutate({ lead: selected, to: "sem_interesse" })}
+                    >
+                      <XCircle className="mr-1 h-3 w-3" /> Sem interesse
                     </Button>
                   </div>
                 </div>
