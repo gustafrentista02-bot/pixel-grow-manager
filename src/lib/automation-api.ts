@@ -57,18 +57,18 @@ export async function listCadenceSteps(cadence_id: string): Promise<CadenceStep[
   return data ?? [];
 }
 
-export async function createCadence(nome: string): Promise<Cadence> {
+export async function createCadence(nome: string, compartilhada = false): Promise<Cadence> {
   const owner_id = await getUid();
   const { data, error } = await supabase
     .from("cadences")
-    .insert({ nome, owner_id })
+    .insert({ nome, owner_id, compartilhada })
     .select()
     .single();
   if (error) throw error;
   return data;
 }
 
-export async function updateCadence(id: string, input: Partial<Pick<Cadence, "nome" | "ativa">>): Promise<void> {
+export async function updateCadence(id: string, input: Partial<Pick<Cadence, "nome" | "ativa" | "compartilhada">>): Promise<void> {
   const { error } = await supabase.from("cadences").update(input).eq("id", id);
   if (error) throw error;
 }

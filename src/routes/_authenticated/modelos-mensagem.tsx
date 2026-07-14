@@ -25,15 +25,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Copy, Sparkles, MessageSquare, Star, Search, CopyPlus } from "lucide-react";
+import { Plus, Pencil, Trash2, Copy, Sparkles, MessageSquare, Star, Search, CopyPlus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useMessages, useMessageMutations } from "@/hooks/use-templates";
+import { useAuth } from "@/hooks/use-auth";
+import { useProfiles } from "@/hooks/use-profiles";
 import { MESSAGE_CATEGORY_LABELS, type MessageCategory, type MessageInput, type MessageTemplate } from "@/lib/templates-api";
 import { TEMPLATE_VARS } from "@/lib/template-vars";
 import { cn } from "@/lib/utils";
@@ -43,7 +46,7 @@ export const Route = createFileRoute("/_authenticated/modelos-mensagem")({
   component: MessagesPage,
 });
 
-const empty: MessageInput = { nome: "", categoria: "outro", conteudo: "", favorito: false };
+const empty: MessageInput = { nome: "", categoria: "outro", conteudo: "", favorito: false, compartilhada: false };
 
 const DEFAULT_MESSAGES: MessageInput[] = [
   { nome: "Primeiro Contato", categoria: "primeiro_contato", conteudo: "Olá {primeiro_nome}! Tudo bem? Sou da Pixel Marketing. Vi seu interesse e gostaria de entender melhor como podemos ajudar a {empresa} a crescer. Podemos conversar?" },
@@ -61,18 +64,20 @@ function MessageDialog({
   message,
   onSubmit,
   saving,
+  isManager,
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   message: MessageTemplate | null;
   onSubmit: (input: MessageInput) => void;
   saving: boolean;
+  isManager: boolean;
 }) {
   const [form, setForm] = useState<MessageInput>(empty);
 
   useEffect(() => {
     if (message) {
-      setForm({ nome: message.nome, categoria: message.categoria, conteudo: message.conteudo, favorito: message.favorito });
+      setForm({ nome: message.nome, categoria: message.categoria, conteudo: message.conteudo, favorito: message.favorito, compartilhada: message.compartilhada });
     } else {
       setForm(empty);
     }
@@ -126,6 +131,15 @@ function MessageDialog({
               ))}
             </div>
           </div>
+          {isManager && (
+            <div className="flex items-center justify-between rounded-md border border-border bg-secondary/40 p-3">
+              <div>
+                <Label className="text-sm">Compartilhar com a equipe</Label>
+                <p className="text-[11px] text-muted-foreground">Todo o time verá este modelo (somente leitura).</p>
+              </div>
+              <Switch checked={!!form.compartilhada} onCheckedChange={(v) => set("compartilhada", v)} />
+            </div>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
             <Button type="submit" disabled={saving}>{saving ? "Salvando..." : "Salvar"}</Button>
@@ -139,6 +153,10 @@ function MessageDialog({
 function MessagesPage() {
   const { data: messages = [], isLoading } = useMessages();
   const { create, update, remove } = useMessageMutations();
+  const { data: auth } = useAuth();
+  const { data: profileMap } = useProfiles();
+  const uid = auth?.user?.id ?? "";
+  const isManager = auth?.role === "gerente";
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<MessageTemplate | null>(null);
   const [deleting, setDeleting] = useState<MessageTemplate | null>(null);
@@ -223,61 +241,95 @@ function MessagesPage() {
             : "Nenhum modelo corresponde ao filtro."}
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((m) => (
-            <Card key={m.id} className={cn(m.favorito && "ring-1 ring-amber-400/30")}>
-              <CardContent className="space-y-2 p-4">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <MessageSquare className="h-5 w-5 shrink-0 text-primary" />
-                    <p className="truncate font-semibold">{m.nome}</p>
+        (() => {
+          const own = filtered.filter((m) => m.owner_id === uid);
+          const shared = filtered.filter((m) => m.owner_id !== uid && m.compartilhada);
+          const renderCard = (m: MessageTemplate) => {
+            const canEdit = m.owner_id === uid;
+            const authorName = profileMap?.get(m.owner_id) ?? "";
+            return (
+              <Card key={m.id} className={cn(m.favorito && "ring-1 ring-amber-400/30")}>
+                <CardContent className="space-y-2 p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <MessageSquare className="h-5 w-5 shrink-0 text-primary" />
+                      <p className="truncate font-semibold">{m.nome}</p>
+                    </div>
+                    <Badge variant="secondary" className="shrink-0 text-[10px]">
+                      {MESSAGE_CATEGORY_LABELS[m.categoria as MessageCategory] ?? m.categoria}
+                    </Badge>
                   </div>
-                  <Badge variant="secondary" className="shrink-0 text-[10px]">
-                    {MESSAGE_CATEGORY_LABELS[m.categoria as MessageCategory] ?? m.categoria}
-                  </Badge>
-                </div>
-                <p className="line-clamp-4 whitespace-pre-wrap text-xs text-muted-foreground">{m.conteudo}</p>
-                <div className="flex items-center justify-between pt-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn("h-8 w-8", m.favorito ? "text-amber-400" : "text-muted-foreground")}
-                    title={m.favorito ? "Remover dos favoritos" : "Favoritar"}
-                    onClick={() => update.mutate({ id: m.id, input: { favorito: !m.favorito } })}
-                  >
-                    <Star className={cn("h-4 w-4", m.favorito && "fill-current")} />
-                  </Button>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" title="Copiar" onClick={() => copyToClipboard(m.conteudo)}>
-                      <Copy className="h-4 w-4" />
-                    </Button>
+                  {m.compartilhada && (
+                    <Badge variant="outline" className="border-primary/40 bg-primary/10 text-[10px] text-primary">
+                      <Users className="mr-1 h-3 w-3" />
+                      {canEdit ? "Compartilhada com a equipe" : `Compartilhada por ${authorName || "equipe"}`}
+                    </Badge>
+                  )}
+                  <p className="line-clamp-4 whitespace-pre-wrap text-xs text-muted-foreground">{m.conteudo}</p>
+                  <div className="flex items-center justify-between pt-1">
                     <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      title="Duplicar"
-                      onClick={() => create.mutate({ nome: `${m.nome} (cópia)`, categoria: m.categoria, conteudo: m.conteudo, favorito: false })}
+                      variant="ghost" size="icon"
+                      className={cn("h-8 w-8", m.favorito ? "text-amber-400" : "text-muted-foreground")}
+                      title={m.favorito ? "Remover dos favoritos" : "Favoritar"}
+                      disabled={!canEdit}
+                      onClick={() => update.mutate({ id: m.id, input: { favorito: !m.favorito } })}
                     >
-                      <CopyPlus className="h-4 w-4" />
+                      <Star className={cn("h-4 w-4", m.favorito && "fill-current")} />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(m); setOpen(true); }}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeleting(m)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Copiar" onClick={() => copyToClipboard(m.conteudo)}>
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Duplicar (cópia privada)"
+                        onClick={() => create.mutate({ nome: `${m.nome} (cópia)`, categoria: m.categoria, conteudo: m.conteudo, favorito: false, compartilhada: false })}>
+                        <CopyPlus className="h-4 w-4" />
+                      </Button>
+                      {canEdit && (
+                        <>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(m); setOpen(true); }}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeleting(m)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            );
+          };
+          return (
+            <div className="space-y-6">
+              <section className="space-y-2">
+                <h2 className="text-sm font-semibold text-muted-foreground">Minhas ({own.length})</h2>
+                {own.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">Você ainda não criou nenhum modelo.</p>
+                ) : (
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{own.map(renderCard)}</div>
+                )}
+              </section>
+              <section className="space-y-2">
+                <h2 className="text-sm font-semibold text-muted-foreground">
+                  <Users className="mr-1 inline h-3.5 w-3.5" /> Compartilhadas pela equipe ({shared.length})
+                </h2>
+                {shared.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">Nenhum modelo compartilhado pela equipe.</p>
+                ) : (
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{shared.map(renderCard)}</div>
+                )}
+              </section>
+            </div>
+          );
+        })()
       )}
 
       <MessageDialog
         open={open}
         onOpenChange={setOpen}
         message={editing}
+        isManager={isManager}
         saving={create.isPending || update.isPending}
         onSubmit={(input) => {
           if (editing) {
