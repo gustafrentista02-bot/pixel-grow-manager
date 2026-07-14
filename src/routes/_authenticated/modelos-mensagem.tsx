@@ -64,12 +64,14 @@ function MessageDialog({
   message,
   onSubmit,
   saving,
+  isManager,
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   message: MessageTemplate | null;
   onSubmit: (input: MessageInput) => void;
   saving: boolean;
+  isManager: boolean;
 }) {
   const [form, setForm] = useState<MessageInput>(empty);
 
