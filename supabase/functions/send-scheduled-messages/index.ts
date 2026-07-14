@@ -147,7 +147,7 @@ async function processCadences() {
     }
     const text = fillTemplate(current.mensagem, lead);
     const phone = lead.whatsapp || lead.telefone;
-    const result = await sendWhatsApp(row.owner_id, phone, text);
+    const result = await sendWhatsApp(enr.owner_id, phone, text);
     if (result.ok) {
       const nextIdx = enr.current_step + 1;
       const nextStep = steps?.[nextIdx];
