@@ -175,20 +175,78 @@ function LeadsPage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <div className="relative flex-1 min-w-48">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-8" placeholder="Buscar por nome, empresa ou telefone" value={search} onChange={(e) => setSearch(e.target.value)} />
+      <div className="space-y-2">
+        <div className="flex flex-wrap gap-2">
+          <div className="relative flex-1 min-w-48">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input className="pl-8" placeholder="Buscar em nome, empresa, telefone, cidade, plano, obs..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          </div>
+          <Select value={stageFilter} onValueChange={(v) => setStageFilter(v as LeadStage | "todos")}>
+            <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os estágios</SelectItem>
+              {KANBAN_STAGES.map((s) => (
+                <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button variant={showFilters ? "default" : "outline"} size="sm" onClick={() => setShowFilters((v) => !v)}>
+            <SlidersHorizontal className="mr-1.5 h-4 w-4" /> Filtros
+            {activeFilters > 0 && <Badge variant="secondary" className="ml-1.5 h-4 px-1 text-[10px]">{activeFilters}</Badge>}
+          </Button>
+          {activeFilters > 0 && (
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <X className="mr-1 h-3.5 w-3.5" /> Limpar
+            </Button>
+          )}
         </div>
-        <Select value={stageFilter} onValueChange={(v) => setStageFilter(v as LeadStage | "todos")}>
-          <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os estágios</SelectItem>
-            {KANBAN_STAGES.map((s) => (
-              <SelectItem key={s} value={s}>{STAGE_META[s].label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+
+        {showFilters && (
+          <div className="grid gap-2 rounded-lg border border-border bg-secondary/30 p-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Origem</label>
+              <Select value={origemFilter} onValueChange={(v) => setOrigemFilter(v as LeadOrigin | "todos")}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todas</SelectItem>
+                  {ORIGINS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Potencial</label>
+              <Select value={potFilter} onValueChange={(v) => setPotFilter(v as Potencial | "todos")}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {POTENCIAL_OPTIONS.map((p) => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Plano</label>
+              <Select value={planoFilter} onValueChange={setPlanoFilter}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {PLANO_OPTIONS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Cidade contém</label>
+              <Input className="h-9" value={cidadeFilter} onChange={(e) => setCidadeFilter(e.target.value)} placeholder="Ex.: Curitiba" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Valor contrato ≥</label>
+              <Input className="h-9" type="number" min={0} value={valorMin} onChange={(e) => setValorMin(e.target.value)} placeholder="1000" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wide text-muted-foreground">Sem contato há ≥ dias</label>
+              <Input className="h-9" type="number" min={0} value={diasMin} onChange={(e) => setDiasMin(e.target.value)} placeholder="3" />
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="rounded-xl border border-border bg-card">
