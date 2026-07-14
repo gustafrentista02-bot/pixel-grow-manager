@@ -14,6 +14,122 @@ export type Database = {
   }
   public: {
     Tables: {
+      cadence_enrollments: {
+        Row: {
+          cadence_id: string
+          created_at: string
+          current_step: number
+          id: string
+          lead_id: string
+          next_send_at: string | null
+          owner_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          cadence_id: string
+          created_at?: string
+          current_step?: number
+          id?: string
+          lead_id: string
+          next_send_at?: string | null
+          owner_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          cadence_id?: string
+          created_at?: string
+          current_step?: number
+          id?: string
+          lead_id?: string
+          next_send_at?: string | null
+          owner_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cadence_enrollments_cadence_id_fkey"
+            columns: ["cadence_id"]
+            isOneToOne: false
+            referencedRelation: "cadences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cadence_enrollments_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cadence_steps: {
+        Row: {
+          cadence_id: string
+          created_at: string
+          delay_dias: number
+          horario: string
+          id: string
+          mensagem: string
+          ordem: number
+        }
+        Insert: {
+          cadence_id: string
+          created_at?: string
+          delay_dias?: number
+          horario?: string
+          id?: string
+          mensagem: string
+          ordem: number
+        }
+        Update: {
+          cadence_id?: string
+          created_at?: string
+          delay_dias?: number
+          horario?: string
+          id?: string
+          mensagem?: string
+          ordem?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cadence_steps_cadence_id_fkey"
+            columns: ["cadence_id"]
+            isOneToOne: false
+            referencedRelation: "cadences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cadences: {
+        Row: {
+          ativa: boolean
+          created_at: string
+          id: string
+          nome: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          ativa?: boolean
+          created_at?: string
+          id?: string
+          nome: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          ativa?: boolean
+          created_at?: string
+          id?: string
+          nome?: string
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       company_settings: {
         Row: {
           assinatura: string
@@ -480,6 +596,53 @@ export type Database = {
           url?: string
         }
         Relationships: []
+      }
+      scheduled_messages: {
+        Row: {
+          created_at: string
+          enviado_em: string | null
+          enviar_em: string
+          erro: string
+          id: string
+          lead_id: string
+          mensagem: string
+          owner_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enviado_em?: string | null
+          enviar_em: string
+          erro?: string
+          id?: string
+          lead_id: string
+          mensagem: string
+          owner_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enviado_em?: string | null
+          enviar_em?: string
+          erro?: string
+          id?: string
+          lead_id?: string
+          mensagem?: string
+          owner_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_messages_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tasks: {
         Row: {
