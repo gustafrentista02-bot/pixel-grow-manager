@@ -15,14 +15,13 @@ export type AuthContext = {
 async function loadAuthContext(): Promise<AuthContext> {
   const { data: userData } = await supabase.auth.getUser();
   const user = userData.user ?? null;
-  if (!user) return { user: null, nome: "", email: "", role: null };
+  if (!user) return { user: null, nome: "", email: "", role: null, status: null };
 
   const [{ data: profile }, { data: roles }] = await Promise.all([
-    supabase.from("profiles").select("nome, email").eq("id", user.id).maybeSingle(),
+    supabase.from("profiles").select("nome, email, status").eq("id", user.id).maybeSingle(),
     supabase.from("user_roles").select("role").eq("user_id", user.id),
   ]);
 
-  // gerente takes precedence if present
   const roleList = (roles ?? []).map((r) => r.role);
   const role: AppRole | null = roleList.includes("gerente")
     ? "gerente"
@@ -30,11 +29,14 @@ async function loadAuthContext(): Promise<AuthContext> {
       ? "vendedor"
       : null;
 
+  const status = ((profile as any)?.status ?? "aprovado") as "pendente" | "aprovado";
+
   return {
     user,
     nome: profile?.nome ?? user.email ?? "",
     email: profile?.email ?? user.email ?? "",
     role,
+    status,
   };
 }
 
