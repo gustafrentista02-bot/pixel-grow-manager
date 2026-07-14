@@ -36,7 +36,7 @@ import { toast } from "sonner";
 import { useProposals, useProposalMutations } from "@/hooks/use-templates";
 import { PROPOSAL_TYPE_LABELS, type ProposalInput, type ProposalTemplate, type ProposalType } from "@/lib/templates-api";
 import { downloadProposalPdf } from "@/lib/pdf-proposal";
-import { useCompany } from "@/hooks/use-company";
+import { useCompanySettings } from "@/hooks/use-company";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/modelos-proposta")({
@@ -124,7 +124,7 @@ function ProposalDialog({
 function ProposalsPage() {
   const { data: proposals = [], isLoading } = useProposals();
   const { create, update, remove } = useProposalMutations();
-  const { company } = useCompany();
+  const { data: company } = useCompanySettings();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ProposalTemplate | null>(null);
   const [deleting, setDeleting] = useState<ProposalTemplate | null>(null);
