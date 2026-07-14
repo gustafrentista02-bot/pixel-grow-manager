@@ -226,6 +226,8 @@ export type Database = {
           link_perfil_google: string
           meet_link: string
           nome: string
+          notas_rapidas: string
+          notas_rapidas_updated_at: string | null
           objetivo: string
           observacoes: string
           origem: Database["public"]["Enums"]["lead_origin"]
@@ -265,6 +267,8 @@ export type Database = {
           link_perfil_google?: string
           meet_link?: string
           nome: string
+          notas_rapidas?: string
+          notas_rapidas_updated_at?: string | null
           objetivo?: string
           observacoes?: string
           origem?: Database["public"]["Enums"]["lead_origin"]
@@ -304,6 +308,8 @@ export type Database = {
           link_perfil_google?: string
           meet_link?: string
           nome?: string
+          notas_rapidas?: string
+          notas_rapidas_updated_at?: string | null
           objetivo?: string
           observacoes?: string
           origem?: Database["public"]["Enums"]["lead_origin"]

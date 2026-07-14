@@ -181,6 +181,25 @@ export async function updateLead(id: string, input: Partial<LeadInput>): Promise
       "Não foi possível salvar: lead não encontrado ou você não tem permissão para editá-lo.",
     );
   }
+  // Best-effort timeline log — never blocks the save.
+  logLeadEvent(id, "atualizado", "Lead atualizado.").catch(() => {});
+  return data;
+}
+
+/** Persist the "Notas rápidas" freeform block. Auto-save friendly. */
+export async function updateQuickNotes(id: string, text: string): Promise<Lead> {
+  const now = new Date().toISOString();
+  const { data, error } = await supabase
+    .from("leads")
+    .update({
+      notas_rapidas: text,
+      notas_rapidas_updated_at: now,
+    } as never)
+    .eq("id", id)
+    .select("*")
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Não foi possível salvar as notas rápidas.");
   return data;
 }
 

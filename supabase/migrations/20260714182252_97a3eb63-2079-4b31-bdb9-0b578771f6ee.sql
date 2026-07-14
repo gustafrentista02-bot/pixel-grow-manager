@@ -1,0 +1,3 @@
+ALTER TABLE public.leads
+  ADD COLUMN IF NOT EXISTS notas_rapidas TEXT NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS notas_rapidas_updated_at TIMESTAMPTZ;
