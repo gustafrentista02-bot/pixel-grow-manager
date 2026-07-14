@@ -157,51 +157,52 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
 export function CadencesTab() {
   const { data: cadences = [] } = useCadences();
   const { data: enrollments = [] } = useEnrollments();
+  const { data: auth } = useAuth();
+  const { data: profileMap } = useProfiles();
+  const uid = auth?.user?.id ?? "";
+  const isManager = auth?.role === "gerente";
   const { createCadence, updateCadence, deleteCadence } = useAutomationMutations();
   const [editing, setEditing] = useState<Cadence | null>(null);
   const [newName, setNewName] = useState("");
 
   const enrollCount = (id: string) => enrollments.filter((e) => e.cadence_id === id && e.status === "ativa").length;
 
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardContent className="flex flex-wrap items-center gap-2 p-3">
-          <Input placeholder="Nome da nova cadência..." value={newName}
-            onChange={(e) => setNewName(e.target.value)} className="max-w-xs" />
-          <Button onClick={async () => {
-            if (!newName.trim()) return;
-            await createCadence.mutateAsync(newName.trim());
-            setNewName("");
-          }}>
-            <Plus className="mr-1 h-4 w-4" /> Nova cadência
-          </Button>
-        </CardContent>
-      </Card>
+  const own = cadences.filter((c) => c.owner_id === uid);
+  const shared = cadences.filter((c) => c.owner_id !== uid && c.compartilhada);
 
-      <div className="grid gap-3 md:grid-cols-2">
-        {cadences.map((c) => (
-          <Card key={c.id}>
-            <CardContent className="space-y-2 p-4">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="truncate font-semibold">{c.nome}</h3>
-                    {c.ativa ? (
-                      <Badge variant="outline" className="border-emerald-400/40 bg-emerald-400/10 text-[10px] text-emerald-300">Ativa</Badge>
-                    ) : (
-                      <Badge variant="outline" className="text-[10px]">Pausada</Badge>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-muted-foreground">
-                    {enrollCount(c.id)} lead(s) inscritos
-                  </p>
-                </div>
+  const renderCard = (c: Cadence) => {
+    const canEdit = c.owner_id === uid;
+    const authorName = profileMap?.get(c.owner_id) ?? "";
+    return (
+      <Card key={c.id}>
+        <CardContent className="space-y-2 p-4">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="truncate font-semibold">{c.nome}</h3>
+                {c.ativa ? (
+                  <Badge variant="outline" className="border-emerald-400/40 bg-emerald-400/10 text-[10px] text-emerald-300">Ativa</Badge>
+                ) : (
+                  <Badge variant="outline" className="text-[10px]">Pausada</Badge>
+                )}
+                {c.compartilhada && (
+                  <Badge variant="outline" className="border-primary/40 bg-primary/10 text-[10px] text-primary">
+                    <Users className="mr-1 h-3 w-3" />
+                    {canEdit ? "Compartilhada" : `Compartilhada por ${authorName || "equipe"}`}
+                  </Badge>
+                )}
               </div>
-              <div className="flex flex-wrap gap-1.5">
-                <Button size="sm" variant="outline" onClick={() => setEditing(c)}>
-                  <Edit className="mr-1 h-3 w-3" /> Editar etapas
-                </Button>
+              <p className="text-[11px] text-muted-foreground">
+                {enrollCount(c.id)} lead(s) inscritos
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            <Button size="sm" variant="outline" onClick={() => setEditing(c)} disabled={!canEdit}>
+              <Edit className="mr-1 h-3 w-3" /> Editar etapas
+            </Button>
+            {canEdit && (
+              <>
                 <Button size="sm" variant="ghost"
                   onClick={() => updateCadence.mutate({ id: c.id, input: { ativa: !c.ativa } })}>
                   {c.ativa ? <><PowerOff className="mr-1 h-3 w-3" /> Pausar</> : <><Power className="mr-1 h-3 w-3" /> Ativar</>}
@@ -212,19 +213,52 @@ export function CadencesTab() {
                   }}>
                   <Trash2 className="mr-1 h-3 w-3" /> Excluir
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-        {cadences.length === 0 && (
-          <p className="col-span-full py-8 text-center text-sm text-muted-foreground">
-            Nenhuma cadência criada. Crie a primeira acima.
-          </p>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardContent className="flex flex-wrap items-center gap-2 p-3">
+          <Input placeholder="Nome da nova cadência..." value={newName}
+            onChange={(e) => setNewName(e.target.value)} className="max-w-xs" />
+          <Button onClick={async () => {
+            if (!newName.trim()) return;
+            await createCadence.mutateAsync({ nome: newName.trim() });
+            setNewName("");
+          }}>
+            <Plus className="mr-1 h-4 w-4" /> Nova cadência
+          </Button>
+        </CardContent>
+      </Card>
+
+      <section className="space-y-2">
+        <h2 className="text-sm font-semibold text-muted-foreground">Minhas ({own.length})</h2>
+        {own.length === 0 ? (
+          <p className="text-xs text-muted-foreground">Você ainda não criou nenhuma cadência.</p>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-2">{own.map(renderCard)}</div>
         )}
-      </div>
+      </section>
+
+      <section className="space-y-2">
+        <h2 className="text-sm font-semibold text-muted-foreground">
+          <Users className="mr-1 inline h-3.5 w-3.5" /> Compartilhadas pela equipe ({shared.length})
+        </h2>
+        {shared.length === 0 ? (
+          <p className="text-xs text-muted-foreground">Nenhuma cadência compartilhada pela equipe.</p>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-2">{shared.map(renderCard)}</div>
+        )}
+      </section>
 
       {editing && (
-        <CadenceEditor cadence={editing} open={!!editing} onOpenChange={(v) => !v && setEditing(null)} />
+        <CadenceEditor cadence={editing} open={!!editing} onOpenChange={(v) => !v && setEditing(null)} isManager={isManager} />
       )}
     </div>
   );
