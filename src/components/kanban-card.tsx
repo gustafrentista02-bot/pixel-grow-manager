@@ -88,7 +88,7 @@ export function KanbanCard({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group rounded-xl border border-l-[3px] border-border/60 bg-card/70 p-3 shadow-sm backdrop-blur-sm transition ${PRIORITY_BORDER[priority]} ${isDragging ? "opacity-60 ring-2 ring-ring" : "hover:border-ring/40 hover:bg-card"}`}
+      className={`group card-premium card-premium-hover rounded-xl border border-l-[3px] p-3 shadow-sm ${PRIORITY_BORDER[priority]} ${isDragging ? "opacity-60 ring-2 ring-ring" : ""}`}
     >
       {/* Header: company/name + drag handle */}
       <div className="flex items-start justify-between gap-2">
