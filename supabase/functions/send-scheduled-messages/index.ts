@@ -158,11 +158,18 @@ async function processScheduledMessages() {
     }
     const phone = lead.whatsapp || lead.telefone;
     const text = fillTemplate(row.mensagem, lead);
+    const quota = await checkAndReserveQuota(row.owner_id);
+    if (!quota.ok) {
+      await supabase.from("scheduled_messages").update({ status: "erro", erro: quota.error ?? "limite" }).eq("id", row.id);
+      processed++;
+      continue;
+    }
     const result = await sendWhatsApp(row.owner_id, phone, text);
     if (result.ok) {
       await supabase.from("scheduled_messages").update({
         status: "enviada", enviado_em: new Date().toISOString(), erro: "",
       }).eq("id", row.id);
+      await incrementUsage(quota.orgId);
       await logEvent(lead.id, row.owner_id, "mensagem_automatica", `WhatsApp enviado (avulsa): ${text.slice(0, 140)}`);
     } else {
       await supabase.from("scheduled_messages").update({ status: "erro", erro: result.error ?? "erro" }).eq("id", row.id);
