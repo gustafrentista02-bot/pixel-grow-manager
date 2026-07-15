@@ -882,8 +882,10 @@ export type Database = {
         Row: {
           connected_at: string | null
           created_at: string
+          foto_perfil_url: string
           id: string
           instance_name: string
+          nome_perfil: string
           numero_conectado: string
           organization_id: string | null
           owner_id: string
@@ -893,8 +895,10 @@ export type Database = {
         Insert: {
           connected_at?: string | null
           created_at?: string
+          foto_perfil_url?: string
           id?: string
           instance_name: string
+          nome_perfil?: string
           numero_conectado?: string
           organization_id?: string | null
           owner_id: string
@@ -904,8 +908,10 @@ export type Database = {
         Update: {
           connected_at?: string | null
           created_at?: string
+          foto_perfil_url?: string
           id?: string
           instance_name?: string
+          nome_perfil?: string
           numero_conectado?: string
           organization_id?: string | null
           owner_id?: string
