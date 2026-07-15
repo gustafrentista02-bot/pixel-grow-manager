@@ -91,6 +91,13 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
               <Switch checked={compartilhada} onCheckedChange={setCompartilhada} />
             </div>
           )}
+          <div className="flex items-center justify-between rounded-md border border-border bg-secondary/40 p-3">
+            <div>
+              <Label className="text-sm">Parar automaticamente se o cliente responder</Label>
+              <p className="text-[11px] text-muted-foreground">Se o lead responder no WhatsApp, as próximas etapas não são enviadas.</p>
+            </div>
+            <Switch checked={pararAoResponder} onCheckedChange={setPararAoResponder} />
+          </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label className="text-xs">Etapas ({steps.length})</Label>
