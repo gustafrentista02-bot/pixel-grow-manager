@@ -48,20 +48,29 @@ Deno.serve(async (req) => {
   }
 
   const providedSecret = String(payload?.secret ?? payload?.data?.secret ?? "");
-  if (!WEBHOOK_SECRET || providedSecret !== WEBHOOK_SECRET) {
-    console.log("cakto-webhook: secret inválido");
-    return json({ ok: false, error: "unauthorized" }, 401);
-  }
+
+  // DEBUG: mascara o secret recebido e o esperado, e loga tamanhos
+  const mask = (s: string) =>
+    s.length <= 8 ? `[len=${s.length}]` : `${s.slice(0, 4)}...${s.slice(-4)} [len=${s.length}]`;
+  console.log(
+    `cakto-webhook: recebido secret=${mask(providedSecret)} esperado=${mask(WEBHOOK_SECRET)} match=${providedSecret === WEBHOOK_SECRET}`,
+  );
 
   const event = extractEvent(payload);
   const email = extractEmail(payload);
 
-  // 1) Sempre logar o evento bruto
+  // 1) Sempre logar o payload bruto ANTES de validar o secret
   const { data: logRow } = await admin
     .from("cakto_webhook_log")
     .insert({ event, customer_email: email, raw_payload: payload })
     .select("id")
     .maybeSingle();
+
+  if (!WEBHOOK_SECRET || providedSecret !== WEBHOOK_SECRET) {
+    console.log("cakto-webhook: secret inválido");
+    return json({ ok: false, error: "unauthorized" }, 401);
+  }
+
 
   if (!email) {
     console.log("cakto-webhook: sem e-mail no payload");
