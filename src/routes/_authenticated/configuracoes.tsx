@@ -163,7 +163,10 @@ function ConfigPage() {
 
       {auth?.user?.id && <WhatsAppCard userId={auth.user.id} />}
 
+      <OrganizationCard canEdit={isGerente} />
+
       <CompanySettingsCard canEdit={isGerente} />
+
 
       {isGerente && pending.length > 0 && (
         <Card className="border-amber-500/40">
