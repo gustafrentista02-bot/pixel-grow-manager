@@ -12,6 +12,8 @@ type Instance = {
   id: string;
   status: "desconectado" | "conectando" | "conectado" | string;
   numero_conectado: string;
+  nome_perfil: string;
+  foto_perfil_url: string;
   instance_name: string;
   connected_at: string | null;
 };
