@@ -135,14 +135,24 @@ function AuthPage() {
                   <Label htmlFor="signup-password">Senha</Label>
                   <Input id="signup-password" name="password" type="password" required minLength={6} placeholder="Mínimo 6 caracteres" />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-invite">Código de convite (opcional)</Label>
+                  <Input id="signup-invite" name="invite_code" placeholder="Deixe em branco para criar sua própria empresa" />
+                </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Criando..." : "Criar conta"}
                 </Button>
                 <p className="text-center text-xs text-muted-foreground">
-                  O primeiro usuário cadastrado será o Gerente Geral.
+                  Sem código: você cria a própria organização e vira o gerente. Com código: entra como vendedor da equipe do convite (aguarda aprovação).
                 </p>
               </form>
             </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </div>
+  );
+}
           </Tabs>
         </div>
       </div>
