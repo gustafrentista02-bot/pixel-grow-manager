@@ -611,6 +611,7 @@ export type Database = {
           limite_usuarios: number
           logo_url: string
           nome: string
+          onboarding_concluido: boolean
           plano: string
           status: string
           subscription_status: string
@@ -628,6 +629,7 @@ export type Database = {
           limite_usuarios?: number
           logo_url?: string
           nome: string
+          onboarding_concluido?: boolean
           plano?: string
           status?: string
           subscription_status?: string
@@ -645,6 +647,7 @@ export type Database = {
           limite_usuarios?: number
           logo_url?: string
           nome?: string
+          onboarding_concluido?: boolean
           plano?: string
           status?: string
           subscription_status?: string
@@ -660,6 +663,7 @@ export type Database = {
           id: string
           nome: string
           organization_id: string | null
+          primeiro_login_concluido: boolean
           status: string
         }
         Insert: {
@@ -668,6 +672,7 @@ export type Database = {
           id: string
           nome?: string
           organization_id?: string | null
+          primeiro_login_concluido?: boolean
           status?: string
         }
         Update: {
@@ -676,6 +681,7 @@ export type Database = {
           id?: string
           nome?: string
           organization_id?: string | null
+          primeiro_login_concluido?: boolean
           status?: string
         }
         Relationships: [

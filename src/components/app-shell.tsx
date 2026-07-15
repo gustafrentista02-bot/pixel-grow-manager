@@ -1,8 +1,8 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { NotificationBell } from "@/components/notification-bell";
@@ -17,12 +17,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { pixelLogo } from "@/lib/assets";
 import { getCaktoCheckoutUrl } from "@/lib/billing.functions";
 
+const ONBOARDING_PATHS = new Set(["/onboarding", "/bem-vindo"]);
+
 export function AppShell({ children }: { children: ReactNode }) {
   useGlobalShortcuts();
   const { data: auth, isLoading } = useAuth();
   const { data: org } = useCurrentOrg();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const fetchUrl = useServerFn(getCaktoCheckoutUrl);
   const { data: checkoutUrl } = useQuery({
@@ -30,6 +33,30 @@ export function AppShell({ children }: { children: ReactNode }) {
     queryFn: async () => (await fetchUrl()).url,
     staleTime: Infinity,
   });
+
+  // Redirecionamento automático para o wizard/boas-vindas
+  const needsOrgOnboarding =
+    !isLoading &&
+    auth?.user &&
+    auth.status === "aprovado" &&
+    auth.role === "gerente" &&
+    org &&
+    org.onboarding_concluido === false;
+
+  const needsWelcome =
+    !isLoading &&
+    auth?.user &&
+    auth.status === "aprovado" &&
+    auth.role === "vendedor" &&
+    !auth.primeiroLoginConcluido;
+
+  useEffect(() => {
+    if (needsOrgOnboarding && pathname !== "/onboarding") {
+      navigate({ to: "/onboarding", replace: true });
+    } else if (!needsOrgOnboarding && needsWelcome && pathname !== "/bem-vindo") {
+      navigate({ to: "/bem-vindo", replace: true });
+    }
+  }, [needsOrgOnboarding, needsWelcome, pathname, navigate]);
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -48,6 +75,12 @@ export function AppShell({ children }: { children: ReactNode }) {
     });
     window.open(checkoutUrl, "_blank", "noopener,noreferrer");
   }
+
+  // Renderiza layout minimalista para as rotas de onboarding (sem sidebar)
+  if (ONBOARDING_PATHS.has(pathname)) {
+    return <div className="min-h-screen bg-background">{children}</div>;
+  }
+
 
   if (!isLoading && auth?.user && auth.status === "pendente") {
     return (

@@ -10,13 +10,14 @@ export type OrgSubscription = {
   limite_usuarios: number;
   limite_mensagens_mes: number;
   cakto_customer_email: string;
+  onboarding_concluido: boolean;
 };
 
 async function loadOrg(): Promise<OrgSubscription | null> {
   const { data } = await supabase
     .from("organizations")
     .select(
-      "id, nome, subscription_status, trial_ends_at, current_period_end, limite_usuarios, limite_mensagens_mes, cakto_customer_email",
+      "id, nome, subscription_status, trial_ends_at, current_period_end, limite_usuarios, limite_mensagens_mes, cakto_customer_email, onboarding_concluido",
     )
     .maybeSingle();
   return (data as OrgSubscription) ?? null;
