@@ -153,9 +153,3 @@ function AuthPage() {
     </div>
   );
 }
-          </Tabs>
-        </div>
-      </div>
-    </div>
-  );
-}
