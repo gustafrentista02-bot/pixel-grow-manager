@@ -190,6 +190,8 @@ function ConfigPage() {
 
       <OrganizationCard canEdit={isGerente} />
 
+      {isGerente && <SubscriptionCard />}
+
       <CompanySettingsCard canEdit={isGerente} />
 
 
