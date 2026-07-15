@@ -78,6 +78,60 @@ async function logEvent(leadId: string, userId: string, tipo: string, descricao:
   });
 }
 
+function currentAnoMes(): string {
+  const d = new Date();
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+async function getOrgIdForUser(userId: string): Promise<string | null> {
+  const { data } = await supabase.from("profiles").select("organization_id").eq("id", userId).maybeSingle();
+  return (data?.organization_id as string) ?? null;
+}
+
+// Retorna { ok: true } se pode enviar; { ok: false, error } se atingiu limite.
+async function checkAndReserveQuota(userId: string): Promise<{ ok: boolean; orgId: string | null; error?: string }> {
+  const orgId = await getOrgIdForUser(userId);
+  if (!orgId) return { ok: true, orgId: null };
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("limite_mensagens_mes")
+    .eq("id", orgId)
+    .maybeSingle();
+  const limite = (org?.limite_mensagens_mes as number) ?? 0;
+  const anoMes = currentAnoMes();
+  const { data: usage } = await supabase
+    .from("message_usage")
+    .select("total_enviadas")
+    .eq("organization_id", orgId)
+    .eq("ano_mes", anoMes)
+    .maybeSingle();
+  const total = (usage?.total_enviadas as number) ?? 0;
+  if (limite > 0 && total >= limite) {
+    return { ok: false, orgId, error: "Limite mensal de mensagens do plano atingido" };
+  }
+  return { ok: true, orgId };
+}
+
+async function incrementUsage(orgId: string | null) {
+  if (!orgId) return;
+  const anoMes = currentAnoMes();
+  const { data: existing } = await supabase
+    .from("message_usage")
+    .select("total_enviadas")
+    .eq("organization_id", orgId)
+    .eq("ano_mes", anoMes)
+    .maybeSingle();
+  if (existing) {
+    await supabase
+      .from("message_usage")
+      .update({ total_enviadas: (existing.total_enviadas as number) + 1 })
+      .eq("organization_id", orgId)
+      .eq("ano_mes", anoMes);
+  } else {
+    await supabase.from("message_usage").insert({ organization_id: orgId, ano_mes: anoMes, total_enviadas: 1 });
+  }
+}
+
 function computeNextSend(delayDias: number, horario: string, from: Date): Date {
   const [h, m] = horario.split(":").map((n) => parseInt(n, 10));
   const d = new Date(from);
