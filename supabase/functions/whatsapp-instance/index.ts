@@ -100,8 +100,14 @@ Deno.serve(async (req) => {
             integration: "WHATSAPP-BAILEYS",
           }),
         });
+        const { data: profile } = await admin
+          .from("profiles")
+          .select("organization_id")
+          .eq("id", user.id)
+          .maybeSingle();
         await admin.from("whatsapp_instances").insert({
           owner_id: user.id,
+          organization_id: profile?.organization_id ?? null,
           instance_name: instanceName,
           status: "conectando",
         });
