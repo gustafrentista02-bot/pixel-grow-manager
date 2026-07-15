@@ -208,6 +208,14 @@ async function processCadences() {
     }
     const text = fillTemplate(current.mensagem, lead);
     const phone = lead.whatsapp || lead.telefone;
+    const quota = await checkAndReserveQuota(enr.owner_id);
+    if (!quota.ok) {
+      await logEvent(lead.id, enr.owner_id, "erro_automacao", `Cadência "${cadenceName}": ${quota.error}`);
+      const retry = new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString();
+      await supabase.from("cadence_enrollments").update({ next_send_at: retry }).eq("id", enr.id);
+      processed++;
+      continue;
+    }
     const result = await sendWhatsApp(enr.owner_id, phone, text);
     if (result.ok) {
       const nextIdx = enr.current_step + 1;
@@ -220,6 +228,7 @@ async function processCadences() {
         patch.next_send_at = null;
       }
       await supabase.from("cadence_enrollments").update(patch).eq("id", enr.id);
+      await incrementUsage(quota.orgId);
       await logEvent(
         lead.id,
         enr.owner_id,
