@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import {
   listScheduledMessages, createScheduledMessage, cancelScheduledMessage,
   listCadences, listCadenceSteps, createCadence, updateCadence, deleteCadence, saveCadenceSteps,
-  listEnrollments, enrollLead, cancelEnrollment,
+  listEnrollments, enrollLead, cancelEnrollment, resumeEnrollment,
 } from "@/lib/automation-api";
 
 export function useScheduledMessages() {
@@ -47,8 +47,8 @@ export function useAutomationMutations() {
       onError: (e: Error) => toast.error("Erro", { description: e.message }),
     }),
     createCadence: useMutation({
-      mutationFn: ({ nome, compartilhada }: { nome: string; compartilhada?: boolean }) =>
-        createCadence(nome, compartilhada),
+      mutationFn: ({ nome, compartilhada, parar_ao_responder }: { nome: string; compartilhada?: boolean; parar_ao_responder?: boolean }) =>
+        createCadence(nome, compartilhada, parar_ao_responder),
       onSuccess: () => { invCad(); toast.success("Cadência criada!"); },
       onError: (e: Error) => toast.error("Erro", { description: e.message }),
     }),
@@ -78,6 +78,11 @@ export function useAutomationMutations() {
     cancelEnrollment: useMutation({
       mutationFn: cancelEnrollment,
       onSuccess: () => { invEnr(); toast.success("Inscrição cancelada"); },
+      onError: (e: Error) => toast.error("Erro", { description: e.message }),
+    }),
+    resumeEnrollment: useMutation({
+      mutationFn: resumeEnrollment,
+      onSuccess: () => { invEnr(); toast.success("Cadência retomada"); },
       onError: (e: Error) => toast.error("Erro", { description: e.message }),
     }),
   };

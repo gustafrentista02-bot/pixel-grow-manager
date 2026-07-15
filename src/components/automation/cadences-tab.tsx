@@ -28,15 +28,17 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
   const { saveSteps, updateCadence } = useAutomationMutations();
   const [nome, setNome] = useState(cadence.nome);
   const [compartilhada, setCompartilhada] = useState(cadence.compartilhada);
+  const [pararAoResponder, setPararAoResponder] = useState(cadence.parar_ao_responder ?? true);
   const [steps, setSteps] = useState<EditableStep[]>([]);
 
   useEffect(() => {
     if (open) {
       setNome(cadence.nome);
       setCompartilhada(cadence.compartilhada);
+      setPararAoResponder(cadence.parar_ao_responder ?? true);
       setSteps(existingSteps.map((s) => ({ delay_dias: s.delay_dias, horario: s.horario, mensagem: s.mensagem })));
     }
-  }, [open, cadence.nome, cadence.compartilhada, existingSteps]);
+  }, [open, cadence.nome, cadence.compartilhada, cadence.parar_ao_responder, existingSteps]);
 
   function addStep() {
     setSteps((s) => [...s, { delay_dias: s.length === 0 ? 0 : 2, horario: "09:00", mensagem: "" }]);
@@ -58,9 +60,10 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
   }
 
   async function save() {
-    const patch: Partial<Pick<Cadence, "nome" | "compartilhada">> = {};
+    const patch: Partial<Pick<Cadence, "nome" | "compartilhada" | "parar_ao_responder">> = {};
     if (nome !== cadence.nome) patch.nome = nome;
     if (isManager && compartilhada !== cadence.compartilhada) patch.compartilhada = compartilhada;
+    if (pararAoResponder !== (cadence.parar_ao_responder ?? true)) patch.parar_ao_responder = pararAoResponder;
     if (Object.keys(patch).length > 0) {
       await updateCadence.mutateAsync({ id: cadence.id, input: patch });
     }
@@ -88,6 +91,13 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
               <Switch checked={compartilhada} onCheckedChange={setCompartilhada} />
             </div>
           )}
+          <div className="flex items-center justify-between rounded-md border border-border bg-secondary/40 p-3">
+            <div>
+              <Label className="text-sm">Parar automaticamente se o cliente responder</Label>
+              <p className="text-[11px] text-muted-foreground">Se o lead responder no WhatsApp, as próximas etapas não são enviadas.</p>
+            </div>
+            <Switch checked={pararAoResponder} onCheckedChange={setPararAoResponder} />
+          </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label className="text-xs">Etapas ({steps.length})</Label>

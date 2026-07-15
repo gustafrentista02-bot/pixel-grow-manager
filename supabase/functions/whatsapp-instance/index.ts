@@ -88,6 +88,19 @@ Deno.serve(async (req) => {
           .eq("owner_id", user.id);
       }
 
+      // Registra o webhook para receber mensagens recebidas e pausar cadências
+      const webhookUrl = `${SUPABASE_URL}/functions/v1/whatsapp-webhook`;
+      try {
+        await evo(`/webhook/set/${instanceName}`, {
+          method: "POST",
+          body: JSON.stringify({
+            url: webhookUrl,
+            enabled: true,
+            events: ["MESSAGES_UPSERT"],
+          }),
+        });
+      } catch { /* não bloqueia a conexão se falhar */ }
+
       // Busca o QR
       const qr = await evo(`/instance/connect/${instanceName}`, { method: "GET" });
       const base64 =
