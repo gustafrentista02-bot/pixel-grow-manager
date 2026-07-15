@@ -111,6 +111,7 @@ export type Database = {
           id: string
           nome: string
           owner_id: string
+          parar_ao_responder: boolean
           updated_at: string
         }
         Insert: {
@@ -120,6 +121,7 @@ export type Database = {
           id?: string
           nome: string
           owner_id: string
+          parar_ao_responder?: boolean
           updated_at?: string
         }
         Update: {
@@ -129,6 +131,7 @@ export type Database = {
           id?: string
           nome?: string
           owner_id?: string
+          parar_ao_responder?: boolean
           updated_at?: string
         }
         Relationships: []
