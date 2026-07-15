@@ -1,77 +1,64 @@
-# Pixel CRM V2 — Plano de Evolução
+# Onboarding — Gerente fundador (wizard) + Vendedor convidado (boas-vindas)
 
-Mantendo 100% a identidade visual atual (tema escuro, verde Pixel, layout e sidebar existentes). Nada de mudança de branding.
+## 1. Banco de dados (migration única)
 
-Por ser um escopo muito grande, proponho entregar em **4 fases**. Cada fase é utilizável sozinha. Você aprova o plano e eu executo tudo em sequência.
+- `organizations.onboarding_concluido BOOLEAN NOT NULL DEFAULT false`
+- `UPDATE organizations SET onboarding_concluido = true` (todas as orgs já existentes ficam fora do wizard)
+- `profiles.primeiro_login_concluido BOOLEAN NOT NULL DEFAULT false`
+- `UPDATE profiles SET primeiro_login_concluido = true` (usuários existentes não veem tela de boas-vindas)
+- Policies existentes já permitem `UPDATE` do gerente na sua org e do usuário no próprio perfil — não precisa mudar RLS.
 
----
+## 2. Redirecionamento automático
 
-## Fase 1 — Base de dados e Novo Lead completo
+No mesmo lugar onde hoje se checa `status` e `subscription_status` (guard no `_authenticated/route.tsx` + hook `useCurrentOrg` / `useAuth`), adicionar duas regras, aplicadas antes das checagens de bloqueio existentes:
 
-**Banco (migração):**
-- Ampliar `leads` com os novos campos: `whatsapp`, `instagram`, `site`, `area_atendimento`, `responsavel_id`, `plano`, `status_comercial`, `potencial` (alta/média/baixa), `valor_contrato` (já existe), campos de marketing: `tem_perfil_google` (bool), `link_perfil_google`, `tem_site` (bool), `faz_google_ads` (bool), `faz_meta_ads` (bool), `canais_aquisicao` (array), `objetivo`, `dificuldade`, e `proxima_acao`, `reuniao_at`, `meet_link`.
-- Enum novo `lead_plano` e `lead_potencial`.
-- Nova tabela `lead_events` (timeline/histórico automático): tipo, descrição, timestamp, autor.
-- Nova tabela `lead_files` (anexos) + bucket de Storage `lead-files` (privado, RLS por dono).
-- Nova tabela `company_settings` (config da empresa: logo, nome, telefone, whatsapp, instagram, site, meet padrão, assinatura).
-- Ampliar enum `app_role` com `administrador` (hoje só gerente/vendedor).
-- GRANTs + RLS em todas as novas tabelas.
+1. Se `role = 'gerente'` E `org.onboarding_concluido = false` E rota atual ≠ `/onboarding` → redireciona para `/onboarding`.
+2. Senão, se `profile.primeiro_login_concluido = false` E rota atual ≠ `/bem-vindo` → redireciona para `/bem-vindo`.
 
-**Formulário Novo Lead** (`lead-form-dialog.tsx`): reorganizar em 3 seções (Dados Básicos, Comercial, Marketing) com todos os campos pedidos, incluindo toggles SIM/NÃO e selects de potencial/plano.
+Depois de concluído, nunca mais redireciona (o campo fica `true` e os hooks recarregam).
 
-## Fase 2 — Tela do Lead + Kanban + Movimentação automática
+## 3. Rota `/onboarding` (wizard do gerente)
 
-**Tela exclusiva do Lead** (nova rota `/_authenticated/leads/$leadId`) com abas:
-- **Geral**: todos os dados.
-- **Comercial**: plano, valor, origem, responsável, observações.
-- **Marketing**: perfil Google, site, instagram, área, Google/Meta Ads, objetivos, dificuldades.
-- **Histórico**: timeline automática (lida de `lead_events`).
-- **Arquivos**: upload/download de PDF, imagem, contrato, proposta (Storage).
+Arquivo `src/routes/_authenticated/onboarding.tsx`. Layout centrado com header próprio (sem sidebar), barra de progresso "Passo N de 4", botões Voltar / Pular / Continuar.
 
-Clicar no lead (tabela e card) abre esta página, não modal.
+- **Passo 1 — Boas-vindas e nome da empresa**
+  - Copy curta explicando Pixel CRM (gestão de leads e follow-up para quem trabalha com Perfil de Empresa no Google / SEO local).
+  - Input com `org.nome` pré-preenchido, editável. Salva ao clicar "Continuar".
 
-**Kanban** (`kanban-card.tsx`): cards ricos com Nome, Empresa, Cidade, Segmento, Origem, Valor, Próxima ação, Próxima reunião, ícones (Google/Site/Instagram/WhatsApp) e cor por prioridade (potencial).
+- **Passo 2 — Primeiros leads**
+  - Dois cards lado a lado: "Importar planilha" e "Adicionar manualmente".
+  - Reaproveita a importação CSV e o `LeadFormDialog` já usados em `/leads`, abrindo em dialog dentro do wizard.
+  - Ao fechar o dialog, incrementa contador local `leadsImportados` (baseado em quantos foram criados).
+  - Botão "Pular por enquanto" sempre visível.
 
-**Movimentação automática** (ao arrastar/mover):
-- Lead Novo → Conversando: registra data automática (event).
-- Conversando → Reunião: abre diálogo de calendário (data + hora + link Meet) e salva.
-- Reunião → Proposta: registra automaticamente.
-- Proposta → Ganho: atualiza receita/conversão no dashboard.
-- Cada movimento grava um `lead_event` para a timeline.
+- **Passo 3 — Conectar WhatsApp**
+  - Reaproveita `<WhatsappCard />` (o mesmo de Configurações) dentro de um wrapper com texto explicativo curto ("Conectar agora libera as automações de follow-up nos próximos passos").
+  - Botão "Pular por enquanto" disponível. O estado de conexão é lido do próprio hook do card.
 
-## Fase 3 — Follow-up, Tarefas, Modelos e Configurações
+- **Passo 4 — Pronto**
+  - Resumo: nome confirmado, X leads criados nesta sessão, WhatsApp "Conectado" ou "Pulado".
+  - Botão "Ir para o Dashboard" → server fn que faz `UPDATE organizations SET onboarding_concluido = true WHERE id = org.id` (só permitido para gerente da própria org via RLS existente), invalida cache do `useCurrentOrg`, navega para `/dashboard`.
 
-**Follow-up**: prazos 24h / 2d / 5d / 10d com contador de dias restantes e botões: Enviar mensagem, Copiar mensagem, Mover p/ próximo, Concluir, Sem interesse.
+## 4. Rota `/bem-vindo` (vendedor convidado)
 
-**Tarefas**: gerenciador completo com Responsável, Prioridade, Prazo, Status, Lead e Empresa relacionados; atalhos de tipo (Ligar, Enviar proposta, Cobrar retorno, Enviar contrato, Enviar Meet, Criar Perfil Google, Solicitar avaliações, Postagens).
+Arquivo `src/routes/_authenticated/bem-vindo.tsx`. Tela única, centrada:
 
-**Modelos de Mensagem**: categorias completas (Primeiro contato, Qualificação, Agendamento, Confirmação, Lembrete, Pós reunião, Envio proposta, Cobrança, Follow-up, Solicitação avaliação, Fechamento) com Copiar / Editar / Duplicar / Excluir.
+- Título "Bem-vindo à equipe da {org.nome}"
+- Parágrafo curto: "Aqui você vai gerenciar seus próprios leads e follow-ups."
+- Botão "Começar" → server fn que faz `UPDATE profiles SET primeiro_login_concluido = true WHERE id = auth.uid()`, invalida cache, navega para `/dashboard`.
 
-**Modelos de Proposta**: salvar/editar/duplicar modelos, **gerar PDF** (client-side) e enviar por WhatsApp.
+## Detalhes técnicos
 
-**Configurações**: dados da empresa (logo, nome, telefone, whatsapp, instagram, site, meet padrão, assinatura) + gestão de usuários e permissões (Administrador / Gerente / Vendedor).
+- Server functions novas em `src/lib/onboarding.functions.ts`:
+  - `updateOrgName({ nome })` — usa `requireSupabaseAuth`, valida que o usuário é gerente e dono, executa UPDATE em `organizations`.
+  - `completeOrgOnboarding()` — mesma checagem, marca `onboarding_concluido = true`.
+  - `completeUserWelcome()` — marca `primeiro_login_concluido = true` para `auth.uid()`.
+- Hooks: `useCurrentOrg` já existe; adicionar `onboarding_concluido` ao SELECT e ao tipo `OrgSubscription`. `useAuth` / `useProfile` (o que já retorna `status`) precisa retornar `primeiro_login_concluido` — adicionar ao SELECT.
+- Papel do usuário: usar o mesmo mecanismo já em uso hoje para saber se é gerente (via `user_roles` / `has_role`). Se houver um hook `useIsGerente`, reaproveitar; senão, um query simples em `user_roles`.
+- Guard: colocado em `_authenticated/route.tsx` (client-side, mesmo ponto que já bloqueia por `status`/assinatura), retornando `redirect({ to: '/onboarding' | '/bem-vindo' })` antes dos outros checks.
+- Nenhum trigger novo; sem mudança em `handle_signup` (o default `false` já garante que novas orgs e novos perfis passam pelo fluxo).
 
-## Fase 4 — Dashboards, Busca, Filtros, Import/Export
+## O que NÃO muda
 
-**Dashboard principal**: todos os indicadores (Leads Hoje/Semana/Mês, Conversando, Reuniões Agendadas/Realizadas, Propostas, Ganhos, Perdidos, Ticket Médio, Receita Prevista/Confirmada, MRR, Taxa de Conversão), gráfico de funil, gráfico por origem e painel "Próximas Reuniões" com botão Entrar no Meet.
-
-**Dashboard "Hoje"** (novo painel inicial): leads novos, reuniões de hoje, tarefas pendentes, follow-ups pendentes, receita prevista, propostas abertas.
-
-**Dashboard de Vendas** (gerente): conversão/receita/reuniões/propostas/ganhos/ticket médio por vendedor.
-
-**Busca global**: nome, empresa, telefone, instagram, cidade, segmento.
-
-**Filtros**: cidade, estado, segmento, origem, responsável, período, etapa, plano, valor.
-
-**Importação**: CSV e Excel (parse client-side; Google Sheets via URL/CSV export). **Exportação**: CSV, Excel e PDF.
-
----
-
-## Notas técnicas
-- Backend: Lovable Cloud (migrações + RLS + Storage). Leads hoje são "owner-only"; para dashboards de equipe e responsável, ajusto RLS para gerentes/administradores lerem leads da equipe (via `has_role`), mantendo vendedores restritos aos próprios.
-- PDF: geração no cliente (jspdf/html) para evitar dependências Node no runtime edge.
-- Import Excel: biblioteca `xlsx` no cliente; CSV com `papaparse` (já usado).
-- Timeline: preenchida automaticamente via inserts em `lead_events` nas ações-chave (não uso triggers em schema protegido).
-
-## Decisão de escopo
-Recomendo executar **fase a fase** (aprovo e sigo para a próxima) para você validar cada bloco. Se preferir, executo as 4 fases direto sem parar. Me diga qual prefere.
+- Formulário de lead, importação CSV e `whatsapp-card` continuam funcionando como estão em `/leads` e `/configuracoes`; o onboarding só os embute.
+- RLS existente, `handle_signup`, edge functions da Cakto e assinatura ficam intactos.
