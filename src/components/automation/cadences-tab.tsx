@@ -28,15 +28,17 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
   const { saveSteps, updateCadence } = useAutomationMutations();
   const [nome, setNome] = useState(cadence.nome);
   const [compartilhada, setCompartilhada] = useState(cadence.compartilhada);
+  const [pararAoResponder, setPararAoResponder] = useState(cadence.parar_ao_responder ?? true);
   const [steps, setSteps] = useState<EditableStep[]>([]);
 
   useEffect(() => {
     if (open) {
       setNome(cadence.nome);
       setCompartilhada(cadence.compartilhada);
+      setPararAoResponder(cadence.parar_ao_responder ?? true);
       setSteps(existingSteps.map((s) => ({ delay_dias: s.delay_dias, horario: s.horario, mensagem: s.mensagem })));
     }
-  }, [open, cadence.nome, cadence.compartilhada, existingSteps]);
+  }, [open, cadence.nome, cadence.compartilhada, cadence.parar_ao_responder, existingSteps]);
 
   function addStep() {
     setSteps((s) => [...s, { delay_dias: s.length === 0 ? 0 : 2, horario: "09:00", mensagem: "" }]);
@@ -58,9 +60,10 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
   }
 
   async function save() {
-    const patch: Partial<Pick<Cadence, "nome" | "compartilhada">> = {};
+    const patch: Partial<Pick<Cadence, "nome" | "compartilhada" | "parar_ao_responder">> = {};
     if (nome !== cadence.nome) patch.nome = nome;
     if (isManager && compartilhada !== cadence.compartilhada) patch.compartilhada = compartilhada;
+    if (pararAoResponder !== (cadence.parar_ao_responder ?? true)) patch.parar_ao_responder = pararAoResponder;
     if (Object.keys(patch).length > 0) {
       await updateCadence.mutateAsync({ id: cadence.id, input: patch });
     }
