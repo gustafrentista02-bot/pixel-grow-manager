@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Loader2, Smartphone, QrCode, Power } from "lucide-react";
+import { Loader2, Smartphone, QrCode, Power, RefreshCw } from "lucide-react";
 
 type Instance = {
   id: string;
