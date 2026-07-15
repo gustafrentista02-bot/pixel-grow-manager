@@ -121,8 +121,19 @@ export function WhatsAppCard({ userId }: { userId: string }) {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 {statusBadge(status)}
+                {isConnected && inst?.foto_perfil_url && (
+                  <img
+                    src={inst.foto_perfil_url}
+                    alt={inst?.nome_perfil || "Perfil"}
+                    className="h-6 w-6 rounded-full object-cover border border-border/60"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                  />
+                )}
+                {isConnected && inst?.nome_perfil && (
+                  <span className="text-sm font-medium truncate max-w-[160px]">{inst.nome_perfil}</span>
+                )}
                 {isConnected && inst?.numero_conectado && (
-                  <span className="text-sm font-medium">+{inst.numero_conectado}</span>
+                  <span className="text-sm text-muted-foreground">· +{inst.numero_conectado}</span>
                 )}
               </div>
               {isConnected && inst?.connected_at && (
