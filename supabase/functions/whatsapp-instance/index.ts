@@ -67,6 +67,29 @@ Deno.serve(async (req) => {
 
   try {
     if (action === "connect") {
+      // Se já existe uma instância, verifica primeiro se ela já está conectada
+      if (existing) {
+        try {
+          const check = await evo(`/instance/connectionState/${instanceName}`, { method: "GET" });
+          const checkStateRaw =
+            check.data?.instance?.state ??
+            check.data?.state ??
+            check.data?.status ??
+            "";
+          console.log(`[whatsapp-instance] connect precheck stateRaw for ${instanceName}:`, JSON.stringify(checkStateRaw));
+          if (String(checkStateRaw).toLowerCase() === "open") {
+            return json({
+              ok: true,
+              instanceName,
+              base64: null,
+              code: null,
+              status: "conectado",
+              alreadyConnected: true,
+            });
+          }
+        } catch { /* ignore, segue fluxo normal */ }
+      }
+
       // Cria a instância se não existir (Evolution ignora se já existe)
       if (!existing) {
         await evo("/instance/create", {
@@ -121,12 +144,27 @@ Deno.serve(async (req) => {
         s.data?.state ??
         s.data?.status ??
         "";
-      const isOpen = String(stateRaw).toLowerCase() === "open";
-      const status = isOpen ? "conectado" : (existing.status === "conectado" ? "desconectado" : (existing.status || "desconectado"));
+      const stateStr = String(stateRaw).toLowerCase();
+      console.log(`[whatsapp-instance] status stateRaw for ${instanceName}:`, JSON.stringify(stateRaw), "httpStatus:", s.status);
+
+      const isOpen = stateStr === "open";
+      const isExplicitDisconnect =
+        stateStr === "close" ||
+        stateStr === "closed" ||
+        stateStr === "connecting" ||
+        s.status === 404;
+
+      // Decide o novo status:
+      // - open => conectado
+      // - close/closed/connecting/404 => desconectado
+      // - qualquer outra coisa (ambíguo) => mantém o status atual salvo
+      let status: string;
+      if (isOpen) status = "conectado";
+      else if (isExplicitDisconnect) status = "desconectado";
+      else status = existing.status || "desconectado";
 
       let numero = existing.numero_conectado ?? "";
       if (isOpen) {
-        // Tenta pegar o número via fetchInstances
         try {
           const info = await evo(`/instance/fetchInstances?instanceName=${encodeURIComponent(instanceName)}`, { method: "GET" });
           const arr = Array.isArray(info.data) ? info.data : (info.data?.instances ?? []);
@@ -138,11 +176,11 @@ Deno.serve(async (req) => {
 
       await admin.from("whatsapp_instances").update({
         status,
-        numero_conectado: numero || "",
-        connected_at: isOpen && !existing.connected_at ? new Date().toISOString() : existing.connected_at,
+        numero_conectado: status === "desconectado" ? "" : (numero || existing.numero_conectado || ""),
+        connected_at: isOpen && !existing.connected_at ? new Date().toISOString() : (status === "desconectado" ? null : existing.connected_at),
       }).eq("owner_id", user.id);
 
-      return json({ ok: true, status, numero_conectado: numero, raw: s.data });
+      return json({ ok: true, status, numero_conectado: numero, stateRaw, raw: s.data });
     }
 
     if (action === "disconnect") {

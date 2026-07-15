@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Loader2, Smartphone, QrCode, Power } from "lucide-react";
+import { Loader2, Smartphone, QrCode, Power, RefreshCw } from "lucide-react";
 
 type Instance = {
   id: string;
@@ -88,6 +88,19 @@ export function WhatsAppCard({ userId }: { userId: string }) {
     onError: (e: Error) => toast.error("Erro", { description: e.message }),
   });
 
+  const checkStatus = useMutation({
+    mutationFn: () => callInstance("status"),
+    onSuccess: (res: any) => {
+      qc.invalidateQueries({ queryKey: ["whatsapp-instance", userId] });
+      qc.invalidateQueries({ queryKey: ["team-whatsapp"] });
+      const s = res?.status ?? "desconectado";
+      if (s === "conectado") toast.success("Status: conectado");
+      else if (s === "conectando") toast.info("Status: conectando…");
+      else toast.info("Status: desconectado");
+    },
+    onError: (e: Error) => toast.error("Erro ao verificar", { description: e.message }),
+  });
+
   const status = inst?.status ?? "desconectado";
   const isConnected = status === "conectado";
 
@@ -128,6 +141,15 @@ export function WhatsAppCard({ userId }: { userId: string }) {
                 <Power className="h-4 w-4" /> Desconectar
               </Button>
             )}
+            <Button
+              variant="ghost"
+              onClick={() => checkStatus.mutate()}
+              disabled={checkStatus.isPending}
+              className="gap-2"
+            >
+              {checkStatus.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              Verificar status agora
+            </Button>
           </div>
         </CardContent>
       </Card>
