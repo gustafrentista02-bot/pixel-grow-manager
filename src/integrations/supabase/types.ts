@@ -1021,9 +1021,10 @@ export type Database = {
           user_id: string
         }[]
       }
-      handle_signup:
-        | { Args: { _nome: string }; Returns: undefined }
-        | { Args: { _invite_code?: string; _nome: string }; Returns: undefined }
+      handle_signup: {
+        Args: { _invite_code?: string; _nome: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
