@@ -41,7 +41,7 @@ export async function saveCompanySettings(input: CompanyInput): Promise<CompanyS
   }
   const { data, error } = await supabase
     .from("company_settings")
-    .insert(input)
+    .insert(input as any) // organization_id preenchido via trigger
     .select("*")
     .single();
   if (error) throw error;

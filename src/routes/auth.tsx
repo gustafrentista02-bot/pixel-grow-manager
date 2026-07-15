@@ -47,6 +47,7 @@ function AuthPage() {
     const nome = String(form.get("nome"));
     const email = String(form.get("email"));
     const password = String(form.get("password"));
+    const inviteCode = String(form.get("invite_code") ?? "").trim();
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email,
@@ -57,13 +58,15 @@ function AuthPage() {
       setLoading(false);
       return toast.error("Falha no cadastro", { description: error.message });
     }
-    // ensure profile + role created (first user => gerente)
-    const { error: rpcError } = await supabase.rpc("handle_signup", { _nome: nome });
+    const { error: rpcError } = await supabase.rpc("handle_signup", {
+      _nome: nome,
+      _invite_code: inviteCode || undefined,
+    });
     setLoading(false);
     if (rpcError) {
       toast.warning("Conta criada, mas houve um aviso", { description: rpcError.message });
     } else {
-      toast.success("Conta criada com sucesso!");
+      toast.success(inviteCode ? "Cadastro enviado! Aguarde aprovação do gerente." : "Organização criada com sucesso!");
     }
     navigate({ to: "/dashboard" });
   }
@@ -132,11 +135,15 @@ function AuthPage() {
                   <Label htmlFor="signup-password">Senha</Label>
                   <Input id="signup-password" name="password" type="password" required minLength={6} placeholder="Mínimo 6 caracteres" />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-invite">Código de convite (opcional)</Label>
+                  <Input id="signup-invite" name="invite_code" placeholder="Deixe em branco para criar sua própria empresa" />
+                </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Criando..." : "Criar conta"}
                 </Button>
                 <p className="text-center text-xs text-muted-foreground">
-                  O primeiro usuário cadastrado será o Gerente Geral.
+                  Sem código: você cria a própria organização e vira o gerente. Com código: entra como vendedor da equipe do convite (aguarda aprovação).
                 </p>
               </form>
             </TabsContent>
