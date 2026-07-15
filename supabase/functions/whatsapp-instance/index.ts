@@ -67,6 +67,29 @@ Deno.serve(async (req) => {
 
   try {
     if (action === "connect") {
+      // Se já existe uma instância, verifica primeiro se ela já está conectada
+      if (existing) {
+        try {
+          const check = await evo(`/instance/connectionState/${instanceName}`, { method: "GET" });
+          const checkStateRaw =
+            check.data?.instance?.state ??
+            check.data?.state ??
+            check.data?.status ??
+            "";
+          console.log(`[whatsapp-instance] connect precheck stateRaw for ${instanceName}:`, JSON.stringify(checkStateRaw));
+          if (String(checkStateRaw).toLowerCase() === "open") {
+            return json({
+              ok: true,
+              instanceName,
+              base64: null,
+              code: null,
+              status: "conectado",
+              alreadyConnected: true,
+            });
+          }
+        } catch { /* ignore, segue fluxo normal */ }
+      }
+
       // Cria a instância se não existir (Evolution ignora se já existe)
       if (!existing) {
         await evo("/instance/create", {
