@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -52,10 +52,9 @@ function OnboardingPage() {
 
   const { create } = useLeadMutations();
 
-  // Sincroniza nome quando org carrega
-  if (org?.nome && !nome && !nomeSalvo) {
-    setNome(org.nome);
-  }
+  useEffect(() => {
+    if (org?.nome && !nomeSalvo) setNome((prev) => (prev ? prev : org.nome));
+  }, [org?.nome, nomeSalvo]);
 
   // Status atual do WhatsApp deste usuário (mesma query do WhatsAppCard)
   const { data: whatsInst } = useQuery({
