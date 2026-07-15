@@ -141,6 +141,15 @@ export function WhatsAppCard({ userId }: { userId: string }) {
                 <Power className="h-4 w-4" /> Desconectar
               </Button>
             )}
+            <Button
+              variant="ghost"
+              onClick={() => checkStatus.mutate()}
+              disabled={checkStatus.isPending}
+              className="gap-2"
+            >
+              {checkStatus.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              Verificar status agora
+            </Button>
           </div>
         </CardContent>
       </Card>
