@@ -26,6 +26,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { CompanySettingsCard } from "@/components/company-settings-card";
 import { OrganizationCard } from "@/components/organization-card";
+import { SubscriptionCard } from "@/components/subscription-card";
 import { WhatsAppCard } from "@/components/whatsapp-card";
 import { ROLE_LABELS } from "@/lib/crm";
 import type { AppRole } from "@/lib/crm";
@@ -106,12 +107,36 @@ function ConfigPage() {
 
   const approve = useMutation({
     mutationFn: async (userId: string) => {
+      // Verifica limite de usuários do plano
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("organization_id")
+        .eq("id", userId)
+        .maybeSingle();
+      const orgId = (profile as any)?.organization_id;
+      if (orgId) {
+        const { data: org } = await supabase
+          .from("organizations")
+          .select("limite_usuarios")
+          .eq("id", orgId)
+          .maybeSingle();
+        const limite = (org as any)?.limite_usuarios ?? 0;
+        const { count } = await supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .eq("organization_id", orgId)
+          .eq("status", "aprovado");
+        if (limite > 0 && (count ?? 0) >= limite) {
+          throw new Error(`Limite de ${limite} usuários do seu plano atingido.`);
+        }
+      }
       const { error } = await supabase.from("profiles").update({ status: "aprovado" }).eq("id", userId);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["team"] });
       queryClient.invalidateQueries({ queryKey: ["pending-count"] });
+      queryClient.invalidateQueries({ queryKey: ["approved-users-count"] });
       toast.success("Usuário aprovado!");
     },
     onError: (e: Error) => toast.error("Erro", { description: e.message }),
@@ -164,6 +189,8 @@ function ConfigPage() {
       {auth?.user?.id && <WhatsAppCard userId={auth.user.id} />}
 
       <OrganizationCard canEdit={isGerente} />
+
+      {isGerente && <SubscriptionCard />}
 
       <CompanySettingsCard canEdit={isGerente} />
 

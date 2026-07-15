@@ -2,3 +2,6 @@ project_id = "xfmvnyatgsiaewcbarjq"
 
 [functions.whatsapp-webhook]
 verify_jwt = false
+
+[functions.cakto-webhook]
+verify_jwt = false

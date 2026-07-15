@@ -78,6 +78,60 @@ async function logEvent(leadId: string, userId: string, tipo: string, descricao:
   });
 }
 
+function currentAnoMes(): string {
+  const d = new Date();
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+async function getOrgIdForUser(userId: string): Promise<string | null> {
+  const { data } = await supabase.from("profiles").select("organization_id").eq("id", userId).maybeSingle();
+  return (data?.organization_id as string) ?? null;
+}
+
+// Retorna { ok: true } se pode enviar; { ok: false, error } se atingiu limite.
+async function checkAndReserveQuota(userId: string): Promise<{ ok: boolean; orgId: string | null; error?: string }> {
+  const orgId = await getOrgIdForUser(userId);
+  if (!orgId) return { ok: true, orgId: null };
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("limite_mensagens_mes")
+    .eq("id", orgId)
+    .maybeSingle();
+  const limite = (org?.limite_mensagens_mes as number) ?? 0;
+  const anoMes = currentAnoMes();
+  const { data: usage } = await supabase
+    .from("message_usage")
+    .select("total_enviadas")
+    .eq("organization_id", orgId)
+    .eq("ano_mes", anoMes)
+    .maybeSingle();
+  const total = (usage?.total_enviadas as number) ?? 0;
+  if (limite > 0 && total >= limite) {
+    return { ok: false, orgId, error: "Limite mensal de mensagens do plano atingido" };
+  }
+  return { ok: true, orgId };
+}
+
+async function incrementUsage(orgId: string | null) {
+  if (!orgId) return;
+  const anoMes = currentAnoMes();
+  const { data: existing } = await supabase
+    .from("message_usage")
+    .select("total_enviadas")
+    .eq("organization_id", orgId)
+    .eq("ano_mes", anoMes)
+    .maybeSingle();
+  if (existing) {
+    await supabase
+      .from("message_usage")
+      .update({ total_enviadas: (existing.total_enviadas as number) + 1 })
+      .eq("organization_id", orgId)
+      .eq("ano_mes", anoMes);
+  } else {
+    await supabase.from("message_usage").insert({ organization_id: orgId, ano_mes: anoMes, total_enviadas: 1 });
+  }
+}
+
 function computeNextSend(delayDias: number, horario: string, from: Date): Date {
   const [h, m] = horario.split(":").map((n) => parseInt(n, 10));
   const d = new Date(from);
@@ -104,11 +158,18 @@ async function processScheduledMessages() {
     }
     const phone = lead.whatsapp || lead.telefone;
     const text = fillTemplate(row.mensagem, lead);
+    const quota = await checkAndReserveQuota(row.owner_id);
+    if (!quota.ok) {
+      await supabase.from("scheduled_messages").update({ status: "erro", erro: quota.error ?? "limite" }).eq("id", row.id);
+      processed++;
+      continue;
+    }
     const result = await sendWhatsApp(row.owner_id, phone, text);
     if (result.ok) {
       await supabase.from("scheduled_messages").update({
         status: "enviada", enviado_em: new Date().toISOString(), erro: "",
       }).eq("id", row.id);
+      await incrementUsage(quota.orgId);
       await logEvent(lead.id, row.owner_id, "mensagem_automatica", `WhatsApp enviado (avulsa): ${text.slice(0, 140)}`);
     } else {
       await supabase.from("scheduled_messages").update({ status: "erro", erro: result.error ?? "erro" }).eq("id", row.id);
@@ -147,6 +208,14 @@ async function processCadences() {
     }
     const text = fillTemplate(current.mensagem, lead);
     const phone = lead.whatsapp || lead.telefone;
+    const quota = await checkAndReserveQuota(enr.owner_id);
+    if (!quota.ok) {
+      await logEvent(lead.id, enr.owner_id, "erro_automacao", `Cadência "${cadenceName}": ${quota.error}`);
+      const retry = new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString();
+      await supabase.from("cadence_enrollments").update({ next_send_at: retry }).eq("id", enr.id);
+      processed++;
+      continue;
+    }
     const result = await sendWhatsApp(enr.owner_id, phone, text);
     if (result.ok) {
       const nextIdx = enr.current_step + 1;
@@ -159,6 +228,7 @@ async function processCadences() {
         patch.next_send_at = null;
       }
       await supabase.from("cadence_enrollments").update(patch).eq("id", enr.id);
+      await incrementUsage(quota.orgId);
       await logEvent(
         lead.id,
         enr.owner_id,
