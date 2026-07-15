@@ -148,22 +148,25 @@ Deno.serve(async (req) => {
       console.log(`[whatsapp-instance] status stateRaw for ${instanceName}:`, JSON.stringify(stateRaw), "httpStatus:", s.status);
 
       const isOpen = stateStr === "open";
+      // Apenas close/closed/404 são desconexão real.
+      // "connecting" é ambíguo (pode ser reconexão passageira do Baileys) → mantém status atual.
       const isExplicitDisconnect =
         stateStr === "close" ||
         stateStr === "closed" ||
-        stateStr === "connecting" ||
         s.status === 404;
 
       // Decide o novo status:
       // - open => conectado
-      // - close/closed/connecting/404 => desconectado
-      // - qualquer outra coisa (ambíguo) => mantém o status atual salvo
+      // - close/closed/404 => desconectado
+      // - qualquer outra coisa (connecting, vazio, ambíguo) => mantém o status atual salvo
       let status: string;
       if (isOpen) status = "conectado";
       else if (isExplicitDisconnect) status = "desconectado";
       else status = existing.status || "desconectado";
 
       let numero = existing.numero_conectado ?? "";
+      let nomePerfil = (existing as any).nome_perfil ?? "";
+      let fotoPerfilUrl = (existing as any).foto_perfil_url ?? "";
       if (isOpen) {
         try {
           const info = await evo(`/instance/fetchInstances?instanceName=${encodeURIComponent(instanceName)}`, { method: "GET" });
@@ -171,16 +174,21 @@ Deno.serve(async (req) => {
           const inst = arr?.[0];
           numero = inst?.owner ?? inst?.instance?.owner ?? inst?.number ?? numero;
           if (typeof numero === "string" && numero.includes("@")) numero = numero.split("@")[0];
+          nomePerfil = inst?.profileName ?? inst?.profile_name ?? inst?.instance?.profileName ?? inst?.instance?.profile_name ?? nomePerfil ?? "";
+          fotoPerfilUrl = inst?.profilePicUrl ?? inst?.profile_pic_url ?? inst?.instance?.profilePicUrl ?? inst?.instance?.profile_pic_url ?? fotoPerfilUrl ?? "";
         } catch { /* ignore */ }
       }
 
+      const isDisconnected = status === "desconectado";
       await admin.from("whatsapp_instances").update({
         status,
-        numero_conectado: status === "desconectado" ? "" : (numero || existing.numero_conectado || ""),
-        connected_at: isOpen && !existing.connected_at ? new Date().toISOString() : (status === "desconectado" ? null : existing.connected_at),
+        numero_conectado: isDisconnected ? "" : (numero || existing.numero_conectado || ""),
+        nome_perfil: isDisconnected ? "" : (nomePerfil || (existing as any).nome_perfil || ""),
+        foto_perfil_url: isDisconnected ? "" : (fotoPerfilUrl || (existing as any).foto_perfil_url || ""),
+        connected_at: isOpen && !existing.connected_at ? new Date().toISOString() : (isDisconnected ? null : existing.connected_at),
       }).eq("owner_id", user.id);
 
-      return json({ ok: true, status, numero_conectado: numero, stateRaw, raw: s.data });
+      return json({ ok: true, status, numero_conectado: numero, nome_perfil: nomePerfil, foto_perfil_url: fotoPerfilUrl, stateRaw, raw: s.data });
     }
 
     if (action === "disconnect") {
