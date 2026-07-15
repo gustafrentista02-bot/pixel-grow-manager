@@ -96,9 +96,10 @@ export function WhatsAppCard({ userId }: { userId: string }) {
       qc.invalidateQueries({ queryKey: ["whatsapp-instance", userId] });
       qc.invalidateQueries({ queryKey: ["team-whatsapp"] });
       const s = res?.status ?? "desconectado";
+      const raw = res?.stateRaw ?? "desconhecido";
       if (s === "conectado") toast.success("Status: conectado");
-      else if (s === "conectando") toast.info("Status: conectando…");
-      else toast.info("Status: desconectado");
+      else if (s === "conectando") toast.info("Status: conectando…", { description: `Estado bruto: ${raw}` });
+      else toast.info("Status: desconectado", { description: `Estado bruto: ${raw}` });
     },
     onError: (e: Error) => toast.error("Erro ao verificar", { description: e.message }),
   });
