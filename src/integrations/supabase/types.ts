@@ -157,6 +157,33 @@ export type Database = {
           },
         ]
       }
+      cakto_webhook_log: {
+        Row: {
+          created_at: string
+          customer_email: string
+          event: string
+          id: string
+          matched_organization_id: string | null
+          raw_payload: Json
+        }
+        Insert: {
+          created_at?: string
+          customer_email?: string
+          event?: string
+          id?: string
+          matched_organization_id?: string | null
+          raw_payload?: Json
+        }
+        Update: {
+          created_at?: string
+          customer_email?: string
+          event?: string
+          id?: string
+          matched_organization_id?: string | null
+          raw_payload?: Json
+        }
+        Relationships: []
+      }
       company_settings: {
         Row: {
           assinatura: string
@@ -546,40 +573,81 @@ export type Database = {
           },
         ]
       }
+      message_usage: {
+        Row: {
+          ano_mes: string
+          organization_id: string
+          total_enviadas: number
+        }
+        Insert: {
+          ano_mes: string
+          organization_id: string
+          total_enviadas?: number
+        }
+        Update: {
+          ano_mes?: string
+          organization_id?: string
+          total_enviadas?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_usage_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
+          cakto_customer_email: string
           cor_marca: string
           created_at: string
+          current_period_end: string | null
           id: string
           invite_code: string
+          limite_mensagens_mes: number
+          limite_usuarios: number
           logo_url: string
           nome: string
           plano: string
           status: string
+          subscription_status: string
           trial_ends_at: string
           updated_at: string
         }
         Insert: {
+          cakto_customer_email?: string
           cor_marca?: string
           created_at?: string
+          current_period_end?: string | null
           id?: string
           invite_code?: string
+          limite_mensagens_mes?: number
+          limite_usuarios?: number
           logo_url?: string
           nome: string
           plano?: string
           status?: string
+          subscription_status?: string
           trial_ends_at?: string
           updated_at?: string
         }
         Update: {
+          cakto_customer_email?: string
           cor_marca?: string
           created_at?: string
+          current_period_end?: string | null
           id?: string
           invite_code?: string
+          limite_mensagens_mes?: number
+          limite_usuarios?: number
           logo_url?: string
           nome?: string
           plano?: string
           status?: string
+          subscription_status?: string
           trial_ends_at?: string
           updated_at?: string
         }
