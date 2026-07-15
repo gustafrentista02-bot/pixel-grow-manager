@@ -26,6 +26,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { CompanySettingsCard } from "@/components/company-settings-card";
 import { OrganizationCard } from "@/components/organization-card";
+import { SubscriptionCard } from "@/components/subscription-card";
 import { WhatsAppCard } from "@/components/whatsapp-card";
 import { ROLE_LABELS } from "@/lib/crm";
 import type { AppRole } from "@/lib/crm";
