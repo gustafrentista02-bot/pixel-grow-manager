@@ -57,18 +57,25 @@ export async function listCadenceSteps(cadence_id: string): Promise<CadenceStep[
   return data ?? [];
 }
 
-export async function createCadence(nome: string, compartilhada = false): Promise<Cadence> {
+export async function createCadence(
+  nome: string,
+  compartilhada = false,
+  parar_ao_responder = true,
+): Promise<Cadence> {
   const owner_id = await getUid();
   const { data, error } = await supabase
     .from("cadences")
-    .insert({ nome, owner_id, compartilhada })
+    .insert({ nome, owner_id, compartilhada, parar_ao_responder })
     .select()
     .single();
   if (error) throw error;
   return data;
 }
 
-export async function updateCadence(id: string, input: Partial<Pick<Cadence, "nome" | "ativa" | "compartilhada">>): Promise<void> {
+export async function updateCadence(
+  id: string,
+  input: Partial<Pick<Cadence, "nome" | "ativa" | "compartilhada" | "parar_ao_responder">>,
+): Promise<void> {
   const { error } = await supabase.from("cadences").update(input).eq("id", id);
   if (error) throw error;
 }
@@ -136,6 +143,33 @@ export async function cancelEnrollment(id: string): Promise<void> {
   const { error } = await supabase
     .from("cadence_enrollments")
     .update({ status: "cancelada", next_send_at: null })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+/** Retoma uma inscrição pausada por resposta: recalcula next_send_at para a próxima etapa pendente. */
+export async function resumeEnrollment(id: string): Promise<void> {
+  const { data: enr, error: e1 } = await supabase
+    .from("cadence_enrollments")
+    .select("*")
+    .eq("id", id)
+    .single();
+  if (e1) throw e1;
+  const steps = await listCadenceSteps(enr.cadence_id);
+  const next = steps[enr.current_step];
+  if (!next) {
+    // sem próximas etapas: marca como concluída
+    const { error } = await supabase
+      .from("cadence_enrollments")
+      .update({ status: "concluida", next_send_at: null })
+      .eq("id", id);
+    if (error) throw error;
+    return;
+  }
+  const next_send_at = computeNextSend(next.delay_dias, next.horario);
+  const { error } = await supabase
+    .from("cadence_enrollments")
+    .update({ status: "ativa", next_send_at })
     .eq("id", id);
   if (error) throw error;
 }
