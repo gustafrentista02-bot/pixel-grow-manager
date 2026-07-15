@@ -10,15 +10,16 @@ export type AuthContext = {
   email: string;
   role: AppRole | null;
   status: "pendente" | "aprovado" | null;
+  primeiroLoginConcluido: boolean;
 };
 
 async function loadAuthContext(): Promise<AuthContext> {
   const { data: userData } = await supabase.auth.getUser();
   const user = userData.user ?? null;
-  if (!user) return { user: null, nome: "", email: "", role: null, status: null };
+  if (!user) return { user: null, nome: "", email: "", role: null, status: null, primeiroLoginConcluido: true };
 
   const [{ data: profile }, { data: roles }] = await Promise.all([
-    supabase.from("profiles").select("nome, email, status").eq("id", user.id).maybeSingle(),
+    supabase.from("profiles").select("nome, email, status, primeiro_login_concluido").eq("id", user.id).maybeSingle(),
     supabase.from("user_roles").select("role").eq("user_id", user.id),
   ]);
 
@@ -30,6 +31,7 @@ async function loadAuthContext(): Promise<AuthContext> {
       : null;
 
   const status = ((profile as any)?.status ?? "aprovado") as "pendente" | "aprovado";
+  const primeiroLoginConcluido = Boolean((profile as any)?.primeiro_login_concluido ?? true);
 
   return {
     user,
@@ -37,6 +39,7 @@ async function loadAuthContext(): Promise<AuthContext> {
     email: profile?.email ?? user.email ?? "",
     role,
     status,
+    primeiroLoginConcluido,
   };
 }
 
