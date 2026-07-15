@@ -1,0 +1,2 @@
+ALTER TABLE public.whatsapp_instances ADD COLUMN IF NOT EXISTS nome_perfil TEXT NOT NULL DEFAULT '';
+ALTER TABLE public.whatsapp_instances ADD COLUMN IF NOT EXISTS foto_perfil_url TEXT NOT NULL DEFAULT '';

@@ -12,6 +12,8 @@ type Instance = {
   id: string;
   status: "desconectado" | "conectando" | "conectado" | string;
   numero_conectado: string;
+  nome_perfil: string;
+  foto_perfil_url: string;
   instance_name: string;
   connected_at: string | null;
 };
@@ -94,9 +96,10 @@ export function WhatsAppCard({ userId }: { userId: string }) {
       qc.invalidateQueries({ queryKey: ["whatsapp-instance", userId] });
       qc.invalidateQueries({ queryKey: ["team-whatsapp"] });
       const s = res?.status ?? "desconectado";
+      const raw = res?.stateRaw ?? "desconhecido";
       if (s === "conectado") toast.success("Status: conectado");
-      else if (s === "conectando") toast.info("Status: conectando…");
-      else toast.info("Status: desconectado");
+      else if (s === "conectando") toast.info("Status: conectando…", { description: `Estado bruto: ${raw}` });
+      else toast.info("Status: desconectado", { description: `Estado bruto: ${raw}` });
     },
     onError: (e: Error) => toast.error("Erro ao verificar", { description: e.message }),
   });
@@ -118,8 +121,19 @@ export function WhatsAppCard({ userId }: { userId: string }) {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 {statusBadge(status)}
+                {isConnected && inst?.foto_perfil_url && (
+                  <img
+                    src={inst.foto_perfil_url}
+                    alt={inst?.nome_perfil || "Perfil"}
+                    className="h-6 w-6 rounded-full object-cover border border-border/60"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                  />
+                )}
+                {isConnected && inst?.nome_perfil && (
+                  <span className="text-sm font-medium truncate max-w-[160px]">{inst.nome_perfil}</span>
+                )}
                 {isConnected && inst?.numero_conectado && (
-                  <span className="text-sm font-medium">+{inst.numero_conectado}</span>
+                  <span className="text-sm text-muted-foreground">· +{inst.numero_conectado}</span>
                 )}
               </div>
               {isConnected && inst?.connected_at && (
