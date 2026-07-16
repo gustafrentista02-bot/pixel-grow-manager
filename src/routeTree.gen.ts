@@ -24,7 +24,9 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedBemVindoRouteImport } from './routes/_authenticated/bem-vindo'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
+import { Route as AuthenticatedAuditoriasIndexRouteImport } from './routes/_authenticated/auditorias.index'
 import { Route as AuthenticatedLeadsLeadIdRouteImport } from './routes/_authenticated/leads.$leadId'
+import { Route as AuthenticatedAuditoriasAuditIdRouteImport } from './routes/_authenticated/auditorias.$auditId'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -103,11 +105,23 @@ const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
   path: '/agenda',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAuditoriasIndexRoute =
+  AuthenticatedAuditoriasIndexRouteImport.update({
+    id: '/auditorias/',
+    path: '/auditorias/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLeadsLeadIdRoute =
   AuthenticatedLeadsLeadIdRouteImport.update({
     id: '/$leadId',
     path: '/$leadId',
     getParentRoute: () => AuthenticatedLeadsRoute,
+  } as any)
+const AuthenticatedAuditoriasAuditIdRoute =
+  AuthenticatedAuditoriasAuditIdRouteImport.update({
+    id: '/auditorias/$auditId',
+    path: '/auditorias/$auditId',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -125,7 +139,9 @@ export interface FileRoutesByFullPath {
   '/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
+  '/auditorias/$auditId': typeof AuthenticatedAuditoriasAuditIdRoute
   '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
+  '/auditorias/': typeof AuthenticatedAuditoriasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -142,7 +158,9 @@ export interface FileRoutesByTo {
   '/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
+  '/auditorias/$auditId': typeof AuthenticatedAuditoriasAuditIdRoute
   '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
+  '/auditorias': typeof AuthenticatedAuditoriasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -161,7 +179,9 @@ export interface FileRoutesById {
   '/_authenticated/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
+  '/_authenticated/auditorias/$auditId': typeof AuthenticatedAuditoriasAuditIdRoute
   '/_authenticated/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
+  '/_authenticated/auditorias/': typeof AuthenticatedAuditoriasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -180,7 +200,9 @@ export interface FileRouteTypes {
     | '/modelos-proposta'
     | '/onboarding'
     | '/tarefas'
+    | '/auditorias/$auditId'
     | '/leads/$leadId'
+    | '/auditorias/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -197,7 +219,9 @@ export interface FileRouteTypes {
     | '/modelos-proposta'
     | '/onboarding'
     | '/tarefas'
+    | '/auditorias/$auditId'
     | '/leads/$leadId'
+    | '/auditorias'
   id:
     | '__root__'
     | '/'
@@ -215,7 +239,9 @@ export interface FileRouteTypes {
     | '/_authenticated/modelos-proposta'
     | '/_authenticated/onboarding'
     | '/_authenticated/tarefas'
+    | '/_authenticated/auditorias/$auditId'
     | '/_authenticated/leads/$leadId'
+    | '/_authenticated/auditorias/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -332,12 +358,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAgendaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/auditorias/': {
+      id: '/_authenticated/auditorias/'
+      path: '/auditorias'
+      fullPath: '/auditorias/'
+      preLoaderRoute: typeof AuthenticatedAuditoriasIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/leads/$leadId': {
       id: '/_authenticated/leads/$leadId'
       path: '/$leadId'
       fullPath: '/leads/$leadId'
       preLoaderRoute: typeof AuthenticatedLeadsLeadIdRouteImport
       parentRoute: typeof AuthenticatedLeadsRoute
+    }
+    '/_authenticated/auditorias/$auditId': {
+      id: '/_authenticated/auditorias/$auditId'
+      path: '/auditorias/$auditId'
+      fullPath: '/auditorias/$auditId'
+      preLoaderRoute: typeof AuthenticatedAuditoriasAuditIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
@@ -365,6 +405,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedModelosPropostaRoute: typeof AuthenticatedModelosPropostaRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
+  AuthenticatedAuditoriasAuditIdRoute: typeof AuthenticatedAuditoriasAuditIdRoute
+  AuthenticatedAuditoriasIndexRoute: typeof AuthenticatedAuditoriasIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -379,6 +421,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedModelosPropostaRoute: AuthenticatedModelosPropostaRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
+  AuthenticatedAuditoriasAuditIdRoute: AuthenticatedAuditoriasAuditIdRoute,
+  AuthenticatedAuditoriasIndexRoute: AuthenticatedAuditoriasIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -393,13 +437,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

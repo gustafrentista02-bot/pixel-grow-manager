@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Users, KanbanSquare, Repeat, Settings, LogOut, CheckSquare, FileText, MessageSquare, Calendar } from "lucide-react";
+import { LayoutDashboard, Users, KanbanSquare, Repeat, Settings, LogOut, CheckSquare, FileText, MessageSquare, Calendar, ClipboardList } from "lucide-react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -24,6 +24,8 @@ const items = [
   { title: "Follow-up", url: "/follow-up", icon: Repeat },
   { title: "Tarefas", url: "/tarefas", icon: CheckSquare },
   { title: "Agenda", url: "/agenda", icon: Calendar },
+  { title: "Auditorias", url: "/auditorias", icon: ClipboardList },
+
 
   { title: "Modelos de Proposta", url: "/modelos-proposta", icon: FileText },
   { title: "Modelos de Mensagens", url: "/modelos-mensagem", icon: MessageSquare },
