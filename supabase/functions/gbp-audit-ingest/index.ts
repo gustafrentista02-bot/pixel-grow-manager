@@ -22,13 +22,13 @@ function json(body: unknown, status = 200) {
 }
 
 type Nivel = "fraco" | "razoavel" | "bom" | "manual";
-type Metrica = { chave: string; label: string; nivel: Nivel; detalhe?: string; percentual: number };
+type Metrica = { chave: string; label: string; nivel: Nivel; detalhe?: string; percentual: number; visivel_cliente: boolean };
 
 function pct(nivel: Nivel): number {
   return nivel === "bom" ? 100 : nivel === "razoavel" ? 60 : nivel === "fraco" ? 20 : 0;
 }
 function mk(chave: string, label: string, nivel: Nivel, detalhe?: string): Metrica {
-  return { chave, label, nivel, detalhe, percentual: pct(nivel) };
+  return { chave, label, nivel, detalhe, percentual: pct(nivel), visivel_cliente: true };
 }
 function nText(v: unknown): Nivel {
   return typeof v === "string" && v.trim().length > 0 ? "bom" : "fraco";
