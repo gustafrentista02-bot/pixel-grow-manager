@@ -189,6 +189,8 @@ function ConfigPage() {
 
       {auth?.user?.id && <WhatsAppCard userId={auth.user.id} />}
 
+      <ExtensionTokensCard />
+
       <OrganizationCard canEdit={isGerente} />
 
       {isGerente && <SubscriptionCard />}
