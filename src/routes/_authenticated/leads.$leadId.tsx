@@ -333,7 +333,8 @@ function LeadDetailPage() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="marketing" className="mt-4">
+            <TabsContent value="marketing" className="mt-4 space-y-4">
+              <LeadAuditCard leadId={leadId} />
               <Card className="border-border/60 bg-card/60">
                 <CardContent className="grid gap-4 pt-6 sm:grid-cols-2 lg:grid-cols-3">
                   <div className="space-y-0.5">
