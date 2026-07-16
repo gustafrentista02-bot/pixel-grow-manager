@@ -184,6 +184,8 @@ Deno.serve(async (req) => {
 
   const metricas = buildMetricas(payload);
   const score = scoreOf(metricas);
+  const tipoRaw = String(payload?.tipo_auditoria ?? "").trim().toLowerCase();
+  const tipo_auditoria = tipoRaw === "prospeccao" || tipoRaw === "gerenciado" ? tipoRaw : "desconhecido";
 
   const { error: audErr } = await admin.from("gbp_audits").insert({
     lead_id: leadId,
@@ -193,6 +195,7 @@ Deno.serve(async (req) => {
     metricas,
     score_geral: score,
     status: "concluida",
+    tipo_auditoria,
   });
   if (audErr) return json({ error: audErr.message }, 500);
 

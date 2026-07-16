@@ -12,7 +12,7 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { listAudits, scoreBadgeClass, scoreLabel } from "@/lib/audits-api";
+import { listAudits, scoreBadgeClass, scoreLabel, tipoAuditoriaBadgeClass, tipoAuditoriaLabel } from "@/lib/audits-api";
 import { downloadAuditPdf } from "@/lib/pdf-audit";
 import { formatDateTime } from "@/lib/format";
 import { toast } from "sonner";
@@ -128,7 +128,12 @@ function AuditoriasPage() {
               {filtered.map((a) => (
                 <TableRow key={a.id}>
                   <TableCell>
-                    <div className="font-medium">{a.lead?.empresa || a.lead?.nome || "—"}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{a.lead?.empresa || a.lead?.nome || "—"}</span>
+                      <Badge variant="outline" className={tipoAuditoriaBadgeClass(a.tipo_auditoria)}>
+                        {tipoAuditoriaLabel(a.tipo_auditoria)}
+                      </Badge>
+                    </div>
                     {a.lead?.criado_por_extensao && (
                       <span className="text-[10px] uppercase tracking-wide text-muted-foreground/70">criado pela extensão</span>
                     )}
