@@ -237,7 +237,9 @@ function LeadDetailPage() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+        </div>
       </div>
+
 
       {(lead as any).criado_por_extensao && (
         <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
