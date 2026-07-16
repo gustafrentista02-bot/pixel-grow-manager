@@ -23,6 +23,7 @@ import { LeadFormDialog } from "@/components/lead-form-dialog";
 import { LeadSidebar } from "@/components/lead-sidebar";
 import { LeadQuickNotes } from "@/components/lead-quick-notes";
 import { LeadProposalsList } from "@/components/lead-proposals-list";
+import { LeadAuditCard } from "@/components/lead-audit-card";
 import { InlineField } from "@/components/inline-field";
 import {
   getLead, listEvents, listFiles, uploadLeadFile, getFileUrl, deleteLeadFile,
