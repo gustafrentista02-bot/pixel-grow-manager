@@ -14,7 +14,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import {
   getAudit, listAuditsByLead, scoreBadgeClass, scoreColor, scoreLabel,
-  updateAuditMetricsVisibility, type AuditMetrica,
+  updateAuditMetricsVisibility, tipoAuditoriaBadgeClass, tipoAuditoriaLabel,
+  type AuditMetrica,
 } from "@/lib/audits-api";
 import { downloadAuditPdf } from "@/lib/pdf-audit";
 import { formatDateTime } from "@/lib/format";
