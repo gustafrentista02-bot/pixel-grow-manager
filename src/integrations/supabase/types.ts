@@ -237,6 +237,98 @@ export type Database = {
           },
         ]
       }
+      extension_tokens: {
+        Row: {
+          created_at: string
+          id: string
+          last_used_at: string | null
+          nome: string
+          organization_id: string
+          owner_id: string
+          revogado: boolean
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_used_at?: string | null
+          nome?: string
+          organization_id: string
+          owner_id: string
+          revogado?: boolean
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_used_at?: string | null
+          nome?: string
+          organization_id?: string
+          owner_id?: string
+          revogado?: boolean
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "extension_tokens_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gbp_audits: {
+        Row: {
+          created_at: string
+          dados_brutos: Json
+          id: string
+          lead_id: string
+          metricas: Json
+          organization_id: string
+          owner_id: string
+          score_geral: number
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          dados_brutos?: Json
+          id?: string
+          lead_id: string
+          metricas?: Json
+          organization_id: string
+          owner_id: string
+          score_geral?: number
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          dados_brutos?: Json
+          id?: string
+          lead_id?: string
+          metricas?: Json
+          organization_id?: string
+          owner_id?: string
+          score_geral?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gbp_audits_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gbp_audits_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_events: {
         Row: {
           autor_nome: string
@@ -395,6 +487,7 @@ export type Database = {
           canais_aquisicao: string[]
           cidade: string
           created_at: string
+          criado_por_extensao: boolean
           dificuldade: string
           empresa: string
           faturamento_mensal: number
@@ -437,6 +530,7 @@ export type Database = {
           canais_aquisicao?: string[]
           cidade?: string
           created_at?: string
+          criado_por_extensao?: boolean
           dificuldade?: string
           empresa?: string
           faturamento_mensal?: number
@@ -479,6 +573,7 @@ export type Database = {
           canais_aquisicao?: string[]
           cidade?: string
           created_at?: string
+          criado_por_extensao?: boolean
           dificuldade?: string
           empresa?: string
           faturamento_mensal?: number
