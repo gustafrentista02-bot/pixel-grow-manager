@@ -37,7 +37,7 @@ export type Audit = {
 };
 
 const SELECT_FULL = `
-  id, lead_id, owner_id, organization_id, score_geral, metricas, dados_brutos, status, created_at,
+  id, lead_id, owner_id, organization_id, score_geral, metricas, dados_brutos, status, tipo_auditoria, created_at,
   lead:leads!gbp_audits_lead_id_fkey(id, nome, empresa, site, telefone, link_perfil_google, criado_por_extensao)
 `;
 
