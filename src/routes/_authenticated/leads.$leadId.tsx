@@ -237,8 +237,17 @@ function LeadDetailPage() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        </div>
       </div>
+
+      {(lead as any).criado_por_extensao && (
+        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
+          <p className="font-medium text-amber-300">Lead criado automaticamente pela extensão de auditoria</p>
+          <p className="mt-0.5 text-xs text-amber-200/80">
+            Complete os dados manualmente clicando em <strong>Editar</strong> acima para enriquecer o perfil.
+          </p>
+        </div>
+      )}
+
 
       {/* Two-column layout: fixed sidebar + main content */}
       <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
