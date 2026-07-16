@@ -97,7 +97,23 @@ function normalize(row: any): Audit {
   const metricas = Array.isArray(row.metricas)
     ? row.metricas.map((m: any) => ({ visivel_cliente: true, ...m }))
     : [];
-  return { ...row, metricas };
+  const tipo: TipoAuditoria =
+    row.tipo_auditoria === "prospeccao" || row.tipo_auditoria === "gerenciado"
+      ? row.tipo_auditoria
+      : "desconhecido";
+  return { ...row, metricas, tipo_auditoria: tipo };
+}
+
+export function tipoAuditoriaLabel(tipo: TipoAuditoria): string {
+  if (tipo === "gerenciado") return "Cliente Gerenciado";
+  if (tipo === "prospeccao") return "Prospecção";
+  return "Não identificado";
+}
+
+export function tipoAuditoriaBadgeClass(tipo: TipoAuditoria): string {
+  if (tipo === "gerenciado") return "bg-primary/15 text-primary border-primary/40";
+  if (tipo === "prospeccao") return "bg-muted text-muted-foreground border-border";
+  return "bg-muted/60 text-muted-foreground border-border";
 }
 
 export function scoreColor(score: number): string {
