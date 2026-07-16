@@ -35,9 +35,21 @@ export type Audit = {
 
 const SELECT_FULL = `
   id, lead_id, owner_id, organization_id, score_geral, metricas, dados_brutos, status, created_at,
-  lead:leads!gbp_audits_lead_id_fkey(id, nome, empresa, site, telefone, link_perfil_google, criado_por_extensao),
-  owner:profiles!gbp_audits_owner_id_fkey(id, nome)
+  lead:leads!gbp_audits_lead_id_fkey(id, nome, empresa, site, telefone, link_perfil_google, criado_por_extensao)
 `;
+
+async function attachOwners(rows: any[]): Promise<Audit[]> {
+  const ownerIds = Array.from(new Set(rows.map((r) => r.owner_id).filter(Boolean)));
+  let ownerMap = new Map<string, { id: string; nome: string | null }>();
+  if (ownerIds.length > 0) {
+    const { data: profs } = await supabase
+      .from("profiles")
+      .select("id, nome")
+      .in("id", ownerIds);
+    ownerMap = new Map((profs ?? []).map((p) => [p.id, p]));
+  }
+  return rows.map((r) => normalize({ ...r, owner: ownerMap.get(r.owner_id) ?? null }));
+}
 
 export async function listAudits(): Promise<Audit[]> {
   const { data, error } = await supabase
@@ -45,7 +57,7 @@ export async function listAudits(): Promise<Audit[]> {
     .select(SELECT_FULL)
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return (data ?? []).map(normalize);
+  return attachOwners(data ?? []);
 }
 
 export async function getAudit(id: string): Promise<Audit | null> {
@@ -55,7 +67,9 @@ export async function getAudit(id: string): Promise<Audit | null> {
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
-  return data ? normalize(data) : null;
+  if (!data) return null;
+  const [result] = await attachOwners([data]);
+  return result;
 }
 
 export async function listAuditsByLead(leadId: string): Promise<Audit[]> {
@@ -65,7 +79,7 @@ export async function listAuditsByLead(leadId: string): Promise<Audit[]> {
     .eq("lead_id", leadId)
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return (data ?? []).map(normalize);
+  return attachOwners(data ?? []);
 }
 
 export async function updateAuditMetricsVisibility(id: string, metricas: AuditMetrica[]): Promise<void> {
