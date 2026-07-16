@@ -23,8 +23,8 @@ import { Route as AuthenticatedFollowUpRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedBemVindoRouteImport } from './routes/_authenticated/bem-vindo'
-import { Route as AuthenticatedAuditoriasRouteImport } from './routes/_authenticated/auditorias'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
+import { Route as AuthenticatedAuditoriasIndexRouteImport } from './routes/_authenticated/auditorias.index'
 import { Route as AuthenticatedLeadsLeadIdRouteImport } from './routes/_authenticated/leads.$leadId'
 import { Route as AuthenticatedAuditoriasAuditIdRouteImport } from './routes/_authenticated/auditorias.$auditId'
 
@@ -100,16 +100,17 @@ const AuthenticatedBemVindoRoute = AuthenticatedBemVindoRouteImport.update({
   path: '/bem-vindo',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAuditoriasRoute = AuthenticatedAuditoriasRouteImport.update({
-  id: '/auditorias',
-  path: '/auditorias',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
   id: '/agenda',
   path: '/agenda',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAuditoriasIndexRoute =
+  AuthenticatedAuditoriasIndexRouteImport.update({
+    id: '/auditorias/',
+    path: '/auditorias/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLeadsLeadIdRoute =
   AuthenticatedLeadsLeadIdRouteImport.update({
     id: '/$leadId',
@@ -118,9 +119,9 @@ const AuthenticatedLeadsLeadIdRoute =
   } as any)
 const AuthenticatedAuditoriasAuditIdRoute =
   AuthenticatedAuditoriasAuditIdRouteImport.update({
-    id: '/$auditId',
-    path: '/$auditId',
-    getParentRoute: () => AuthenticatedAuditoriasRoute,
+    id: '/auditorias/$auditId',
+    path: '/auditorias/$auditId',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -128,7 +129,6 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/agenda': typeof AuthenticatedAgendaRoute
-  '/auditorias': typeof AuthenticatedAuditoriasRouteWithChildren
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -141,13 +141,13 @@ export interface FileRoutesByFullPath {
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/auditorias/$auditId': typeof AuthenticatedAuditoriasAuditIdRoute
   '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
+  '/auditorias/': typeof AuthenticatedAuditoriasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/agenda': typeof AuthenticatedAgendaRoute
-  '/auditorias': typeof AuthenticatedAuditoriasRouteWithChildren
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -160,6 +160,7 @@ export interface FileRoutesByTo {
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/auditorias/$auditId': typeof AuthenticatedAuditoriasAuditIdRoute
   '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
+  '/auditorias': typeof AuthenticatedAuditoriasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -168,7 +169,6 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
-  '/_authenticated/auditorias': typeof AuthenticatedAuditoriasRouteWithChildren
   '/_authenticated/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -181,6 +181,7 @@ export interface FileRoutesById {
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
   '/_authenticated/auditorias/$auditId': typeof AuthenticatedAuditoriasAuditIdRoute
   '/_authenticated/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
+  '/_authenticated/auditorias/': typeof AuthenticatedAuditoriasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -189,7 +190,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/agenda'
-    | '/auditorias'
     | '/bem-vindo'
     | '/configuracoes'
     | '/dashboard'
@@ -202,13 +202,13 @@ export interface FileRouteTypes {
     | '/tarefas'
     | '/auditorias/$auditId'
     | '/leads/$leadId'
+    | '/auditorias/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/reset-password'
     | '/agenda'
-    | '/auditorias'
     | '/bem-vindo'
     | '/configuracoes'
     | '/dashboard'
@@ -221,6 +221,7 @@ export interface FileRouteTypes {
     | '/tarefas'
     | '/auditorias/$auditId'
     | '/leads/$leadId'
+    | '/auditorias'
   id:
     | '__root__'
     | '/'
@@ -228,7 +229,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/_authenticated/agenda'
-    | '/_authenticated/auditorias'
     | '/_authenticated/bem-vindo'
     | '/_authenticated/configuracoes'
     | '/_authenticated/dashboard'
@@ -241,6 +241,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tarefas'
     | '/_authenticated/auditorias/$auditId'
     | '/_authenticated/leads/$leadId'
+    | '/_authenticated/auditorias/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -350,18 +351,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBemVindoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/auditorias': {
-      id: '/_authenticated/auditorias'
-      path: '/auditorias'
-      fullPath: '/auditorias'
-      preLoaderRoute: typeof AuthenticatedAuditoriasRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/agenda': {
       id: '/_authenticated/agenda'
       path: '/agenda'
       fullPath: '/agenda'
       preLoaderRoute: typeof AuthenticatedAgendaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/auditorias/': {
+      id: '/_authenticated/auditorias/'
+      path: '/auditorias'
+      fullPath: '/auditorias/'
+      preLoaderRoute: typeof AuthenticatedAuditoriasIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/leads/$leadId': {
@@ -373,27 +374,13 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/auditorias/$auditId': {
       id: '/_authenticated/auditorias/$auditId'
-      path: '/$auditId'
+      path: '/auditorias/$auditId'
       fullPath: '/auditorias/$auditId'
       preLoaderRoute: typeof AuthenticatedAuditoriasAuditIdRouteImport
-      parentRoute: typeof AuthenticatedAuditoriasRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
-
-interface AuthenticatedAuditoriasRouteChildren {
-  AuthenticatedAuditoriasAuditIdRoute: typeof AuthenticatedAuditoriasAuditIdRoute
-}
-
-const AuthenticatedAuditoriasRouteChildren: AuthenticatedAuditoriasRouteChildren =
-  {
-    AuthenticatedAuditoriasAuditIdRoute: AuthenticatedAuditoriasAuditIdRoute,
-  }
-
-const AuthenticatedAuditoriasRouteWithChildren =
-  AuthenticatedAuditoriasRoute._addFileChildren(
-    AuthenticatedAuditoriasRouteChildren,
-  )
 
 interface AuthenticatedLeadsRouteChildren {
   AuthenticatedLeadsLeadIdRoute: typeof AuthenticatedLeadsLeadIdRoute
@@ -408,7 +395,6 @@ const AuthenticatedLeadsRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
-  AuthenticatedAuditoriasRoute: typeof AuthenticatedAuditoriasRouteWithChildren
   AuthenticatedBemVindoRoute: typeof AuthenticatedBemVindoRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
@@ -419,11 +405,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedModelosPropostaRoute: typeof AuthenticatedModelosPropostaRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
+  AuthenticatedAuditoriasAuditIdRoute: typeof AuthenticatedAuditoriasAuditIdRoute
+  AuthenticatedAuditoriasIndexRoute: typeof AuthenticatedAuditoriasIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
-  AuthenticatedAuditoriasRoute: AuthenticatedAuditoriasRouteWithChildren,
   AuthenticatedBemVindoRoute: AuthenticatedBemVindoRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
@@ -434,6 +421,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedModelosPropostaRoute: AuthenticatedModelosPropostaRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
+  AuthenticatedAuditoriasAuditIdRoute: AuthenticatedAuditoriasAuditIdRoute,
+  AuthenticatedAuditoriasIndexRoute: AuthenticatedAuditoriasIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
