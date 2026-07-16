@@ -23,6 +23,7 @@ import { LeadFormDialog } from "@/components/lead-form-dialog";
 import { LeadSidebar } from "@/components/lead-sidebar";
 import { LeadQuickNotes } from "@/components/lead-quick-notes";
 import { LeadProposalsList } from "@/components/lead-proposals-list";
+import { LeadAuditCard } from "@/components/lead-audit-card";
 import { InlineField } from "@/components/inline-field";
 import {
   getLead, listEvents, listFiles, uploadLeadFile, getFileUrl, deleteLeadFile,
@@ -239,6 +240,17 @@ function LeadDetailPage() {
         </div>
       </div>
 
+
+      {(lead as any).criado_por_extensao && (
+        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
+          <p className="font-medium text-amber-300">Lead criado automaticamente pela extensão de auditoria</p>
+          <p className="mt-0.5 text-xs text-amber-200/80">
+            Complete os dados manualmente clicando em <strong>Editar</strong> acima para enriquecer o perfil.
+          </p>
+        </div>
+      )}
+
+
       {/* Two-column layout: fixed sidebar + main content */}
       <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
         {/* Fixed sidebar */}
@@ -321,7 +333,8 @@ function LeadDetailPage() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="marketing" className="mt-4">
+            <TabsContent value="marketing" className="mt-4 space-y-4">
+              <LeadAuditCard leadId={leadId} />
               <Card className="border-border/60 bg-card/60">
                 <CardContent className="grid gap-4 pt-6 sm:grid-cols-2 lg:grid-cols-3">
                   <div className="space-y-0.5">

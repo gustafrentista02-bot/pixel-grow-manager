@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.cakto-webhook]
 verify_jwt = false
+
+[functions.gbp-audit-ingest]
+verify_jwt = false
