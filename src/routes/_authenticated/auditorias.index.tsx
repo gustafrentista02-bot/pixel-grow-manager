@@ -12,7 +12,7 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { listAudits, scoreBadgeClass, scoreLabel } from "@/lib/audits-api";
+import { listAudits, scoreBadgeClass, scoreLabel, tipoAuditoriaBadgeClass, tipoAuditoriaLabel } from "@/lib/audits-api";
 import { downloadAuditPdf } from "@/lib/pdf-audit";
 import { formatDateTime } from "@/lib/format";
 import { toast } from "sonner";
