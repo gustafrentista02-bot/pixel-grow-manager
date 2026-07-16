@@ -1,0 +1,1 @@
+ALTER TABLE public.gbp_audits ADD COLUMN IF NOT EXISTS tipo_auditoria TEXT NOT NULL DEFAULT 'desconhecido';

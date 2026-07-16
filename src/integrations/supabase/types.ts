@@ -289,6 +289,7 @@ export type Database = {
           owner_id: string
           score_geral: number
           status: string
+          tipo_auditoria: string
         }
         Insert: {
           created_at?: string
@@ -300,6 +301,7 @@ export type Database = {
           owner_id: string
           score_geral?: number
           status?: string
+          tipo_auditoria?: string
         }
         Update: {
           created_at?: string
@@ -311,6 +313,7 @@ export type Database = {
           owner_id?: string
           score_geral?: number
           status?: string
+          tipo_auditoria?: string
         }
         Relationships: [
           {
