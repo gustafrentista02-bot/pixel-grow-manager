@@ -11,6 +11,8 @@ export type AuditMetrica = {
   visivel_cliente?: boolean;
 };
 
+export type TipoAuditoria = "prospeccao" | "gerenciado" | "desconhecido";
+
 export type Audit = {
   id: string;
   lead_id: string;
@@ -20,6 +22,7 @@ export type Audit = {
   metricas: AuditMetrica[];
   dados_brutos: Record<string, any> | null;
   status: string;
+  tipo_auditoria: TipoAuditoria;
   created_at: string;
   lead?: {
     id: string;
