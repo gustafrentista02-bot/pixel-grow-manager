@@ -30,32 +30,48 @@ function pct(nivel: Nivel): number {
 function mk(chave: string, label: string, nivel: Nivel, detalhe?: string): Metrica {
   return { chave, label, nivel, detalhe, percentual: pct(nivel), visivel_cliente: true };
 }
-function nText(v: unknown): Nivel {
-  return typeof v === "string" && v.trim().length > 0 ? "bom" : "fraco";
+const MANUAL_MSG = "Não foi possível verificar automaticamente nesta tela — confirme manualmente.";
+
+function isMissing(v: unknown): boolean {
+  return v === null || v === undefined || (typeof v === "string" && v.trim().length === 0);
+}
+function mkText(chave: string, label: string, v: unknown): Metrica {
+  if (isMissing(v)) return mk(chave, label, "manual", MANUAL_MSG);
+  return mk(chave, label, "bom", String(v));
 }
 
 function buildMetricas(p: any): Metrica[] {
   const m: Metrica[] = [];
-  m.push(mk("nome_negocio", "Nome do negócio", nText(p.nome_negocio), p.nome_negocio || undefined));
-  m.push(mk("telefone", "Telefone", nText(p.telefone), p.telefone || undefined));
-  m.push(mk("website", "Website", nText(p.website), p.website || undefined));
-  m.push(mk("horario", "Horário de funcionamento", nText(p.horario), p.horario || undefined));
-  m.push(mk("endereco", "Endereço", nText(p.endereco), p.endereco || undefined));
+  m.push(mkText("nome_negocio", "Nome do negócio", p.nome_negocio));
+  m.push(mkText("telefone", "Telefone", p.telefone));
+  m.push(mkText("website", "Website", p.website));
+  m.push(mkText("horario", "Horário de funcionamento", p.horario));
+  m.push(mkText("endereco", "Endereço", p.endereco));
 
   const rating = Number(p.rating);
-  if (Number.isFinite(rating) && rating > 0) {
+  if (p.rating === null || p.rating === undefined) {
+    m.push(mk("media_avaliacoes", "Média de avaliações", "manual", MANUAL_MSG));
+  } else if (Number.isFinite(rating) && rating > 0) {
     const nivel: Nivel = rating < 3.5 ? "fraco" : rating <= 4.2 ? "razoavel" : "bom";
     m.push(mk("media_avaliacoes", "Média de avaliações", nivel, `${rating.toFixed(1)}`));
   } else {
     m.push(mk("media_avaliacoes", "Média de avaliações", "fraco", "Sem avaliações"));
   }
 
-  const rc = Number(p.review_count) || 0;
-  const nrc: Nivel = rc < 3 ? "fraco" : rc < 10 ? "razoavel" : "bom";
-  m.push(mk("qtd_avaliacoes", "Quantidade de avaliações", nrc, `${rc} avaliações`));
+  if (p.review_count === null || p.review_count === undefined) {
+    m.push(mk("qtd_avaliacoes", "Quantidade de avaliações", "manual", MANUAL_MSG));
+  } else {
+    const rc = Number(p.review_count) || 0;
+    const nrc: Nivel = rc < 3 ? "fraco" : rc < 10 ? "razoavel" : "bom";
+    m.push(mk("qtd_avaliacoes", "Quantidade de avaliações", nrc, `${rc} avaliações`));
+  }
 
-  const fotos = Number(p.total_fotos) || 0;
-  m.push(mk("total_fotos", "Fotos do perfil", fotos < 3 ? "fraco" : "bom", `${fotos} fotos`));
+  if (p.total_fotos === null || p.total_fotos === undefined) {
+    m.push(mk("total_fotos", "Fotos do perfil", "manual", MANUAL_MSG));
+  } else {
+    const fotos = Number(p.total_fotos) || 0;
+    m.push(mk("total_fotos", "Fotos do perfil", fotos < 3 ? "fraco" : "bom", `${fotos} fotos`));
+  }
 
   const rd = p.reviews_detail ?? {};
   if (rd.disponivel) {
