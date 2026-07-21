@@ -1,5 +1,18 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Users, KanbanSquare, Repeat, Settings, LogOut, CheckSquare, FileText, MessageSquare, Calendar, ClipboardList } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  KanbanSquare,
+  Repeat,
+  Settings,
+  LogOut,
+  CheckSquare,
+  FileText,
+  MessageSquare,
+  Calendar,
+  ClipboardList,
+  ChevronDown,
+} from "lucide-react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -8,29 +21,63 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAuth } from "@/hooks/use-auth";
 import { ROLE_LABELS } from "@/lib/crm";
 import { pixelLogo as logo } from "@/lib/assets";
 
-const items = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Leads", url: "/leads", icon: Users },
-  { title: "Funil", url: "/funil", icon: KanbanSquare },
-  { title: "Follow-up", url: "/follow-up", icon: Repeat },
-  { title: "Tarefas", url: "/tarefas", icon: CheckSquare },
-  { title: "Agenda", url: "/agenda", icon: Calendar },
-  { title: "Auditorias", url: "/auditorias", icon: ClipboardList },
+type NavItem = {
+  title: string;
+  url: string;
+  icon: typeof LayoutDashboard;
+};
 
+type NavGroup = {
+  id: string;
+  label: string;
+  items: readonly NavItem[];
+};
 
-  { title: "Modelos de Proposta", url: "/modelos-proposta", icon: FileText },
-  { title: "Modelos de Mensagens", url: "/modelos-mensagem", icon: MessageSquare },
-  { title: "Configurações", url: "/configuracoes", icon: Settings },
-] as const;
+// Grupos preparados para expansão futura (Propostas, Clientes, Relatórios, Google Business hub, etc.)
+// Nesta fase apenas reorganizamos os itens existentes — nenhum módulo novo.
+const groups: readonly NavGroup[] = [
+  {
+    id: "comercial",
+    label: "Comercial",
+    items: [
+      { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+      { title: "Leads", url: "/leads", icon: Users },
+      { title: "Funil", url: "/funil", icon: KanbanSquare },
+      { title: "Follow-up", url: "/follow-up", icon: Repeat },
+    ],
+  },
+  {
+    id: "operacao",
+    label: "Operação",
+    items: [
+      { title: "Tarefas", url: "/tarefas", icon: CheckSquare },
+      { title: "Agenda", url: "/agenda", icon: Calendar },
+      { title: "Modelos de Proposta", url: "/modelos-proposta", icon: FileText },
+      { title: "Modelos de Mensagens", url: "/modelos-mensagem", icon: MessageSquare },
+    ],
+  },
+  {
+    id: "google-business",
+    label: "Google Business",
+    items: [{ title: "Auditorias", url: "/auditorias", icon: ClipboardList }],
+  },
+  {
+    id: "administracao",
+    label: "Administração",
+    items: [{ title: "Configurações", url: "/configuracoes", icon: Settings }],
+  },
+];
 
 export function AppSidebar() {
   const navigate = useNavigate();
@@ -72,30 +119,50 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => {
-                const showBadge = item.url === "/configuracoes" && pendingCount > 0;
-                return (
-                  <SidebarMenuItem key={item.url}>
-                    <SidebarMenuButton asChild isActive={pathname === item.url} tooltip={item.title}>
-                      <Link to={item.url} className="flex items-center gap-2">
-                        <item.icon className="h-4 w-4" />
-                        <span className="flex-1">{item.title}</span>
-                        {showBadge && (
-                          <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground group-data-[collapsible=icon]:hidden">
-                            {pendingCount}
-                          </span>
-                        )}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {groups.map((group) => {
+          const hasActive = group.items.some((item) => pathname === item.url);
+          return (
+            <Collapsible key={group.id} defaultOpen={hasActive || true} className="group/collapsible">
+              <SidebarGroup>
+                {/* Label vira botão para colapsar o grupo. No modo icon-collapsed some junto com os textos. */}
+                <SidebarGroupLabel asChild className="group-data-[collapsible=icon]:hidden">
+                  <CollapsibleTrigger className="flex w-full items-center justify-between gap-2 text-xs font-semibold uppercase tracking-wide text-sidebar-foreground/60 hover:text-sidebar-foreground">
+                    <span>{group.label}</span>
+                    <ChevronDown className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-data-[state=closed]/collapsible:-rotate-90" />
+                  </CollapsibleTrigger>
+                </SidebarGroupLabel>
+                <CollapsibleContent>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {group.items.map((item) => {
+                        const showBadge = item.url === "/configuracoes" && pendingCount > 0;
+                        return (
+                          <SidebarMenuItem key={item.url}>
+                            <SidebarMenuButton
+                              asChild
+                              isActive={pathname === item.url}
+                              tooltip={item.title}
+                            >
+                              <Link to={item.url} className="flex items-center gap-2">
+                                <item.icon className="h-4 w-4" />
+                                <span className="flex-1">{item.title}</span>
+                                {showBadge && (
+                                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground group-data-[collapsible=icon]:hidden">
+                                    {pendingCount}
+                                  </span>
+                                )}
+                              </Link>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        );
+                      })}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </CollapsibleContent>
+              </SidebarGroup>
+            </Collapsible>
+          );
+        })}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
