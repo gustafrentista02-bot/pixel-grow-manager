@@ -170,11 +170,14 @@ export async function createLead(input: LeadInput): Promise<Lead> {
 
 /** Fields that can be written to the leads table (guards against stray/object values). */
 const LEAD_WRITABLE_KEYS: (keyof LeadInput)[] = [
-  "nome", "telefone", "whatsapp", "cidade", "uf", "empresa", "instagram", "site",
-  "area_atendimento", "segmento", "faturamento_mensal", "valor_contrato", "plano",
-  "status_comercial", "potencial", "origem", "responsavel_id", "observacoes",
-  "tem_perfil_google", "link_perfil_google", "tem_site", "faz_google_ads",
-  "faz_meta_ads", "canais_aquisicao", "objetivo", "dificuldade", "proxima_acao", "stage",
+  "nome", "telefone", "whatsapp", "email", "cidade", "uf", "empresa", "instagram", "site",
+  "area_atendimento", "segmento", "faturamento_mensal", "valor_contrato",
+  "valor_proposta", "valor_fechado", "probabilidade_fechamento", "plano",
+  "status_comercial", "potencial", "temperatura", "origem", "responsavel_id",
+  "observacoes", "motivo_perda", "proximo_followup_at",
+  "tem_perfil_google", "link_perfil_google", "link_whatsapp", "tem_site",
+  "faz_google_ads", "faz_meta_ads", "canais_aquisicao", "tags",
+  "objetivo", "dificuldade", "proxima_acao", "stage",
 ];
 
 /** Coerce enum/select fields to primitives in case a UI ever passes an option object. */
