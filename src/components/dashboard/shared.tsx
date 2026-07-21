@@ -111,34 +111,54 @@ export function KpiCard({
   label,
   tone,
   hint,
+  delta,
 }: {
   icon: LucideIcon;
   value: string | number;
   label: string;
   tone: keyof typeof TONES;
   hint?: string;
+  /** Percentage variation vs. previous period. null/undefined = no data yet. */
+  delta?: number | null;
 }) {
   const t = TONES[tone];
+  const hasDelta = typeof delta === "number" && Number.isFinite(delta);
+  const positive = hasDelta && (delta as number) >= 0;
   return (
     <div
       className={cn(
-        "group flex items-center gap-3 rounded-xl border bg-card/40 p-3.5 transition-colors card-premium-hover",
+        "group relative rounded-2xl border bg-card/40 p-4 transition-colors card-premium-hover",
         t.border,
       )}
     >
-      <div
-        className={cn(
-          "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-105",
-          t.chip,
+      <div className="flex items-start justify-between gap-3">
+        <div
+          className={cn(
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-105",
+            t.chip,
+          )}
+        >
+          <Icon className="h-5 w-5" />
+        </div>
+        {hasDelta ? (
+          <span
+            className={cn(
+              "rounded-md px-1.5 py-0.5 text-[10px] font-semibold tabular-nums",
+              positive
+                ? "bg-emerald-500/10 text-emerald-400"
+                : "bg-red-500/10 text-red-400",
+            )}
+          >
+            {positive ? "+" : ""}
+            {Math.round(delta as number)}%
+          </span>
+        ) : (
+          <span className="text-[10px] font-medium text-muted-foreground/50">—</span>
         )}
-      >
-        <Icon className="h-5 w-5" />
       </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-xl font-bold leading-none tabular-nums tracking-tight">{value}</p>
-        <p className="mt-1 truncate text-xs text-muted-foreground">{label}</p>
-        {hint && <p className="mt-0.5 truncate text-[10px] text-muted-foreground/70">{hint}</p>}
-      </div>
+      <p className="mt-3 text-2xl font-bold leading-none tabular-nums tracking-tight">{value}</p>
+      <p className="mt-1.5 truncate text-xs text-muted-foreground">{label}</p>
+      {hint && <p className="mt-0.5 truncate text-[10px] text-muted-foreground/70">{hint}</p>}
     </div>
   );
 }
