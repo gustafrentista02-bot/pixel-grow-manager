@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Calendar,
   ClipboardList,
+  Building2,
   ChevronDown,
 } from "lucide-react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
@@ -70,7 +71,10 @@ const groups: readonly NavGroup[] = [
   {
     id: "google-business",
     label: "Google Business",
-    items: [{ title: "Auditorias", url: "/auditorias", icon: ClipboardList }],
+    items: [
+      { title: "Google Business Hub", url: "/google-business", icon: Building2 },
+      { title: "Auditorias", url: "/auditorias", icon: ClipboardList },
+    ],
   },
   {
     id: "administracao",
