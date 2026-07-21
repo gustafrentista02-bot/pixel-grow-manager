@@ -12,6 +12,11 @@ import {
   ArrowRight,
   MapPin,
   Target,
+  Repeat,
+  FileText,
+  CheckCircle2,
+  AlertTriangle,
+  BarChart3,
 } from "lucide-react";
 import {
   Table,
@@ -26,8 +31,7 @@ import { useTasks } from "@/hooks/use-tasks";
 import { useAuth } from "@/hooks/use-auth";
 import { getTeamMetrics } from "@/lib/leads-api";
 import { formatCurrency } from "@/lib/format";
-import { Block } from "@/components/dashboard/shared";
-import { TodayBlock } from "@/components/dashboard/today-block";
+import { Block, KpiCard, KpiCardSkeleton, isToday } from "@/components/dashboard/shared";
 import { AttentionBlock } from "@/components/dashboard/attention-block";
 import { FunnelBlock } from "@/components/dashboard/funnel-block";
 import { FinanceBlock } from "@/components/dashboard/finance-block";
@@ -43,7 +47,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 function DashboardPage() {
   const { data: auth } = useAuth();
-  const { data: leads = [] } = useLeads();
+  const { data: leads = [], isLoading: loadingLeads } = useLeads();
   const { data: tasks = [] } = useTasks();
   const purge = usePurgeExpired();
 
@@ -55,91 +59,136 @@ function DashboardPage() {
   const isGerente = auth?.role === "gerente";
   const hora = new Date().getHours();
   const saudacao = hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite";
+  const hoje = new Date();
+
+  // KPIs principais — pequenos, elegantes, respondem "como estou hoje?"
+  const kpis = useMemo(() => {
+    const leadsNovos = leads.filter((l) => l.stage === "lead_novo").length;
+    const followupsPendentes = leads.filter((l) => l.stage === "follow_up").length;
+    const reunioesHoje = leads.filter((l) => isToday(l.reuniao_at)).length;
+    const propostasPendentes = leads.filter((l) => l.stage === "proposta").length;
+    const ganhosMes = leads.filter((l) => {
+      if (l.stage !== "ganho") return false;
+      const d = new Date(l.updated_at);
+      return d.getMonth() === hoje.getMonth() && d.getFullYear() === hoje.getFullYear();
+    }).length;
+    return { leadsNovos, followupsPendentes, reunioesHoje, propostasPendentes, ganhosMes };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leads]);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-10 pb-10">
-      <header>
-        <h1 className="font-display text-2xl font-bold tracking-tight">
+    <div className="mx-auto max-w-7xl space-y-12 pb-12">
+      {/* ─── Header ─────────────────────────────────────────────── */}
+      <header className="space-y-1">
+        <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
           {saudacao}, {auth?.nome?.split(" ")[0] || "vendedor"}
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+        <p className="text-sm capitalize text-muted-foreground">
+          {hoje.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
         </p>
       </header>
 
-      {/* BLOCO 1 — HOJE */}
-      <Block title="Hoje" icon={Sparkles}>
-        <TodayBlock leads={leads} tasks={tasks} />
+      {/* ─── 1. KPIs PRINCIPAIS ─────────────────────────────────── */}
+      <Block title="Visão do dia" icon={BarChart3}>
+        {loadingLeads ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <KpiCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            <KpiCard icon={Sparkles} tone="green" value={kpis.leadsNovos} label="Leads novos" />
+            <KpiCard icon={Repeat} tone="cyan" value={kpis.followupsPendentes} label="Follow-ups pendentes" />
+            <KpiCard icon={CalendarClock} tone="violet" value={kpis.reunioesHoje} label="Reuniões de hoje" />
+            <KpiCard icon={FileText} tone="orange" value={kpis.propostasPendentes} label="Propostas pendentes" />
+            <KpiCard icon={CheckCircle2} tone="amber" value={kpis.ganhosMes} label="Clientes ganhos no mês" />
+          </div>
+        )}
       </Block>
 
-      {/* BLOCO 2 — ATENÇÃO */}
-      <AttentionBlock leads={leads} tasks={tasks} />
+      {/* ─── 2. PRIORIDADES DO DIA (seção principal) ────────────── */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 text-destructive" />
+          <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            Prioridades do dia
+          </h2>
+        </div>
 
-      {/* BLOCO 3 — FUNIL */}
-      <Block title="Funil de vendas" icon={Filter}>
-        <FunnelBlock leads={leads} />
-      </Block>
+        <AttentionBlock leads={leads} tasks={tasks} />
 
-      {/* BLOCO 4 — FINANCEIRO */}
-      <Block title="Financeiro" icon={Wallet}>
-        <FinanceBlock leads={leads} />
-      </Block>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Block
+            title="Próximas reuniões"
+            icon={CalendarClock}
+            action={
+              <Link to="/funil" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+                Ver funil <ArrowRight className="h-3 w-3" />
+              </Link>
+            }
+          >
+            <MeetingsBlock leads={leads} />
+          </Block>
 
-      {/* BLOCO 4.5 — PREVISÃO PONDERADA */}
-      <Block title="Previsão de fechamento" icon={Target}>
-        <ForecastBlock leads={leads} />
-      </Block>
+          <Block
+            title="Leads recentes"
+            icon={Users}
+            action={
+              <Link to="/leads" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+                Ver todos <ArrowRight className="h-3 w-3" />
+              </Link>
+            }
+          >
+            <RecentLeadsBlock leads={leads} />
+          </Block>
+        </div>
+      </section>
 
-      {/* BLOCO 4.75 — SEO LOCAL (foco do negócio) */}
-      <Block
-        title="Oportunidades de SEO Local"
-        icon={MapPin}
-        action={
-          <Link to="/leads" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-            Ver leads <ArrowRight className="h-3 w-3" />
-          </Link>
-        }
-      >
-        <SeoLocalBlock leads={leads} />
-      </Block>
+      {/* ─── 3. DESEMPENHO ──────────────────────────────────────── */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-2">
+          <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            Desempenho
+          </h2>
+        </div>
 
-      {/* BLOCOS 5 + 6 lado a lado */}
-      <div className="grid gap-8 lg:grid-cols-2">
-        <Block
-          title="Próximas reuniões"
-          icon={CalendarClock}
-          action={
-            <Link to="/funil" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-              Ver funil <ArrowRight className="h-3 w-3" />
-            </Link>
-          }
-        >
-          <MeetingsBlock leads={leads} />
+        <Block title="Funil de vendas" icon={Filter}>
+          <FunnelBlock leads={leads} />
+        </Block>
+
+        <Block title="Financeiro" icon={Wallet}>
+          <FinanceBlock leads={leads} />
+        </Block>
+
+        <Block title="Previsão de fechamento" icon={Target}>
+          <ForecastBlock leads={leads} />
         </Block>
 
         <Block
-          title="Leads recentes"
-          icon={Users}
+          title="Oportunidades de SEO Local"
+          icon={MapPin}
           action={
             <Link to="/leads" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-              Ver todos <ArrowRight className="h-3 w-3" />
+              Ver leads <ArrowRight className="h-3 w-3" />
             </Link>
           }
         >
-          <RecentLeadsBlock leads={leads} />
+          <SeoLocalBlock leads={leads} />
         </Block>
-      </div>
 
-      {/* BLOCO 7 — ATIVIDADE RECENTE */}
+        {isGerente && (
+          <Block title="Ranking da equipe" icon={Trophy}>
+            <TeamRanking />
+          </Block>
+        )}
+      </section>
+
+      {/* ─── 4. ATIVIDADE RECENTE ───────────────────────────────── */}
       <Block title="Atividade recente" icon={Activity}>
         <ActivityBlock />
       </Block>
-
-      {isGerente && (
-        <Block title="Equipe" icon={Trophy}>
-          <TeamRanking />
-        </Block>
-      )}
     </div>
   );
 }
