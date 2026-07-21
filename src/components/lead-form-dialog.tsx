@@ -29,6 +29,7 @@ import {
   PLANO_OPTIONS,
   STATUS_COMERCIAL_OPTIONS,
   CANAIS_AQUISICAO_OPTIONS,
+  TEMPERATURA_OPTIONS,
 } from "@/lib/crm";
 import { EMPTY_LEAD_INPUT, leadToInput, listMembers } from "@/lib/leads-api";
 import type { Lead, LeadInput } from "@/lib/leads-api";
@@ -99,6 +100,10 @@ export function LeadFormDialog({ open, onOpenChange, lead, onSubmit, saving }: P
               <div className="space-y-2">
                 <Label>WhatsApp</Label>
                 <Input value={form.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} placeholder="(11) 99999-9999" />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>E-mail</Label>
+                <Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="contato@empresa.com" />
               </div>
               <div className="space-y-2">
                 <Label>Empresa</Label>
@@ -240,6 +245,53 @@ export function LeadFormDialog({ open, onOpenChange, lead, onSubmit, saving }: P
                   ))}
                 </div>
               </div>
+
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Temperatura</Label>
+                <div className="flex flex-wrap gap-2">
+                  {TEMPERATURA_OPTIONS.map((t) => (
+                    <Button
+                      key={t.value}
+                      type="button"
+                      variant={form.temperatura === t.value ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => set("temperatura", form.temperatura === t.value ? null : t.value)}
+                    >
+                      <span className={`mr-2 h-2 w-2 rounded-full ${t.dot}`} />
+                      {t.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Valor da Proposta (R$)</Label>
+                <Input type="number" min={0} value={form.valor_proposta}
+                  onChange={(e) => set("valor_proposta", Number(e.target.value) || 0)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Valor Fechado (R$)</Label>
+                <Input type="number" min={0} value={form.valor_fechado}
+                  onChange={(e) => set("valor_fechado", Number(e.target.value) || 0)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Probabilidade de Fechamento (%)</Label>
+                <Input type="number" min={0} max={100} value={form.probabilidade_fechamento}
+                  onChange={(e) => set("probabilidade_fechamento", Math.max(0, Math.min(100, Number(e.target.value) || 0)))} />
+              </div>
+              <div className="space-y-2">
+                <Label>Próximo Follow-up</Label>
+                <Input
+                  type="datetime-local"
+                  value={form.proximo_followup_at ? form.proximo_followup_at.slice(0, 16) : ""}
+                  onChange={(e) => set("proximo_followup_at", e.target.value ? new Date(e.target.value).toISOString() : null)}
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Motivo da Perda</Label>
+                <Textarea value={form.motivo_perda} onChange={(e) => set("motivo_perda", e.target.value)} rows={2}
+                  placeholder="Preencher se o lead foi perdido" />
+              </div>
             </TabsContent>
 
             {/* -------- Marketing -------- */}
@@ -257,6 +309,26 @@ export function LeadFormDialog({ open, onOpenChange, lead, onSubmit, saving }: P
                     placeholder="https://g.page/..."
                     disabled={!form.tem_perfil_google}
                   />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label>Link do WhatsApp</Label>
+                  <Input value={form.link_whatsapp} onChange={(e) => set("link_whatsapp", e.target.value)}
+                    placeholder="https://wa.me/55..." />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label>Tags (separadas por vírgula)</Label>
+                  <Input
+                    value={form.tags.join(", ")}
+                    onChange={(e) => set("tags", e.target.value.split(",").map((t) => t.trim()).filter(Boolean))}
+                    placeholder="vip, prioridade, retomar-em-jan"
+                  />
+                  {form.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      {form.tags.map((t) => (
+                        <Badge key={t} variant="secondary" className="text-xs">{t}</Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-border p-3">
                   <Label>Possui Site?</Label>

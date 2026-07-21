@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
-import type { LeadStage, FollowupStage } from "@/lib/crm";
+import type { LeadStage, FollowupStage, Temperatura } from "@/lib/crm";
 import { SEM_INTERESSE_TTL_HOURS } from "@/lib/crm";
 
 export type Lead = Tables<"leads">;
@@ -13,6 +13,7 @@ export type LeadInput = {
   nome: string;
   telefone: string;
   whatsapp: string;
+  email: string;
   cidade: string;
   uf: string;
   empresa: string;
@@ -22,18 +23,26 @@ export type LeadInput = {
   segmento: string;
   faturamento_mensal: number;
   valor_contrato: number;
+  valor_proposta: number;
+  valor_fechado: number;
+  probabilidade_fechamento: number;
   plano: string;
   status_comercial: string;
   potencial: string;
+  temperatura: Temperatura | null;
   origem: Lead["origem"];
   responsavel_id: string | null;
   observacoes: string;
+  motivo_perda: string;
+  proximo_followup_at: string | null;
   tem_perfil_google: boolean;
   link_perfil_google: string;
+  link_whatsapp: string;
   tem_site: boolean;
   faz_google_ads: boolean;
   faz_meta_ads: boolean;
   canais_aquisicao: string[];
+  tags: string[];
   objetivo: string;
   dificuldade: string;
   proxima_acao: string;
@@ -44,6 +53,7 @@ export const EMPTY_LEAD_INPUT: LeadInput = {
   nome: "",
   telefone: "",
   whatsapp: "",
+  email: "",
   cidade: "",
   uf: "",
   empresa: "",
@@ -53,18 +63,26 @@ export const EMPTY_LEAD_INPUT: LeadInput = {
   segmento: "",
   faturamento_mensal: 0,
   valor_contrato: 0,
+  valor_proposta: 0,
+  valor_fechado: 0,
+  probabilidade_fechamento: 0,
   plano: "",
   status_comercial: "",
   potencial: "media",
+  temperatura: null,
   origem: "outro",
   responsavel_id: null,
   observacoes: "",
+  motivo_perda: "",
+  proximo_followup_at: null,
   tem_perfil_google: false,
   link_perfil_google: "",
+  link_whatsapp: "",
   tem_site: false,
   faz_google_ads: false,
   faz_meta_ads: false,
   canais_aquisicao: [],
+  tags: [],
   objetivo: "",
   dificuldade: "",
   proxima_acao: "",
@@ -75,6 +93,7 @@ export function leadToInput(lead: Lead): LeadInput {
     nome: lead.nome,
     telefone: lead.telefone,
     whatsapp: lead.whatsapp,
+    email: lead.email ?? "",
     cidade: lead.cidade,
     uf: lead.uf,
     empresa: lead.empresa,
@@ -84,23 +103,32 @@ export function leadToInput(lead: Lead): LeadInput {
     segmento: lead.segmento,
     faturamento_mensal: lead.faturamento_mensal,
     valor_contrato: lead.valor_contrato,
+    valor_proposta: lead.valor_proposta ?? 0,
+    valor_fechado: lead.valor_fechado ?? 0,
+    probabilidade_fechamento: lead.probabilidade_fechamento ?? 0,
     plano: lead.plano,
     status_comercial: lead.status_comercial,
     potencial: lead.potencial,
+    temperatura: lead.temperatura ?? null,
     origem: lead.origem,
     responsavel_id: lead.responsavel_id,
     observacoes: lead.observacoes,
+    motivo_perda: lead.motivo_perda ?? "",
+    proximo_followup_at: lead.proximo_followup_at ?? null,
     tem_perfil_google: lead.tem_perfil_google,
     link_perfil_google: lead.link_perfil_google,
+    link_whatsapp: lead.link_whatsapp ?? "",
     tem_site: lead.tem_site,
     faz_google_ads: lead.faz_google_ads,
     faz_meta_ads: lead.faz_meta_ads,
     canais_aquisicao: lead.canais_aquisicao,
+    tags: lead.tags ?? [],
     objetivo: lead.objetivo,
     dificuldade: lead.dificuldade,
     proxima_acao: lead.proxima_acao,
   };
 }
+
 export async function purgeExpiredLeads(): Promise<number> {
   const cutoff = new Date(Date.now() - SEM_INTERESSE_TTL_HOURS * 3600_000).toISOString();
   const { data, error } = await supabase
@@ -142,11 +170,14 @@ export async function createLead(input: LeadInput): Promise<Lead> {
 
 /** Fields that can be written to the leads table (guards against stray/object values). */
 const LEAD_WRITABLE_KEYS: (keyof LeadInput)[] = [
-  "nome", "telefone", "whatsapp", "cidade", "uf", "empresa", "instagram", "site",
-  "area_atendimento", "segmento", "faturamento_mensal", "valor_contrato", "plano",
-  "status_comercial", "potencial", "origem", "responsavel_id", "observacoes",
-  "tem_perfil_google", "link_perfil_google", "tem_site", "faz_google_ads",
-  "faz_meta_ads", "canais_aquisicao", "objetivo", "dificuldade", "proxima_acao", "stage",
+  "nome", "telefone", "whatsapp", "email", "cidade", "uf", "empresa", "instagram", "site",
+  "area_atendimento", "segmento", "faturamento_mensal", "valor_contrato",
+  "valor_proposta", "valor_fechado", "probabilidade_fechamento", "plano",
+  "status_comercial", "potencial", "temperatura", "origem", "responsavel_id",
+  "observacoes", "motivo_perda", "proximo_followup_at",
+  "tem_perfil_google", "link_perfil_google", "link_whatsapp", "tem_site",
+  "faz_google_ads", "faz_meta_ads", "canais_aquisicao", "tags",
+  "objetivo", "dificuldade", "proxima_acao", "stage",
 ];
 
 /** Coerce enum/select fields to primitives in case a UI ever passes an option object. */
