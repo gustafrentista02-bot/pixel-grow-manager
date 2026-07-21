@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
-import type { LeadStage, FollowupStage } from "@/lib/crm";
+import type { LeadStage, FollowupStage, Temperatura } from "@/lib/crm";
 import { SEM_INTERESSE_TTL_HOURS } from "@/lib/crm";
 
 export type Lead = Tables<"leads">;
