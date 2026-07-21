@@ -245,6 +245,53 @@ export function LeadFormDialog({ open, onOpenChange, lead, onSubmit, saving }: P
                   ))}
                 </div>
               </div>
+
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Temperatura</Label>
+                <div className="flex flex-wrap gap-2">
+                  {TEMPERATURA_OPTIONS.map((t) => (
+                    <Button
+                      key={t.value}
+                      type="button"
+                      variant={form.temperatura === t.value ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => set("temperatura", form.temperatura === t.value ? null : t.value)}
+                    >
+                      <span className={`mr-2 h-2 w-2 rounded-full ${t.dot}`} />
+                      {t.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Valor da Proposta (R$)</Label>
+                <Input type="number" min={0} value={form.valor_proposta}
+                  onChange={(e) => set("valor_proposta", Number(e.target.value) || 0)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Valor Fechado (R$)</Label>
+                <Input type="number" min={0} value={form.valor_fechado}
+                  onChange={(e) => set("valor_fechado", Number(e.target.value) || 0)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Probabilidade de Fechamento (%)</Label>
+                <Input type="number" min={0} max={100} value={form.probabilidade_fechamento}
+                  onChange={(e) => set("probabilidade_fechamento", Math.max(0, Math.min(100, Number(e.target.value) || 0)))} />
+              </div>
+              <div className="space-y-2">
+                <Label>Próximo Follow-up</Label>
+                <Input
+                  type="datetime-local"
+                  value={form.proximo_followup_at ? form.proximo_followup_at.slice(0, 16) : ""}
+                  onChange={(e) => set("proximo_followup_at", e.target.value ? new Date(e.target.value).toISOString() : null)}
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Motivo da Perda</Label>
+                <Textarea value={form.motivo_perda} onChange={(e) => set("motivo_perda", e.target.value)} rows={2}
+                  placeholder="Preencher se o lead foi perdido" />
+              </div>
             </TabsContent>
 
             {/* -------- Marketing -------- */}
