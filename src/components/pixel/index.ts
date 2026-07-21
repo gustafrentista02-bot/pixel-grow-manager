@@ -78,3 +78,22 @@ export {
   type AuditActionItem,
 } from "./audit-checklist";
 
+// Plano de Ação Inteligente (Sprint 10)
+export {
+  ActionPlanCard,
+  ActionPlanSummary,
+  SmartActionPlanBlock,
+  ActionStatusBadge,
+  ActionCategoryBadge,
+  ActionTimeBadge,
+  DEFAULT_ACTION_PLAN_ITEMS,
+  type ActionPlanCardProps,
+  type ActionPlanSummaryProps,
+  type SmartActionPlanBlockProps,
+  type ActionItem,
+  type ActionStatus,
+  type ActionCategory,
+  type ActionFilter,
+  type ActionPlanHandlers,
+} from "./action-plan";
+
