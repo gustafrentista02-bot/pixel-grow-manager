@@ -27,6 +27,7 @@ import {
   EmptyState,
   ExternalLinkCard,
   ExternalLinkGrid,
+  SeoScoreCard,
 } from "@/components/pixel";
 
 export const Route = createFileRoute("/_authenticated/google-business")({
