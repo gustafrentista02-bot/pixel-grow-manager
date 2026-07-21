@@ -101,6 +101,10 @@ export function LeadFormDialog({ open, onOpenChange, lead, onSubmit, saving }: P
                 <Label>WhatsApp</Label>
                 <Input value={form.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} placeholder="(11) 99999-9999" />
               </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>E-mail</Label>
+                <Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="contato@empresa.com" />
+              </div>
               <div className="space-y-2">
                 <Label>Empresa</Label>
                 <Input value={form.empresa} onChange={(e) => set("empresa", e.target.value)} />
