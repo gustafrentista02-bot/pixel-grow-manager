@@ -77,14 +77,8 @@ export function AttentionBlock({ leads, tasks }: { leads: Lead[]; tasks: Task[] 
   }, [leads, tasks]);
 
   return (
-    <div className="rounded-2xl border border-destructive/25 bg-destructive/[0.04] p-4 sm:p-5">
-      <div className="mb-4 flex items-center gap-2">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/15 text-destructive">
-          <AlertTriangle className="h-4 w-4" />
-        </span>
-        <h2 className="font-display text-base font-bold">O que precisa da minha atenção</h2>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="rounded-2xl border border-destructive/25 bg-gradient-to-br from-destructive/[0.06] via-destructive/[0.02] to-transparent p-6 sm:p-8">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {cards.map((c) => (
           <AttentionTile key={c.title} card={c} />
         ))}
@@ -99,50 +93,64 @@ function AttentionTile({ card }: { card: AttentionCard }) {
   return (
     <div
       className={cn(
-        "rounded-xl border p-3.5 transition-colors",
+        "flex flex-col rounded-xl border p-5 transition-colors",
         empty
           ? "border-border bg-card/40"
-          : "border-destructive/30 bg-destructive/[0.06]",
+          : "border-destructive/30 bg-card/60 hover:border-destructive/50",
       )}
     >
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Icon className={cn("h-4 w-4", empty ? "text-muted-foreground" : "text-destructive")} />
-          <span className="text-sm font-medium">{card.title}</span>
+        <div className="flex items-center gap-2.5">
+          <span
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-lg",
+              empty ? "bg-muted/40 text-muted-foreground" : "bg-destructive/15 text-destructive",
+            )}
+          >
+            <Icon className="h-4 w-4" />
+          </span>
+          <span className="text-sm font-semibold">{card.title}</span>
         </div>
         <span
           className={cn(
-            "rounded-md px-2 py-0.5 text-sm font-bold tabular-nums",
-            empty ? "text-muted-foreground" : "bg-destructive/15 text-destructive",
+            "rounded-md px-2 py-0.5 text-base font-bold tabular-nums",
+            empty ? "text-muted-foreground/60" : "bg-destructive/15 text-destructive",
           )}
         >
           {card.count}
         </span>
       </div>
-      {!empty && card.leads.length > 0 && (
-        <ul className="mt-2.5 space-y-1">
-          {card.leads.slice(0, 3).map((l) => (
+      {!empty && card.leads.length > 0 ? (
+        <ul className="mt-4 divide-y divide-border/60">
+          {card.leads.slice(0, 4).map((l) => (
             <li key={l.id}>
               {card.href ? (
                 <Link
                   to="/leads/$leadId"
                   params={{ leadId: l.id }}
-                  className="flex items-center gap-1 truncate text-xs text-muted-foreground transition-colors hover:text-foreground"
+                  className="group flex items-center justify-between gap-2 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  <ChevronRight className="h-3 w-3 shrink-0" />
                   <span className="truncate">{card.render(l)}</span>
+                  <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
                 </Link>
               ) : (
-                <span className="truncate text-xs text-muted-foreground">{card.render(l)}</span>
+                <span className="block truncate py-2 text-sm text-muted-foreground">{card.render(l)}</span>
               )}
             </li>
           ))}
-          {card.leads.length > 3 && (
-            <li className="pl-4 text-xs text-muted-foreground/70">+{card.leads.length - 3} outros</li>
+          {card.leads.length > 4 && (
+            <li className="pt-2 text-xs text-muted-foreground/70">
+              +{card.leads.length - 4} outros
+            </li>
           )}
         </ul>
+      ) : empty ? (
+        <p className="mt-4 text-xs text-muted-foreground/70">Tudo em dia ✓</p>
+      ) : (
+        <p className="mt-4 text-xs text-muted-foreground/70">
+          {card.count} {card.count === 1 ? "item" : "itens"} para revisar
+        </p>
       )}
-      {empty && <p className="mt-2 text-xs text-muted-foreground/70">Tudo em dia ✓</p>}
     </div>
   );
 }
