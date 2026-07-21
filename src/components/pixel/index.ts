@@ -97,3 +97,13 @@ export {
   type ActionPlanHandlers,
 } from "./action-plan";
 
+// Módulo Clientes (Sprint 11)
+export {
+  ClientStatusBadge,
+  ClientStatusDot,
+  CLIENT_STATUS_LIST,
+  getClientStatusLabel,
+  type ClientStatus,
+  type ClientStatusBadgeProps,
+} from "./client-status";
+
