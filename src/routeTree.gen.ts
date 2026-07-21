@@ -17,6 +17,7 @@ import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedModelosPropostaRouteImport } from './routes/_authenticated/modelos-proposta'
 import { Route as AuthenticatedModelosMensagemRouteImport } from './routes/_authenticated/modelos-mensagem'
+import { Route as AuthenticatedGoogleBusinessRouteImport } from './routes/_authenticated/google-business'
 import { Route as AuthenticatedFunilRouteImport } from './routes/_authenticated/funil'
 import { Route as AuthenticatedFollowUpRouteImport } from './routes/_authenticated/follow-up'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -67,6 +68,12 @@ const AuthenticatedModelosMensagemRoute =
   AuthenticatedModelosMensagemRouteImport.update({
     id: '/modelos-mensagem',
     path: '/modelos-mensagem',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGoogleBusinessRoute =
+  AuthenticatedGoogleBusinessRouteImport.update({
+    id: '/google-business',
+    path: '/google-business',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedFunilRoute = AuthenticatedFunilRouteImport.update({
@@ -134,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/follow-up': typeof AuthenticatedFollowUpRoute
   '/funil': typeof AuthenticatedFunilRoute
+  '/google-business': typeof AuthenticatedGoogleBusinessRoute
   '/modelos-mensagem': typeof AuthenticatedModelosMensagemRoute
   '/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -153,6 +161,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/follow-up': typeof AuthenticatedFollowUpRoute
   '/funil': typeof AuthenticatedFunilRoute
+  '/google-business': typeof AuthenticatedGoogleBusinessRoute
   '/modelos-mensagem': typeof AuthenticatedModelosMensagemRoute
   '/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -174,6 +183,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/follow-up': typeof AuthenticatedFollowUpRoute
   '/_authenticated/funil': typeof AuthenticatedFunilRoute
+  '/_authenticated/google-business': typeof AuthenticatedGoogleBusinessRoute
   '/_authenticated/modelos-mensagem': typeof AuthenticatedModelosMensagemRoute
   '/_authenticated/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/follow-up'
     | '/funil'
+    | '/google-business'
     | '/modelos-mensagem'
     | '/modelos-proposta'
     | '/onboarding'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/follow-up'
     | '/funil'
+    | '/google-business'
     | '/modelos-mensagem'
     | '/modelos-proposta'
     | '/onboarding'
@@ -234,6 +246,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/follow-up'
     | '/_authenticated/funil'
+    | '/_authenticated/google-business'
     | '/_authenticated/modelos-mensagem'
     | '/_authenticated/modelos-proposta'
     | '/_authenticated/onboarding'
@@ -307,6 +320,13 @@ declare module '@tanstack/react-router' {
       path: '/modelos-mensagem'
       fullPath: '/modelos-mensagem'
       preLoaderRoute: typeof AuthenticatedModelosMensagemRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/google-business': {
+      id: '/_authenticated/google-business'
+      path: '/google-business'
+      fullPath: '/google-business'
+      preLoaderRoute: typeof AuthenticatedGoogleBusinessRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/funil': {
@@ -389,6 +409,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFollowUpRoute: typeof AuthenticatedFollowUpRoute
   AuthenticatedFunilRoute: typeof AuthenticatedFunilRoute
+  AuthenticatedGoogleBusinessRoute: typeof AuthenticatedGoogleBusinessRoute
   AuthenticatedModelosMensagemRoute: typeof AuthenticatedModelosMensagemRoute
   AuthenticatedModelosPropostaRoute: typeof AuthenticatedModelosPropostaRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -406,6 +427,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFollowUpRoute: AuthenticatedFollowUpRoute,
   AuthenticatedFunilRoute: AuthenticatedFunilRoute,
+  AuthenticatedGoogleBusinessRoute: AuthenticatedGoogleBusinessRoute,
   AuthenticatedModelosMensagemRoute: AuthenticatedModelosMensagemRoute,
   AuthenticatedModelosPropostaRoute: AuthenticatedModelosPropostaRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
