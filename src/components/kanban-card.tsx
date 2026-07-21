@@ -1,179 +1,185 @@
 import { useDraggable } from "@dnd-kit/core";
+import { Link } from "@tanstack/react-router";
 import {
-  GripVertical, AlertTriangle, Clock, MapPin, Globe, Instagram, MessageCircle,
-  MapPinned, Calendar, ArrowRight,
+  AlertTriangle, MessageCircle, MoreHorizontal, Pencil, ExternalLink,
+  CalendarClock, User as UserIcon, Clock,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Lead } from "@/lib/leads-api";
-import { ORIGIN_LABELS, FOLLOWUP_META, POTENCIAL_META } from "@/lib/crm";
-import type { FollowupStage, Potencial } from "@/lib/crm";
-import { formatCurrency, formatDateTime } from "@/lib/format";
+import { formatCurrency, formatDate } from "@/lib/format";
 import { daysSince } from "@/lib/notifications";
-import { EnrollCadenceButton, LeadCadenceBadge } from "@/components/cadence-controls";
+import { buildWhatsappLink } from "@/lib/whatsapp";
+import { cn } from "@/lib/utils";
+import {
+  OriginBadge, PulseIndicator, TemperatureBadge, computeLeadPulse,
+} from "@/components/pixel-badges";
 
-const NEXT_FOLLOWUP: Record<FollowupStage, FollowupStage | null> = {
-  followup_1: "followup_2",
-  followup_2: "followup_3",
-  followup_3: "followup_4",
-  followup_4: null,
-};
-
-const PRIORITY_BORDER: Record<Potencial, string> = {
-  alta: "border-l-emerald-400/70",
-  media: "border-l-amber-400/70",
-  baixa: "border-l-zinc-500/70",
-};
-
-function FollowupInsights({ lead }: { lead: Lead }) {
-  const days = daysSince(lead.last_interaction_at);
-  const current = (lead.followup_stage ?? "followup_1") as FollowupStage;
-  const next = NEXT_FOLLOWUP[current];
-  return (
-    <div className="mt-2 space-y-1 rounded-md bg-secondary/40 p-2">
-      {days >= 2 && (
-        <p className="flex items-center gap-1.5 text-[11px] text-amber-400">
-          <AlertTriangle className="h-3 w-3" /> Sem contato há {days} dia(s)
-        </p>
-      )}
-      <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-        <Clock className="h-3 w-3" />
-        {next ? `Próximo: ${FOLLOWUP_META[next].label} (${FOLLOWUP_META[next].hint})` : "Última tentativa"}
-      </p>
-    </div>
-  );
-}
-
-function PresenceIcons({ lead }: { lead: Lead }) {
-  const items: { on: boolean; el: React.ReactNode; title: string }[] = [
-    { on: !!(lead.whatsapp || lead.telefone), el: <MessageCircle className="h-3.5 w-3.5" />, title: "WhatsApp" },
-    { on: !!lead.instagram, el: <Instagram className="h-3.5 w-3.5" />, title: "Instagram" },
-    { on: lead.tem_perfil_google || !!lead.link_perfil_google, el: <MapPinned className="h-3.5 w-3.5" />, title: "Perfil Google" },
-    { on: lead.tem_site || !!lead.site, el: <Globe className="h-3.5 w-3.5" />, title: "Site" },
-  ];
-  return (
-    <div className="flex items-center gap-1.5">
-      {items.map((it, i) => (
-        <span
-          key={i}
-          title={it.title}
-          className={it.on ? "text-accent" : "text-muted-foreground/25"}
-        >
-          {it.el}
-        </span>
-      ))}
-    </div>
-  );
+function initials(name: string) {
+  return (name || "?")
+    .trim().split(/\s+/).slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? "").join("") || "?";
 }
 
 export function KanbanCard({
   lead,
-  onClick,
-  onDoubleClick,
-  showFollowupInsights = false,
+  responsavelNome,
+  onOpenWorkspace,
+  onEdit,
+  onMore,
 }: {
   lead: Lead;
-  onClick?: () => void;
-  onDoubleClick?: () => void;
-  showFollowupInsights?: boolean;
+  responsavelNome?: string;
+  onOpenWorkspace?: () => void;
+  onEdit?: () => void;
+  onMore?: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: lead.id });
   const style = transform
     ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, zIndex: 50 }
     : undefined;
-  const priority = (lead.potencial as Potencial) in PRIORITY_BORDER ? (lead.potencial as Potencial) : "media";
-  const pot = POTENCIAL_META[priority];
+
+  const pulse = computeLeadPulse(lead);
   const dias = daysSince(lead.last_interaction_at);
-  const valor = lead.valor_contrato || lead.faturamento_mensal;
+  const valor = lead.valor_proposta || lead.valor_contrato || lead.faturamento_mensal || 0;
+  const phone = lead.whatsapp || lead.telefone || "";
+  const wa = phone ? buildWhatsappLink(phone) : null;
+
+  const followupAt = lead.proximo_followup_at ? new Date(lead.proximo_followup_at) : null;
+  const followupOverdue = followupAt ? followupAt.getTime() < Date.now() : false;
+
+  function stop(e: React.SyntheticEvent) { e.stopPropagation(); }
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`group card-premium card-premium-hover rounded-xl border border-l-[3px] p-3 shadow-sm ${PRIORITY_BORDER[priority]} ${isDragging ? "opacity-60 ring-2 ring-ring" : ""}`}
+      {...attributes}
+      {...listeners}
+      className={cn(
+        "group relative cursor-grab rounded-xl border border-border/60 bg-card/80 p-3 shadow-sm",
+        "transition hover:border-border hover:shadow-md hover:-translate-y-[1px] active:cursor-grabbing",
+        isDragging && "opacity-70 ring-2 ring-ring shadow-lg",
+      )}
     >
-      {/* Header: company/name + drag handle */}
-      <div className="flex items-start justify-between gap-2">
-        <button
-          onClick={onClick}
-          onDoubleClick={onDoubleClick}
-          className="min-w-0 flex-1 text-left"
-        >
+      {/* Row 1 — pulse + company/name + hover actions */}
+      <div className="flex items-start gap-2">
+        <PulseIndicator level={pulse} className="mt-1 shrink-0" />
+        <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold leading-tight">
-            {lead.empresa || lead.nome}
+            {lead.empresa || lead.nome || "Sem nome"}
           </p>
-          {lead.empresa && lead.nome && (
+          {lead.empresa && lead.nome && lead.empresa !== lead.nome && (
             <p className="truncate text-[11px] text-muted-foreground">{lead.nome}</p>
           )}
-        </button>
-        <button
-          {...attributes}
-          {...listeners}
-          className="cursor-grab text-muted-foreground opacity-0 transition group-hover:opacity-70 active:cursor-grabbing"
-          aria-label="Arrastar"
-        >
-          <GripVertical className="h-4 w-4" />
-        </button>
-      </div>
-
-      {/* Meta line: city · segmento */}
-      {(lead.cidade || lead.segmento) && (
-        <p className="mt-1.5 flex items-center gap-1 truncate text-[11px] text-muted-foreground">
-          <MapPin className="h-3 w-3 shrink-0" />
-          {[lead.cidade && `${lead.cidade}${lead.uf ? `/${lead.uf}` : ""}`, lead.segmento].filter(Boolean).join(" · ")}
-        </p>
-      )}
-
-      {/* Value + labels */}
-      <div className="mt-2.5 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1">
-          <Badge variant="secondary" className="border-0 bg-secondary/60 px-1.5 py-0 text-[10px] font-normal">
-            {ORIGIN_LABELS[lead.origem]}
-          </Badge>
-          <Badge variant="outline" className={`px-1.5 py-0 text-[10px] ${pot.badge}`}>
-            {pot.label}
-          </Badge>
         </div>
-        {valor > 0 && (
-          <span className="text-xs font-semibold text-emerald-300">
-            {formatCurrency(valor)}
-          </span>
-        )}
+
+        {/* Quick actions — visíveis no hover */}
+        <div
+          className="flex shrink-0 items-center gap-0.5 opacity-0 transition group-hover:opacity-100"
+          onPointerDown={stop}
+          onClick={stop}
+        >
+          {wa && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a href={wa} target="_blank" rel="noreferrer" aria-label="WhatsApp">
+                  <Button size="icon" variant="ghost" className="h-7 w-7">
+                    <MessageCircle className="h-3.5 w-3.5" />
+                  </Button>
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>WhatsApp</TooltipContent>
+            </Tooltip>
+          )}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link to="/leads/$leadId" params={{ leadId: lead.id }} aria-label="Abrir workspace">
+                <Button size="icon" variant="ghost" className="h-7 w-7">
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </Button>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>Abrir workspace</TooltipContent>
+          </Tooltip>
+          {onEdit && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onEdit}>
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Editar</TooltipContent>
+            </Tooltip>
+          )}
+          {onMore && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onMore}>
+                  <MoreHorizontal className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Mais opções</TooltipContent>
+            </Tooltip>
+          )}
+        </div>
       </div>
 
-      {/* Presence icons + dias parado */}
-      <div className="mt-2 flex items-center justify-between">
-        <PresenceIcons lead={lead} />
-        {dias > 0 && (
-          <span
-            className={`text-[10px] ${dias >= 3 ? "text-amber-400" : "text-muted-foreground/70"}`}
-            title="Dias parado"
-          >
-            {dias}d parado
-          </span>
-        )}
-      </div>
+      {/* Row 2 — click alvo (abre workspace) com badges */}
+      <button
+        type="button"
+        className="mt-2 block w-full text-left"
+        onPointerDown={stop}
+        onClick={(e) => { stop(e); onOpenWorkspace?.(); }}
+      >
+        <div className="flex flex-wrap items-center gap-1.5">
+          <TemperatureBadge value={lead.temperatura} />
+          <OriginBadge value={lead.origem} />
+        </div>
+      </button>
 
-      {/* Próxima ação + reunião */}
-      {lead.proxima_acao && (
-        <p className="mt-2 flex items-center gap-1 rounded-md bg-secondary/40 px-2 py-1 text-[11px] text-foreground">
-          <ArrowRight className="h-3 w-3 shrink-0 text-accent" /> {lead.proxima_acao}
-        </p>
+      {/* Row 3 — valor + responsável */}
+      {(valor > 0 || responsavelNome) && (
+        <div className="mt-2.5 flex items-center justify-between gap-2">
+          {valor > 0 ? (
+            <span className="text-xs font-semibold text-emerald-300">{formatCurrency(valor)}</span>
+          ) : <span />}
+          {responsavelNome && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="grid h-6 w-6 place-items-center rounded-full bg-primary/15 text-[10px] font-semibold text-primary">
+                  {initials(responsavelNome)}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <span className="flex items-center gap-1"><UserIcon className="h-3 w-3" /> {responsavelNome}</span>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
       )}
-      {lead.reuniao_at && (
-        <p className="mt-1 flex items-center gap-1 text-[11px] text-violet-300">
-          <Calendar className="h-3 w-3 shrink-0" /> {formatDateTime(lead.reuniao_at)}
-        </p>
-      )}
 
-      <LeadCadenceBadge leadId={lead.id} compact />
-
-      {showFollowupInsights && (
-        <>
-          <FollowupInsights lead={lead} />
-          <div className="mt-2 flex justify-end" onPointerDown={(e) => e.stopPropagation()}>
-            <EnrollCadenceButton leadId={lead.id} />
-          </div>
-        </>
+      {/* Row 4 — follow-up + última interação */}
+      {(followupAt || dias > 0) && (
+        <div className="mt-2 flex items-center justify-between gap-2 border-t border-border/40 pt-2 text-[11px]">
+          {followupAt ? (
+            <span
+              className={cn(
+                "flex items-center gap-1",
+                followupOverdue ? "text-red-400" : "text-muted-foreground",
+              )}
+            >
+              {followupOverdue ? <AlertTriangle className="h-3 w-3" /> : <CalendarClock className="h-3 w-3" />}
+              {followupOverdue ? "Atrasado " : "Follow-up "}
+              {formatDate(followupAt.toISOString())}
+            </span>
+          ) : <span />}
+          {dias > 0 && (
+            <span className={cn("flex items-center gap-1", dias >= 3 ? "text-amber-400" : "text-muted-foreground/70")}>
+              <Clock className="h-3 w-3" /> {dias}d
+            </span>
+          )}
+        </div>
       )}
     </div>
   );
