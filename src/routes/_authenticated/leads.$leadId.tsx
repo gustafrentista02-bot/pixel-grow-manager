@@ -42,6 +42,7 @@ import { buildWhatsappLink, buildTelLink } from "@/lib/whatsapp";
 import { daysSince } from "@/lib/notifications";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
+import { ExternalLinkCard } from "@/components/external-link-card";
 
 export const Route = createFileRoute("/_authenticated/leads/$leadId")({
   head: () => ({ meta: [{ title: "Workspace do Lead · Pixel CRM" }] }),
