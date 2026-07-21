@@ -28,6 +28,7 @@ import {
   ExternalLinkGrid,
   SeoScoreCard,
   SmartAuditBlock,
+  SmartActionPlanBlock,
 } from "@/components/pixel";
 
 
@@ -68,6 +69,7 @@ function GoogleBusinessHubPage() {
           <ProfileInfoBlock />
           <DigitalPresenceBlock />
           <AuditsBlock />
+          <SmartActionPlanBlock />
           <ReviewsBlock />
           <PostsBlock />
           <PhotosBlock />
