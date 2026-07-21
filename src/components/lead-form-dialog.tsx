@@ -29,6 +29,7 @@ import {
   PLANO_OPTIONS,
   STATUS_COMERCIAL_OPTIONS,
   CANAIS_AQUISICAO_OPTIONS,
+  TEMPERATURA_OPTIONS,
 } from "@/lib/crm";
 import { EMPTY_LEAD_INPUT, leadToInput, listMembers } from "@/lib/leads-api";
 import type { Lead, LeadInput } from "@/lib/leads-api";
