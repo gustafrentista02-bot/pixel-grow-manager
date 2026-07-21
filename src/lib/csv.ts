@@ -61,15 +61,35 @@ export function parseLeadsCsv(file: File): Promise<ParsedImport> {
               return;
             }
 
-            const origemRaw = pick(raw, "origem", "origin");
-            const origem: LeadOrigin = origemRaw
+            const origemRaw = pick(raw, "origem", "origem_do_lead", "origin");
+            const origem = origemRaw
               ? (ORIGIN_LOOKUP.get(normalize(origemRaw)) ?? "outro")
               : "outro";
 
-            const estagioRaw = pick(raw, "estagio", "estágio", "stage", "etapa");
-            const stage: LeadStage = estagioRaw
+            const estagioRaw = pick(raw, "estagio", "estágio", "estagio_do_funil", "stage", "etapa");
+            const stage = estagioRaw
               ? (STAGE_LOOKUP.get(normalize(estagioRaw)) ?? "lead_novo")
               : "lead_novo";
+
+            const tempRaw = normalize(pick(raw, "temperatura"));
+            const temperatura =
+              tempRaw === "quente" || tempRaw === "morno" || tempRaw === "frio"
+                ? (tempRaw as "quente" | "morno" | "frio")
+                : null;
+
+            const num = (v: string) => {
+              const n = parseFloat(v.replace(/\./g, "").replace(",", "."));
+              return isFinite(n) ? n : 0;
+            };
+            const parseDate = (v: string) => {
+              if (!v) return null;
+              const d = new Date(v);
+              return isNaN(d.getTime()) ? null : d.toISOString();
+            };
+            const tagsRaw = pick(raw, "tags");
+            const tags = tagsRaw
+              ? tagsRaw.split(/[;,|]/).map((t) => t.trim()).filter(Boolean)
+              : [];
 
             valid.push({
               ...EMPTY_LEAD_INPUT,
@@ -77,12 +97,22 @@ export function parseLeadsCsv(file: File): Promise<ParsedImport> {
               empresa: pick(raw, "empresa", "company"),
               telefone: pick(raw, "telefone", "phone", "celular"),
               whatsapp: pick(raw, "whatsapp"),
+              email: pick(raw, "email", "e-mail", "e_mail"),
               cidade: pick(raw, "cidade", "city"),
               uf: pick(raw, "uf", "estado").toUpperCase().slice(0, 2),
               segmento: pick(raw, "segmento", "segment", "nicho"),
               origem,
               observacoes: pick(raw, "observacoes", "observações", "obs", "notes"),
               stage,
+              temperatura,
+              motivo_perda: pick(raw, "motivo_perda", "motivo_da_perda"),
+              valor_proposta: num(pick(raw, "valor_proposta", "valor_da_proposta")),
+              valor_fechado: num(pick(raw, "valor_fechado")),
+              probabilidade_fechamento: Math.min(100, Math.max(0, Math.round(num(pick(raw, "probabilidade_fechamento", "probabilidade_de_fechamento", "probabilidade"))))),
+              link_perfil_google: pick(raw, "link_perfil_google", "link_do_perfil_da_empresa_no_google", "google"),
+              link_whatsapp: pick(raw, "link_whatsapp", "link_do_whatsapp"),
+              proximo_followup_at: parseDate(pick(raw, "proximo_followup", "próximo_follow_up", "proximo_follow_up", "proximo_followup_at")),
+              tags,
             });
           } catch (err) {
             errors.push({
