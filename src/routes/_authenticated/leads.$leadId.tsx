@@ -548,7 +548,11 @@ function LeadDetailPage() {
                   <Field label="E-mail" value={lead.email} />
                   <Field label="Empresa" value={lead.empresa} />
                   <Field label="Instagram" value={lead.instagram} />
-                  <Field label="Site" value={lead.site} href={lead.site || undefined} />
+                  <div className="space-y-1">
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Site</p>
+                    <ExternalLinkCard url={lead.site} kind="site" />
+                  </div>
+
                   <Field label="Cidade / UF" value={[lead.cidade, lead.uf].filter(Boolean).join(" / ")} />
                   <Field label="Área de atendimento" value={lead.area_atendimento} />
                   <Field label="Segmento" value={lead.segmento} />
