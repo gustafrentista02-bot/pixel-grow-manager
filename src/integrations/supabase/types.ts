@@ -492,6 +492,7 @@ export type Database = {
           created_at: string
           criado_por_extensao: boolean
           dificuldade: string
+          email: string
           empresa: string
           faturamento_mensal: number
           faz_google_ads: boolean
@@ -501,7 +502,9 @@ export type Database = {
           instagram: string
           last_interaction_at: string
           link_perfil_google: string
+          link_whatsapp: string
           meet_link: string
+          motivo_perda: string
           nome: string
           notas_rapidas: string
           notas_rapidas_updated_at: string | null
@@ -512,7 +515,9 @@ export type Database = {
           owner_id: string
           plano: string
           potencial: string
+          probabilidade_fechamento: number
           proxima_acao: string
+          proximo_followup_at: string | null
           responsavel_id: string | null
           reuniao_at: string | null
           segmento: string
@@ -520,12 +525,16 @@ export type Database = {
           site: string
           stage: Database["public"]["Enums"]["lead_stage"]
           status_comercial: string
+          tags: string[]
           telefone: string
           tem_perfil_google: boolean
           tem_site: boolean
+          temperatura: Database["public"]["Enums"]["lead_temperatura"] | null
           uf: string
           updated_at: string
           valor_contrato: number
+          valor_fechado: number
+          valor_proposta: number
           whatsapp: string
         }
         Insert: {
@@ -535,6 +544,7 @@ export type Database = {
           created_at?: string
           criado_por_extensao?: boolean
           dificuldade?: string
+          email?: string
           empresa?: string
           faturamento_mensal?: number
           faz_google_ads?: boolean
@@ -544,7 +554,9 @@ export type Database = {
           instagram?: string
           last_interaction_at?: string
           link_perfil_google?: string
+          link_whatsapp?: string
           meet_link?: string
+          motivo_perda?: string
           nome: string
           notas_rapidas?: string
           notas_rapidas_updated_at?: string | null
@@ -555,7 +567,9 @@ export type Database = {
           owner_id: string
           plano?: string
           potencial?: string
+          probabilidade_fechamento?: number
           proxima_acao?: string
+          proximo_followup_at?: string | null
           responsavel_id?: string | null
           reuniao_at?: string | null
           segmento?: string
@@ -563,12 +577,16 @@ export type Database = {
           site?: string
           stage?: Database["public"]["Enums"]["lead_stage"]
           status_comercial?: string
+          tags?: string[]
           telefone?: string
           tem_perfil_google?: boolean
           tem_site?: boolean
+          temperatura?: Database["public"]["Enums"]["lead_temperatura"] | null
           uf?: string
           updated_at?: string
           valor_contrato?: number
+          valor_fechado?: number
+          valor_proposta?: number
           whatsapp?: string
         }
         Update: {
@@ -578,6 +596,7 @@ export type Database = {
           created_at?: string
           criado_por_extensao?: boolean
           dificuldade?: string
+          email?: string
           empresa?: string
           faturamento_mensal?: number
           faz_google_ads?: boolean
@@ -587,7 +606,9 @@ export type Database = {
           instagram?: string
           last_interaction_at?: string
           link_perfil_google?: string
+          link_whatsapp?: string
           meet_link?: string
+          motivo_perda?: string
           nome?: string
           notas_rapidas?: string
           notas_rapidas_updated_at?: string | null
@@ -598,7 +619,9 @@ export type Database = {
           owner_id?: string
           plano?: string
           potencial?: string
+          probabilidade_fechamento?: number
           proxima_acao?: string
+          proximo_followup_at?: string | null
           responsavel_id?: string | null
           reuniao_at?: string | null
           segmento?: string
@@ -606,12 +629,16 @@ export type Database = {
           site?: string
           stage?: Database["public"]["Enums"]["lead_stage"]
           status_comercial?: string
+          tags?: string[]
           telefone?: string
           tem_perfil_google?: boolean
           tem_site?: boolean
+          temperatura?: Database["public"]["Enums"]["lead_temperatura"] | null
           uf?: string
           updated_at?: string
           valor_contrato?: number
+          valor_fechado?: number
+          valor_proposta?: number
           whatsapp?: string
         }
         Relationships: [
@@ -1152,6 +1179,7 @@ export type Database = {
         | "perdido"
         | "follow_up"
         | "sem_interesse"
+      lead_temperatura: "quente" | "morno" | "frio"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1301,6 +1329,7 @@ export const Constants = {
         "follow_up",
         "sem_interesse",
       ],
+      lead_temperatura: ["quente", "morno", "frio"],
     },
   },
 } as const
