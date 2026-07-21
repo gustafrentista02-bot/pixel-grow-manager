@@ -162,11 +162,12 @@ function SeoIndicatorRow({ item }: { item: SeoIndicator }) {
           </span>
         </div>
         <div className="mt-1.5 flex items-center gap-2">
-          <Progress
-            value={progressValue}
-            className="h-1.5 flex-1 bg-muted/30"
-            indicatorClassName={meta.progress}
-          />
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted/30">
+            <div
+              className={cn("h-full rounded-full transition-all", meta.progress)}
+              style={{ width: `${progressValue}%` }}
+            />
+          </div>
           <span className="shrink-0 text-[11px] font-semibold tabular-nums text-muted-foreground">
             {scoreLabel}/100
           </span>
