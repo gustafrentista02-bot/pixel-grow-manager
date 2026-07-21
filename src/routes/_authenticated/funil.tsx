@@ -229,7 +229,7 @@ function FunilPage() {
         saving={update.isPending}
         onSubmit={(input) => {
           if (!editing) return;
-          update.mutate({ id: editing.id, patch: input }, { onSuccess: () => setEditing(null) });
+          update.mutate({ id: editing.id, input }, { onSuccess: () => setEditing(null) });
         }}
       />
 
