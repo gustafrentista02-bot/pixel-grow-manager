@@ -55,3 +55,26 @@ export {
   type SeoOpportunity,
   type SeoEvolutionPoint,
 } from "./seo-score";
+
+// Auditoria Inteligente (Sprint 9)
+export {
+  AuditChecklistCard,
+  AuditActionPlanCard,
+  SmartAuditBlock,
+  AuditStatusBadge,
+  AuditImpactBadge,
+  AuditPriorityBadge,
+  DEFAULT_AUDIT_SECTIONS,
+  DEFAULT_ACTION_PLAN,
+  type AuditChecklistCardProps,
+  type AuditActionPlanCardProps,
+  type SmartAuditBlockProps,
+  type AuditSection,
+  type AuditItem,
+  type AuditStatus,
+  type AuditImpact,
+  type AuditPriority,
+  type AuditFilter,
+  type AuditActionItem,
+} from "./audit-checklist";
+
