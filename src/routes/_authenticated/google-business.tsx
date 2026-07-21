@@ -57,6 +57,9 @@ function GoogleBusinessHubPage() {
       <CompanyHeader />
       <KpiStrip />
 
+      {/* Score SEO Local — motor central do Google Business Hub */}
+      <SeoScoreCard />
+
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Coluna principal (2/3) */}
         <div className="flex flex-col gap-6 lg:col-span-2">
@@ -70,7 +73,6 @@ function GoogleBusinessHubPage() {
 
         {/* Sidebar direita (1/3) */}
         <aside className="flex flex-col gap-6">
-          <ScoreCard />
           <ServicesBlock />
           <HistoryBlock />
         </aside>
