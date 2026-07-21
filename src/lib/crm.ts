@@ -125,3 +125,16 @@ export const CANAIS_AQUISICAO_OPTIONS = [
   "Google Ads",
   "Outros",
 ] as const;
+
+export type Temperatura = Database["public"]["Enums"]["lead_temperatura"];
+
+export const TEMPERATURA_OPTIONS: { value: Temperatura; label: string; dot: string; badge: string }[] = [
+  { value: "quente", label: "Quente", dot: "bg-red-400", badge: "bg-red-400/15 text-red-300 border-red-400/30" },
+  { value: "morno", label: "Morno", dot: "bg-amber-400", badge: "bg-amber-400/15 text-amber-300 border-amber-400/30" },
+  { value: "frio", label: "Frio", dot: "bg-sky-400", badge: "bg-sky-400/15 text-sky-300 border-sky-400/30" },
+];
+
+export const TEMPERATURA_META: Record<Temperatura, (typeof TEMPERATURA_OPTIONS)[number]> = Object.fromEntries(
+  TEMPERATURA_OPTIONS.map((t) => [t.value, t]),
+) as Record<Temperatura, (typeof TEMPERATURA_OPTIONS)[number]>;
+
