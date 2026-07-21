@@ -55,6 +55,7 @@ const groups: readonly NavGroup[] = [
       { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
       { title: "Leads", url: "/leads", icon: Users },
       { title: "Funil", url: "/funil", icon: KanbanSquare },
+      { title: "Clientes", url: "/clientes", icon: Building2 },
       { title: "Follow-up", url: "/follow-up", icon: Repeat },
     ],
   },
