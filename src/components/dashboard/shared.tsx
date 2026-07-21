@@ -100,3 +100,57 @@ export const TONES = {
   orange: { chip: "bg-orange-500/15 text-orange-400", border: "border-orange-500/20" },
   red: { chip: "bg-red-500/15 text-red-400", border: "border-red-500/20" },
 } as const;
+
+/**
+ * Compact KPI tile — small, elegant, easy to scan.
+ * Used on the top of the operational dashboard to answer "how am I today?"
+ */
+export function KpiCard({
+  icon: Icon,
+  value,
+  label,
+  tone,
+  hint,
+}: {
+  icon: LucideIcon;
+  value: string | number;
+  label: string;
+  tone: keyof typeof TONES;
+  hint?: string;
+}) {
+  const t = TONES[tone];
+  return (
+    <div
+      className={cn(
+        "group flex items-center gap-3 rounded-xl border bg-card/40 p-3.5 transition-colors card-premium-hover",
+        t.border,
+      )}
+    >
+      <div
+        className={cn(
+          "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-105",
+          t.chip,
+        )}
+      >
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-xl font-bold leading-none tabular-nums tracking-tight">{value}</p>
+        <p className="mt-1 truncate text-xs text-muted-foreground">{label}</p>
+        {hint && <p className="mt-0.5 truncate text-[10px] text-muted-foreground/70">{hint}</p>}
+      </div>
+    </div>
+  );
+}
+
+export function KpiCardSkeleton() {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-border bg-card/40 p-3.5">
+      <div className="h-10 w-10 shrink-0 animate-pulse rounded-lg bg-muted/50" />
+      <div className="min-w-0 flex-1 space-y-2">
+        <div className="h-4 w-12 animate-pulse rounded bg-muted/50" />
+        <div className="h-3 w-24 animate-pulse rounded bg-muted/40" />
+      </div>
+    </div>
+  );
+}
