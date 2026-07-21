@@ -178,49 +178,8 @@ function DigitalPresenceBlock() {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* 3. Score Geral (sidebar)                                            */
-/* ------------------------------------------------------------------ */
-function ScoreCard() {
-  return (
-    <Block title="Score SEO Local" icon={Gauge}>
-      <Card className="border-border/60 bg-card/40">
-        <CardContent className="flex flex-col items-center gap-4 p-6 text-center">
-          <div className="relative grid h-32 w-32 place-items-center rounded-full bg-gradient-to-br from-violet-500/20 to-primary/10 ring-1 ring-violet-500/30">
-            <div className="grid h-24 w-24 place-items-center rounded-full bg-card">
-              <div>
-                <p className="font-display text-3xl font-bold tabular-nums leading-none">—</p>
-                <p className="mt-1 text-[10px] uppercase tracking-widest text-muted-foreground">
-                  /100
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="space-y-1">
-            <p className="text-sm font-semibold">Score indisponível</p>
-            <p className="text-xs text-muted-foreground">
-              Realize a primeira auditoria para calcular o score SEO Local do perfil.
-            </p>
-          </div>
-          <div className="grid w-full grid-cols-3 gap-2 border-t border-border/60 pt-4">
-            <MiniStat label="Ficha" value="—" />
-            <MiniStat label="Fotos" value="—" />
-            <MiniStat label="Reviews" value="—" />
-          </div>
-        </CardContent>
-      </Card>
-    </Block>
-  );
-}
 
-function MiniStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="text-center">
-      <p className="font-display text-base font-bold tabular-nums">{value}</p>
-      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
-    </div>
-  );
-}
+
 
 /* ------------------------------------------------------------------ */
 /* 4. Auditorias                                                       */
