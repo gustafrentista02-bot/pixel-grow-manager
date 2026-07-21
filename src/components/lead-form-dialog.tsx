@@ -310,6 +310,26 @@ export function LeadFormDialog({ open, onOpenChange, lead, onSubmit, saving }: P
                     disabled={!form.tem_perfil_google}
                   />
                 </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label>Link do WhatsApp</Label>
+                  <Input value={form.link_whatsapp} onChange={(e) => set("link_whatsapp", e.target.value)}
+                    placeholder="https://wa.me/55..." />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label>Tags (separadas por vírgula)</Label>
+                  <Input
+                    value={form.tags.join(", ")}
+                    onChange={(e) => set("tags", e.target.value.split(",").map((t) => t.trim()).filter(Boolean))}
+                    placeholder="vip, prioridade, retomar-em-jan"
+                  />
+                  {form.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      {form.tags.map((t) => (
+                        <Badge key={t} variant="secondary" className="text-xs">{t}</Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <div className="flex items-center justify-between rounded-lg border border-border p-3">
                   <Label>Possui Site?</Label>
                   <Switch checked={form.tem_site} onCheckedChange={(v) => set("tem_site", v)} />
