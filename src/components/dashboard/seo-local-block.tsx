@@ -160,57 +160,64 @@ export function ForecastBlock({ leads }: { leads: Lead[] }) {
   }, [leads]);
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-      <ForecastTile
-        icon={TrendingUp}
-        label="Potencial total do pipeline"
-        value={forecast.potencial}
-        hint={`${forecast.count} leads ativos`}
-        tone="text-sky-400"
-      />
-      <ForecastTile
-        icon={TrendingUp}
-        label="Previsão ponderada"
-        value={forecast.ponderado}
-        hint="Peso por potencial (alta 70% · média 40% · baixa 15%)"
-        tone="text-primary"
-      />
-      <ForecastTile
-        icon={TrendingUp}
-        label="Ticket médio potencial"
-        value={forecast.count > 0 ? forecast.potencial / forecast.count : 0}
-        hint="Sobre o pipeline ativo"
-        tone="text-amber-400"
-      />
-    </div>
-  );
-}
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      {/* Pipeline Comercial — destaque principal */}
+      <div className="lg:col-span-2 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/[0.08] via-primary/[0.03] to-transparent p-6">
+        <div className="flex items-center gap-2">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15 text-primary">
+            <TrendingUp className="h-5 w-5" />
+          </span>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            Pipeline comercial
+          </p>
+        </div>
+        <p className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
+          {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(forecast.potencial)}
+        </p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Potencial total distribuído entre <span className="font-semibold text-foreground">{forecast.count}</span> leads ativos
+        </p>
+        <div className="mt-5 grid grid-cols-2 gap-4 border-t border-border/60 pt-4">
+          <div>
+            <p className="text-lg font-bold tabular-nums tracking-tight text-primary">
+              {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(forecast.ponderado)}
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">Previsão ponderada</p>
+          </div>
+          <div>
+            <p className="text-lg font-bold tabular-nums tracking-tight text-amber-400">
+              {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(
+                forecast.count > 0 ? forecast.potencial / forecast.count : 0,
+              )}
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">Ticket médio</p>
+          </div>
+        </div>
+      </div>
 
-function ForecastTile({
-  icon: Icon,
-  label,
-  value,
-  hint,
-  tone,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: number;
-  hint: string;
-  tone: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-border bg-card/40 p-5">
-      <Icon className={cn("mb-3 h-5 w-5", tone)} />
-      <p className="text-xl font-bold tracking-tight">
-        {new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-          maximumFractionDigits: 0,
-        }).format(value)}
-      </p>
-      <p className="mt-1 text-xs font-medium">{label}</p>
-      <p className="mt-0.5 text-[11px] text-muted-foreground">{hint}</p>
+      {/* Peso das probabilidades */}
+      <div className="rounded-2xl border border-border bg-card/40 p-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Peso por potencial
+        </p>
+        <ul className="mt-4 space-y-3 text-sm">
+          <li className="flex items-center justify-between">
+            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-400" /> Alta</span>
+            <span className="tabular-nums text-muted-foreground">70%</span>
+          </li>
+          <li className="flex items-center justify-between">
+            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-400" /> Média</span>
+            <span className="tabular-nums text-muted-foreground">40%</span>
+          </li>
+          <li className="flex items-center justify-between">
+            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-muted-foreground/60" /> Baixa</span>
+            <span className="tabular-nums text-muted-foreground">15%</span>
+          </li>
+        </ul>
+        <p className="mt-4 border-t border-border/60 pt-3 text-[11px] leading-relaxed text-muted-foreground">
+          A previsão ponderada aplica esses pesos ao valor de contrato de cada lead ativo do pipeline.
+        </p>
+      </div>
     </div>
   );
 }

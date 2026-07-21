@@ -1,6 +1,5 @@
 import { useEffect, useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import {
   Sparkles,
   Filter,
@@ -8,7 +7,6 @@ import {
   CalendarClock,
   Users,
   Activity,
-  Trophy,
   ArrowRight,
   MapPin,
   Target,
@@ -18,19 +16,8 @@ import {
   AlertTriangle,
   BarChart3,
 } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useLeads, usePurgeExpired } from "@/hooks/use-leads";
 import { useTasks } from "@/hooks/use-tasks";
-import { useAuth } from "@/hooks/use-auth";
-import { getTeamMetrics } from "@/lib/leads-api";
-import { formatCurrency } from "@/lib/format";
 import { Block, KpiCard, KpiCardSkeleton, isToday } from "@/components/dashboard/shared";
 import { AttentionBlock } from "@/components/dashboard/attention-block";
 import { FunnelBlock } from "@/components/dashboard/funnel-block";
@@ -41,12 +28,11 @@ import { ActivityBlock } from "@/components/dashboard/activity-block";
 import { SeoLocalBlock, ForecastBlock } from "@/components/dashboard/seo-local-block";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard · Pixel CRM" }] }),
+  head: () => ({ meta: [{ title: "Dashboard Comercial · Pixel CRM" }] }),
   component: DashboardPage,
 });
 
 function DashboardPage() {
-  const { data: auth } = useAuth();
   const { data: leads = [], isLoading: loadingLeads } = useLeads();
   const { data: tasks = [] } = useTasks();
   const purge = usePurgeExpired();
@@ -56,12 +42,15 @@ function DashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const isGerente = auth?.role === "gerente";
-  const hora = new Date().getHours();
-  const saudacao = hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite";
   const hoje = new Date();
+  const dataFormatada = hoje.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
 
-  // KPIs principais — pequenos, elegantes, respondem "como estou hoje?"
+  // KPIs — deltas ficam preparados (null enquanto não há histórico)
   const kpis = useMemo(() => {
     const leadsNovos = leads.filter((l) => l.stage === "lead_novo").length;
     const followupsPendentes = leads.filter((l) => l.stage === "follow_up").length;
@@ -72,20 +61,33 @@ function DashboardPage() {
       const d = new Date(l.updated_at);
       return d.getMonth() === hoje.getMonth() && d.getFullYear() === hoje.getFullYear();
     }).length;
-    return { leadsNovos, followupsPendentes, reunioesHoje, propostasPendentes, ganhosMes };
+    return {
+      leadsNovos,
+      followupsPendentes,
+      reunioesHoje,
+      propostasPendentes,
+      ganhosMes,
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leads]);
 
+  // Sem histórico ainda — estrutura pronta pra receber comparativos
+  const delta = {
+    leadsNovos: null as number | null,
+    followupsPendentes: null as number | null,
+    reunioesHoje: null as number | null,
+    propostasPendentes: null as number | null,
+    ganhosMes: null as number | null,
+  };
+
   return (
-    <div className="mx-auto max-w-7xl space-y-12 pb-12">
-      {/* ─── Header ─────────────────────────────────────────────── */}
-      <header className="space-y-1">
-        <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
-          {saudacao}, {auth?.nome?.split(" ")[0] || "vendedor"}
+    <div className="mx-auto max-w-7xl space-y-14 pb-16">
+      {/* ─── Cabeçalho institucional ─────────────────────────────── */}
+      <header className="space-y-1.5">
+        <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
+          Dashboard Comercial
         </h1>
-        <p className="text-sm capitalize text-muted-foreground">
-          {hoje.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
-        </p>
+        <p className="text-sm capitalize text-muted-foreground">{dataFormatada}</p>
       </header>
 
       {/* ─── 1. KPIs PRINCIPAIS ─────────────────────────────────── */}
@@ -98,22 +100,31 @@ function DashboardPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            <KpiCard icon={Sparkles} tone="green" value={kpis.leadsNovos} label="Leads novos" />
-            <KpiCard icon={Repeat} tone="cyan" value={kpis.followupsPendentes} label="Follow-ups pendentes" />
-            <KpiCard icon={CalendarClock} tone="violet" value={kpis.reunioesHoje} label="Reuniões de hoje" />
-            <KpiCard icon={FileText} tone="orange" value={kpis.propostasPendentes} label="Propostas pendentes" />
-            <KpiCard icon={CheckCircle2} tone="amber" value={kpis.ganhosMes} label="Clientes ganhos no mês" />
+            <KpiCard icon={Sparkles} tone="green" value={kpis.leadsNovos} label="Leads novos" delta={delta.leadsNovos} />
+            <KpiCard icon={Repeat} tone="cyan" value={kpis.followupsPendentes} label="Follow-ups pendentes" delta={delta.followupsPendentes} />
+            <KpiCard icon={CalendarClock} tone="violet" value={kpis.reunioesHoje} label="Reuniões de hoje" delta={delta.reunioesHoje} />
+            <KpiCard icon={FileText} tone="orange" value={kpis.propostasPendentes} label="Propostas pendentes" delta={delta.propostasPendentes} />
+            <KpiCard icon={CheckCircle2} tone="amber" value={kpis.ganhosMes} label="Ganhos no mês" delta={delta.ganhosMes} />
           </div>
         )}
       </Block>
 
-      {/* ─── 2. PRIORIDADES DO DIA (seção principal) ────────────── */}
-      <section className="space-y-4">
-        <div className="flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-destructive" />
-          <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            Prioridades do dia
-          </h2>
+      {/* ─── 2. PRIORIDADES DO DIA (destaque principal) ─────────── */}
+      <section className="space-y-6">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/15 text-destructive">
+              <AlertTriangle className="h-4 w-4" />
+            </span>
+            <div>
+              <h2 className="font-display text-lg font-bold tracking-tight">
+                Prioridades do dia
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Sua próxima ação, em ordem de urgência
+              </p>
+            </div>
+          </div>
         </div>
 
         <AttentionBlock leads={leads} tasks={tasks} />
@@ -145,14 +156,23 @@ function DashboardPage() {
         </div>
       </section>
 
-      {/* ─── 3. DESEMPENHO ──────────────────────────────────────── */}
-      <section className="space-y-6">
+      {/* ─── 3. ATIVIDADE RECENTE (subiu — alta importância operacional) ── */}
+      <Block title="Atividade recente" icon={Activity}>
+        <ActivityBlock />
+      </Block>
+
+      {/* ─── 4. DESEMPENHO ──────────────────────────────────────── */}
+      <section className="space-y-8">
         <div className="flex items-center gap-2">
           <BarChart3 className="h-4 w-4 text-muted-foreground" />
           <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             Desempenho
           </h2>
         </div>
+
+        <Block title="Previsão de fechamento" icon={Target}>
+          <ForecastBlock leads={leads} />
+        </Block>
 
         <Block title="Funil de vendas" icon={Filter}>
           <FunnelBlock leads={leads} />
@@ -162,109 +182,18 @@ function DashboardPage() {
           <FinanceBlock leads={leads} />
         </Block>
 
-        <Block title="Previsão de fechamento" icon={Target}>
-          <ForecastBlock leads={leads} />
-        </Block>
-
         <Block
           title="Oportunidades de SEO Local"
           icon={MapPin}
           action={
-            <Link to="/leads" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-              Ver leads <ArrowRight className="h-3 w-3" />
-            </Link>
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">
+              Em evolução → Score Comercial
+            </span>
           }
         >
           <SeoLocalBlock leads={leads} />
         </Block>
-
-        {isGerente && (
-          <Block title="Ranking da equipe" icon={Trophy}>
-            <TeamRanking />
-          </Block>
-        )}
       </section>
-
-      {/* ─── 4. ATIVIDADE RECENTE ───────────────────────────────── */}
-      <Block title="Atividade recente" icon={Activity}>
-        <ActivityBlock />
-      </Block>
-    </div>
-  );
-}
-
-function TeamRanking() {
-  const { data: team = [], isLoading } = useQuery({ queryKey: ["team-metrics"], queryFn: getTeamMetrics });
-
-  const totals = useMemo(
-    () =>
-      team.reduce(
-        (acc, m) => ({
-          leads: acc.leads + Number(m.total_leads),
-          ganhos: acc.ganhos + Number(m.ganhos),
-          faturamento: acc.faturamento + Number(m.faturamento_ganho),
-        }),
-        { leads: 0, ganhos: 0, faturamento: 0 },
-      ),
-    [team],
-  );
-
-  if (isLoading) return <p className="text-sm text-muted-foreground">Carregando métricas da equipe...</p>;
-
-  return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-3 divide-x divide-border overflow-hidden rounded-2xl border border-border bg-card/40">
-        <div className="p-4">
-          <p className="text-xl font-bold">{totals.leads}</p>
-          <p className="text-xs text-muted-foreground">Leads da equipe</p>
-        </div>
-        <div className="p-4">
-          <p className="text-xl font-bold text-emerald-400">{totals.ganhos}</p>
-          <p className="text-xs text-muted-foreground">Ganhos</p>
-        </div>
-        <div className="p-4">
-          <p className="text-xl font-bold text-amber-400">{formatCurrency(totals.faturamento)}</p>
-          <p className="text-xs text-muted-foreground">Faturamento</p>
-        </div>
-      </div>
-
-      <div className="overflow-hidden rounded-2xl border border-border bg-card/40">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>#</TableHead>
-              <TableHead>Vendedor</TableHead>
-              <TableHead className="text-right">Leads</TableHead>
-              <TableHead className="text-right">Ganhos</TableHead>
-              <TableHead className="text-right">Taxa</TableHead>
-              <TableHead className="text-right">Faturamento</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {team.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
-                  Sem vendedores.
-                </TableCell>
-              </TableRow>
-            ) : (
-              team.map((m, i) => {
-                const taxa = Number(m.total_leads) > 0 ? Math.round((Number(m.ganhos) / Number(m.total_leads)) * 100) : 0;
-                return (
-                  <TableRow key={m.user_id}>
-                    <TableCell className="font-bold text-muted-foreground">{i + 1}º</TableCell>
-                    <TableCell className="font-medium">{m.nome}</TableCell>
-                    <TableCell className="text-right">{m.total_leads}</TableCell>
-                    <TableCell className="text-right text-emerald-400">{m.ganhos}</TableCell>
-                    <TableCell className="text-right">{taxa}%</TableCell>
-                    <TableCell className="text-right">{formatCurrency(Number(m.faturamento_ganho))}</TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
-      </div>
     </div>
   );
 }
