@@ -27,7 +27,9 @@ import {
   ExternalLinkCard,
   ExternalLinkGrid,
   SeoScoreCard,
+  SmartAuditBlock,
 } from "@/components/pixel";
+
 
 export const Route = createFileRoute("/_authenticated/google-business")({
   head: () => ({
@@ -181,19 +183,12 @@ function DigitalPresenceBlock() {
 
 
 /* ------------------------------------------------------------------ */
-/* 4. Auditorias                                                       */
+/* 4. Auditoria Inteligente (Sprint 9)                                 */
 /* ------------------------------------------------------------------ */
 function AuditsBlock() {
-  return (
-    <Block title="Auditorias" icon={ClipboardList}>
-      <EmptyState
-        icon={ClipboardList}
-        title="Nenhuma auditoria realizada"
-        description="Assim que a primeira auditoria for gerada, o histórico aparecerá aqui com score, evolução e recomendações."
-      />
-    </Block>
-  );
+  return <SmartAuditBlock />;
 }
+
 
 /* ------------------------------------------------------------------ */
 /* 5. Avaliações                                                       */
