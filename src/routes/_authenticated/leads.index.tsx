@@ -83,7 +83,7 @@ import { parseLeadsCsv, exportLeadsCsv } from "@/lib/csv";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/leads")({
+export const Route = createFileRoute("/_authenticated/leads/")({
   head: () => ({
     meta: [
       { title: "Leads · Pixel CRM" },
