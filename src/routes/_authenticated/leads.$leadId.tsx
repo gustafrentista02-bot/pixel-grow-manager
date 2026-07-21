@@ -30,6 +30,7 @@ import { LeadQuickNotes } from "@/components/lead-quick-notes";
 import { LeadProposalsList } from "@/components/lead-proposals-list";
 import { LeadAuditCard } from "@/components/lead-audit-card";
 import { InlineField } from "@/components/inline-field";
+import { LeadActivityCenter } from "@/components/lead-activity-center";
 import {
   getLead, listEvents, listFiles, uploadLeadFile, getFileUrl, deleteLeadFile,
   addNote, updateLead, deleteLead, logLeadEvent, listMembers, type LeadFile,
