@@ -25,8 +25,10 @@ import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authen
 import { Route as AuthenticatedBemVindoRouteImport } from './routes/_authenticated/bem-vindo'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedLeadsIndexRouteImport } from './routes/_authenticated/leads.index'
+import { Route as AuthenticatedClientesIndexRouteImport } from './routes/_authenticated/clientes.index'
 import { Route as AuthenticatedAuditoriasIndexRouteImport } from './routes/_authenticated/auditorias.index'
 import { Route as AuthenticatedLeadsLeadIdRouteImport } from './routes/_authenticated/leads.$leadId'
+import { Route as AuthenticatedClientesClientIdRouteImport } from './routes/_authenticated/clientes.$clientId'
 import { Route as AuthenticatedAuditoriasAuditIdRouteImport } from './routes/_authenticated/auditorias.$auditId'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -112,6 +114,12 @@ const AuthenticatedLeadsIndexRoute = AuthenticatedLeadsIndexRouteImport.update({
   path: '/leads/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedClientesIndexRoute =
+  AuthenticatedClientesIndexRouteImport.update({
+    id: '/clientes/',
+    path: '/clientes/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAuditoriasIndexRoute =
   AuthenticatedAuditoriasIndexRouteImport.update({
     id: '/auditorias/',
@@ -122,6 +130,12 @@ const AuthenticatedLeadsLeadIdRoute =
   AuthenticatedLeadsLeadIdRouteImport.update({
     id: '/leads/$leadId',
     path: '/leads/$leadId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedClientesClientIdRoute =
+  AuthenticatedClientesClientIdRouteImport.update({
+    id: '/clientes/$clientId',
+    path: '/clientes/$clientId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAuditoriasAuditIdRoute =
@@ -147,8 +161,10 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/auditorias/$auditId': typeof AuthenticatedAuditoriasAuditIdRoute
+  '/clientes/$clientId': typeof AuthenticatedClientesClientIdRoute
   '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
   '/auditorias/': typeof AuthenticatedAuditoriasIndexRoute
+  '/clientes/': typeof AuthenticatedClientesIndexRoute
   '/leads/': typeof AuthenticatedLeadsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -167,8 +183,10 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/auditorias/$auditId': typeof AuthenticatedAuditoriasAuditIdRoute
+  '/clientes/$clientId': typeof AuthenticatedClientesClientIdRoute
   '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
   '/auditorias': typeof AuthenticatedAuditoriasIndexRoute
+  '/clientes': typeof AuthenticatedClientesIndexRoute
   '/leads': typeof AuthenticatedLeadsIndexRoute
 }
 export interface FileRoutesById {
@@ -189,8 +207,10 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
   '/_authenticated/auditorias/$auditId': typeof AuthenticatedAuditoriasAuditIdRoute
+  '/_authenticated/clientes/$clientId': typeof AuthenticatedClientesClientIdRoute
   '/_authenticated/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
   '/_authenticated/auditorias/': typeof AuthenticatedAuditoriasIndexRoute
+  '/_authenticated/clientes/': typeof AuthenticatedClientesIndexRoute
   '/_authenticated/leads/': typeof AuthenticatedLeadsIndexRoute
 }
 export interface FileRouteTypes {
@@ -211,8 +231,10 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/tarefas'
     | '/auditorias/$auditId'
+    | '/clientes/$clientId'
     | '/leads/$leadId'
     | '/auditorias/'
+    | '/clientes/'
     | '/leads/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -231,8 +253,10 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/tarefas'
     | '/auditorias/$auditId'
+    | '/clientes/$clientId'
     | '/leads/$leadId'
     | '/auditorias'
+    | '/clientes'
     | '/leads'
   id:
     | '__root__'
@@ -252,8 +276,10 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/tarefas'
     | '/_authenticated/auditorias/$auditId'
+    | '/_authenticated/clientes/$clientId'
     | '/_authenticated/leads/$leadId'
     | '/_authenticated/auditorias/'
+    | '/_authenticated/clientes/'
     | '/_authenticated/leads/'
   fileRoutesById: FileRoutesById
 }
@@ -378,6 +404,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLeadsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/clientes/': {
+      id: '/_authenticated/clientes/'
+      path: '/clientes'
+      fullPath: '/clientes/'
+      preLoaderRoute: typeof AuthenticatedClientesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/auditorias/': {
       id: '/_authenticated/auditorias/'
       path: '/auditorias'
@@ -390,6 +423,13 @@ declare module '@tanstack/react-router' {
       path: '/leads/$leadId'
       fullPath: '/leads/$leadId'
       preLoaderRoute: typeof AuthenticatedLeadsLeadIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/clientes/$clientId': {
+      id: '/_authenticated/clientes/$clientId'
+      path: '/clientes/$clientId'
+      fullPath: '/clientes/$clientId'
+      preLoaderRoute: typeof AuthenticatedClientesClientIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/auditorias/$auditId': {
@@ -415,8 +455,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
   AuthenticatedAuditoriasAuditIdRoute: typeof AuthenticatedAuditoriasAuditIdRoute
+  AuthenticatedClientesClientIdRoute: typeof AuthenticatedClientesClientIdRoute
   AuthenticatedLeadsLeadIdRoute: typeof AuthenticatedLeadsLeadIdRoute
   AuthenticatedAuditoriasIndexRoute: typeof AuthenticatedAuditoriasIndexRoute
+  AuthenticatedClientesIndexRoute: typeof AuthenticatedClientesIndexRoute
   AuthenticatedLeadsIndexRoute: typeof AuthenticatedLeadsIndexRoute
 }
 
@@ -433,8 +475,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
   AuthenticatedAuditoriasAuditIdRoute: AuthenticatedAuditoriasAuditIdRoute,
+  AuthenticatedClientesClientIdRoute: AuthenticatedClientesClientIdRoute,
   AuthenticatedLeadsLeadIdRoute: AuthenticatedLeadsLeadIdRoute,
   AuthenticatedAuditoriasIndexRoute: AuthenticatedAuditoriasIndexRoute,
+  AuthenticatedClientesIndexRoute: AuthenticatedClientesIndexRoute,
   AuthenticatedLeadsIndexRoute: AuthenticatedLeadsIndexRoute,
 }
 
