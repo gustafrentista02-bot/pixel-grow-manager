@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Calendar,
   ClipboardList,
+  Building2,
   ChevronDown,
 } from "lucide-react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
