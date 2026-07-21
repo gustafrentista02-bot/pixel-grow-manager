@@ -30,6 +30,7 @@ import { LeadQuickNotes } from "@/components/lead-quick-notes";
 import { LeadProposalsList } from "@/components/lead-proposals-list";
 import { LeadAuditCard } from "@/components/lead-audit-card";
 import { InlineField } from "@/components/inline-field";
+import { LeadActivityCenter } from "@/components/lead-activity-center";
 import {
   getLead, listEvents, listFiles, uploadLeadFile, getFileUrl, deleteLeadFile,
   addNote, updateLead, deleteLead, logLeadEvent, listMembers, type LeadFile,
@@ -529,7 +530,7 @@ function LeadDetailPage() {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="flex-wrap bg-transparent p-0">
               <TabsTrigger value="visao">Visão geral</TabsTrigger>
-              <TabsTrigger value="timeline">Timeline</TabsTrigger>
+              <TabsTrigger value="central">Central de Atividades</TabsTrigger>
               <TabsTrigger value="arquivos">Arquivos</TabsTrigger>
               <TabsTrigger value="propostas">Propostas</TabsTrigger>
               <TabsTrigger value="auditorias">Auditorias</TabsTrigger>
@@ -601,18 +602,29 @@ function LeadDetailPage() {
               <LeadQuickNotes lead={lead} onSaved={() => qc.invalidateQueries({ queryKey: ["lead", leadId] })} />
             </TabsContent>
 
-            {/* Timeline */}
-            <TabsContent value="timeline" className="mt-4">
-              <Card className="border-border/60 bg-card/60">
-                <CardHeader className="flex-row items-center justify-between space-y-0 pb-3">
-                  <CardTitle className="text-sm font-semibold">Linha do tempo</CardTitle>
-                  <TimelineFilters value={timelineFilter} onChange={setTimelineFilter} />
-                </CardHeader>
-                <CardContent>
-                  <TimelineList events={eventsQ.data ?? []} filter={timelineFilter} />
-                </CardContent>
-              </Card>
+            {/* Central de Atividades */}
+            <TabsContent value="central" className="mt-4">
+              <LeadActivityCenter
+                lead={lead}
+                events={eventsQ.data ?? []}
+                onNewNote={focusNewNote}
+                onNewFollowup={() => setEditOpen(true)}
+                onNewProposal={() => setActiveTab("propostas")}
+                onNewAudit={() => setActiveTab("auditorias")}
+                onRegisterCall={() => {
+                  const desc = window.prompt("Descreva a ligação (assunto, próximos passos, etc.):");
+                  if (desc && desc.trim()) {
+                    logLeadEvent(leadId, "mensagem", `📞 Ligação: ${desc.trim()}`)
+                      .then(() => {
+                        qc.invalidateQueries({ queryKey: ["lead-events", leadId] });
+                        toast.success("Ligação registrada");
+                      })
+                      .catch((e: Error) => toast.error("Erro", { description: e.message }));
+                  }
+                }}
+              />
             </TabsContent>
+
 
             {/* Arquivos */}
             <TabsContent value="arquivos" className="mt-4">
