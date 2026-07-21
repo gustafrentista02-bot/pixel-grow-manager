@@ -707,7 +707,11 @@ function LeadDetailPage() {
                     <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Perfil no Google</p>
                     <YesNo v={lead.tem_perfil_google} />
                   </div>
-                  <Field label="Link do Perfil" value={lead.link_perfil_google} href={lead.link_perfil_google || undefined} />
+                  <div className="space-y-1 sm:col-span-2">
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Link do Perfil</p>
+                    <ExternalLinkCard url={lead.link_perfil_google} kind="google-profile" />
+                  </div>
+
                   <div className="space-y-0.5">
                     <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Possui Site</p>
                     <YesNo v={lead.tem_site} />
