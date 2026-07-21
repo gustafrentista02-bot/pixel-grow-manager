@@ -42,6 +42,7 @@ import { buildWhatsappLink, buildTelLink } from "@/lib/whatsapp";
 import { daysSince } from "@/lib/notifications";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
+import { ExternalLinkCard } from "@/components/external-link-card";
 
 export const Route = createFileRoute("/_authenticated/leads/$leadId")({
   head: () => ({ meta: [{ title: "Workspace do Lead · Pixel CRM" }] }),
@@ -548,7 +549,11 @@ function LeadDetailPage() {
                   <Field label="E-mail" value={lead.email} />
                   <Field label="Empresa" value={lead.empresa} />
                   <Field label="Instagram" value={lead.instagram} />
-                  <Field label="Site" value={lead.site} href={lead.site || undefined} />
+                  <div className="space-y-1">
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Site</p>
+                    <ExternalLinkCard url={lead.site} kind="site" />
+                  </div>
+
                   <Field label="Cidade / UF" value={[lead.cidade, lead.uf].filter(Boolean).join(" / ")} />
                   <Field label="Área de atendimento" value={lead.area_atendimento} />
                   <Field label="Segmento" value={lead.segmento} />
@@ -702,7 +707,11 @@ function LeadDetailPage() {
                     <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Perfil no Google</p>
                     <YesNo v={lead.tem_perfil_google} />
                   </div>
-                  <Field label="Link do Perfil" value={lead.link_perfil_google} href={lead.link_perfil_google || undefined} />
+                  <div className="space-y-1 sm:col-span-2">
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Link do Perfil</p>
+                    <ExternalLinkCard url={lead.link_perfil_google} kind="google-profile" />
+                  </div>
+
                   <div className="space-y-0.5">
                     <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Possui Site</p>
                     <YesNo v={lead.tem_site} />
