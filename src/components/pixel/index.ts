@@ -41,3 +41,17 @@ export { LoadingState, SkeletonRow, type LoadingStateProps } from "./loading-sta
 export { ErrorState, type ErrorStateProps } from "./error-state";
 export { SectionHeader, type SectionHeaderProps } from "./section-header";
 export { InfoCard, type InfoCardProps } from "./info-card";
+export {
+  SeoScoreCard,
+  getSeoScoreTier,
+  DEFAULT_SEO_INDICATORS,
+  DEFAULT_SEO_OPPORTUNITIES,
+  type SeoScoreCardProps,
+  type SeoScoreTier,
+  type SeoScoreTierMeta,
+  type SeoScoreVariant,
+  type SeoIndicator,
+  type SeoIndicatorStatus,
+  type SeoOpportunity,
+  type SeoEvolutionPoint,
+} from "./seo-score";
