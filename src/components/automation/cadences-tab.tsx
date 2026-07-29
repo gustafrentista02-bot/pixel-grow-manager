@@ -291,7 +291,20 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
     });
   }
 
+  const { data: enrollmentsAll = [] } = useEnrollments();
+  const activeCount = useMemo(
+    () => enrollmentsAll.filter((e) => e.cadence_id === cadence.id && e.status === "ativa").length,
+    [enrollmentsAll, cadence.id],
+  );
+
   async function save() {
+    // Aviso quando há participantes ativos: alterações afetam mensagens futuras.
+    if (activeCount > 0) {
+      const ok = window.confirm(
+        `Esta cadência possui ${activeCount} lead(s) ativo(s). As alterações afetarão as próximas mensagens ainda não enviadas. Deseja continuar?`,
+      );
+      if (!ok) return;
+    }
     const patch: Partial<Pick<Cadence, "nome" | "compartilhada" | "parar_ao_responder">> = {};
     if (nome !== cadence.nome) patch.nome = nome;
     if (isManager && compartilhada !== cadence.compartilhada) patch.compartilhada = compartilhada;
@@ -300,6 +313,7 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
       await updateCadence.mutateAsync({ id: cadence.id, input: patch });
     }
     await saveSteps.mutateAsync({ cadence_id: cadence.id, steps });
+    onOpenChange(false);
   }
 
   return (

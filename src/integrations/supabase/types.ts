@@ -927,7 +927,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      compute_next_send_at: {
+        Args: { p_delay_dias: number; p_horario: string }
+        Returns: string
+      }
       current_org_id: { Args: never; Returns: string }
+      enroll_leads_in_cadence: {
+        Args: { p_cadence_id: string; p_lead_ids: string[] }
+        Returns: {
+          enrollment_id: string
+          lead_id: string
+          message: string
+          next_send_at: string
+          status: string
+        }[]
+      }
       get_team_metrics: {
         Args: never
         Returns: {
@@ -951,6 +965,24 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      replace_cadence_steps: {
+        Args: { p_cadence_id: string; p_steps: Json }
+        Returns: {
+          cadence_id: string
+          created_at: string
+          delay_dias: number
+          horario: string
+          id: string
+          mensagem: string
+          ordem: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "cadence_steps"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
     }
     Enums: {
