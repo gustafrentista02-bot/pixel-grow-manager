@@ -5,20 +5,15 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 
-// G+letter sequences → route
 const GO_MAP: Record<string, string> = {
   d: "/dashboard",
   l: "/leads",
   f: "/funil",
   t: "/tarefas",
-  a: "/agenda",
   u: "/follow-up",
-  p: "/modelos-proposta",
-  m: "/modelos-mensagem",
   c: "/configuracoes",
 };
 
-/** Global G+X navigation shortcuts (Attio/Linear-style). */
 export function useGlobalShortcuts() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -70,15 +65,11 @@ const SHORTCUTS: { keys: string[]; label: string }[] = [
   { keys: ["G", "L"], label: "Ir para Leads" },
   { keys: ["G", "F"], label: "Ir para Funil" },
   { keys: ["G", "T"], label: "Ir para Tarefas" },
-  { keys: ["G", "A"], label: "Ir para Agenda" },
   { keys: ["G", "U"], label: "Ir para Follow-up" },
-  { keys: ["G", "P"], label: "Ir para Modelos de Proposta" },
-  { keys: ["G", "M"], label: "Ir para Modelos de Mensagem" },
   { keys: ["G", "C"], label: "Ir para Configurações" },
   { keys: ["?"], label: "Abrir esta ajuda" },
 ];
 
-/** Small "?" trigger + dialog that lists all shortcuts. */
 export function ShortcutsHelp() {
   const [open, setOpen] = useState(false);
 

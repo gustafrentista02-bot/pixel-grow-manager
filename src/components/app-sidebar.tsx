@@ -7,11 +7,6 @@ import {
   Settings,
   LogOut,
   CheckSquare,
-  FileText,
-  MessageSquare,
-  Calendar,
-  ClipboardList,
-  Building2,
   ChevronDown,
 } from "lucide-react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
@@ -45,8 +40,6 @@ type NavGroup = {
   items: readonly NavItem[];
 };
 
-// Grupos preparados para expansão futura (Propostas, Clientes, Relatórios, Google Business hub, etc.)
-// Nesta fase apenas reorganizamos os itens existentes — nenhum módulo novo.
 const groups: readonly NavGroup[] = [
   {
     id: "comercial",
@@ -55,7 +48,6 @@ const groups: readonly NavGroup[] = [
       { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
       { title: "Leads", url: "/leads", icon: Users },
       { title: "Funil", url: "/funil", icon: KanbanSquare },
-      
       { title: "Follow-up", url: "/follow-up", icon: Repeat },
     ],
   },
@@ -64,17 +56,6 @@ const groups: readonly NavGroup[] = [
     label: "Operação",
     items: [
       { title: "Tarefas", url: "/tarefas", icon: CheckSquare },
-      { title: "Agenda", url: "/agenda", icon: Calendar },
-      { title: "Modelos de Proposta", url: "/modelos-proposta", icon: FileText },
-      { title: "Modelos de Mensagens", url: "/modelos-mensagem", icon: MessageSquare },
-    ],
-  },
-  {
-    id: "google-business",
-    label: "Google Business",
-    items: [
-      { title: "Google Business Hub", url: "/google-business", icon: Building2 },
-      { title: "Auditorias", url: "/auditorias", icon: ClipboardList },
     ],
   },
   {
@@ -129,7 +110,6 @@ export function AppSidebar() {
           return (
             <Collapsible key={group.id} defaultOpen={hasActive || true} className="group/collapsible">
               <SidebarGroup>
-                {/* Label vira botão para colapsar o grupo. No modo icon-collapsed some junto com os textos. */}
                 <SidebarGroupLabel asChild className="group-data-[collapsible=icon]:hidden">
                   <CollapsibleTrigger className="flex w-full items-center justify-between gap-2 text-xs font-semibold uppercase tracking-wide text-sidebar-foreground/60 hover:text-sidebar-foreground">
                     <span>{group.label}</span>

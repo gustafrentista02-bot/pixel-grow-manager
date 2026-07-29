@@ -15,19 +15,13 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticated/tarefas'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
-import { Route as AuthenticatedModelosPropostaRouteImport } from './routes/_authenticated/modelos-proposta'
-import { Route as AuthenticatedModelosMensagemRouteImport } from './routes/_authenticated/modelos-mensagem'
-import { Route as AuthenticatedGoogleBusinessRouteImport } from './routes/_authenticated/google-business'
 import { Route as AuthenticatedFunilRouteImport } from './routes/_authenticated/funil'
 import { Route as AuthenticatedFollowUpRouteImport } from './routes/_authenticated/follow-up'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedBemVindoRouteImport } from './routes/_authenticated/bem-vindo'
-import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedLeadsIndexRouteImport } from './routes/_authenticated/leads.index'
-import { Route as AuthenticatedAuditoriasIndexRouteImport } from './routes/_authenticated/auditorias.index'
 import { Route as AuthenticatedLeadsLeadIdRouteImport } from './routes/_authenticated/leads.$leadId'
-import { Route as AuthenticatedAuditoriasAuditIdRouteImport } from './routes/_authenticated/auditorias.$auditId'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -58,24 +52,6 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedModelosPropostaRoute =
-  AuthenticatedModelosPropostaRouteImport.update({
-    id: '/modelos-proposta',
-    path: '/modelos-proposta',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedModelosMensagemRoute =
-  AuthenticatedModelosMensagemRouteImport.update({
-    id: '/modelos-mensagem',
-    path: '/modelos-mensagem',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedGoogleBusinessRoute =
-  AuthenticatedGoogleBusinessRouteImport.update({
-    id: '/google-business',
-    path: '/google-business',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedFunilRoute = AuthenticatedFunilRouteImport.update({
   id: '/funil',
   path: '/funil',
@@ -102,32 +78,15 @@ const AuthenticatedBemVindoRoute = AuthenticatedBemVindoRouteImport.update({
   path: '/bem-vindo',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
-  id: '/agenda',
-  path: '/agenda',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedLeadsIndexRoute = AuthenticatedLeadsIndexRouteImport.update({
   id: '/leads/',
   path: '/leads/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAuditoriasIndexRoute =
-  AuthenticatedAuditoriasIndexRouteImport.update({
-    id: '/auditorias/',
-    path: '/auditorias/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedLeadsLeadIdRoute =
   AuthenticatedLeadsLeadIdRouteImport.update({
     id: '/leads/$leadId',
     path: '/leads/$leadId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAuditoriasAuditIdRoute =
-  AuthenticatedAuditoriasAuditIdRouteImport.update({
-    id: '/auditorias/$auditId',
-    path: '/auditorias/$auditId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
@@ -135,40 +94,28 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/agenda': typeof AuthenticatedAgendaRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/follow-up': typeof AuthenticatedFollowUpRoute
   '/funil': typeof AuthenticatedFunilRoute
-  '/google-business': typeof AuthenticatedGoogleBusinessRoute
-  '/modelos-mensagem': typeof AuthenticatedModelosMensagemRoute
-  '/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
-  '/auditorias/$auditId': typeof AuthenticatedAuditoriasAuditIdRoute
   '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
-  '/auditorias/': typeof AuthenticatedAuditoriasIndexRoute
   '/leads/': typeof AuthenticatedLeadsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/agenda': typeof AuthenticatedAgendaRoute
   '/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/follow-up': typeof AuthenticatedFollowUpRoute
   '/funil': typeof AuthenticatedFunilRoute
-  '/google-business': typeof AuthenticatedGoogleBusinessRoute
-  '/modelos-mensagem': typeof AuthenticatedModelosMensagemRoute
-  '/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
-  '/auditorias/$auditId': typeof AuthenticatedAuditoriasAuditIdRoute
   '/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
-  '/auditorias': typeof AuthenticatedAuditoriasIndexRoute
   '/leads': typeof AuthenticatedLeadsIndexRoute
 }
 export interface FileRoutesById {
@@ -177,20 +124,14 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/bem-vindo': typeof AuthenticatedBemVindoRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/follow-up': typeof AuthenticatedFollowUpRoute
   '/_authenticated/funil': typeof AuthenticatedFunilRoute
-  '/_authenticated/google-business': typeof AuthenticatedGoogleBusinessRoute
-  '/_authenticated/modelos-mensagem': typeof AuthenticatedModelosMensagemRoute
-  '/_authenticated/modelos-proposta': typeof AuthenticatedModelosPropostaRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
-  '/_authenticated/auditorias/$auditId': typeof AuthenticatedAuditoriasAuditIdRoute
   '/_authenticated/leads/$leadId': typeof AuthenticatedLeadsLeadIdRoute
-  '/_authenticated/auditorias/': typeof AuthenticatedAuditoriasIndexRoute
   '/_authenticated/leads/': typeof AuthenticatedLeadsIndexRoute
 }
 export interface FileRouteTypes {
@@ -199,40 +140,28 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/reset-password'
-    | '/agenda'
     | '/bem-vindo'
     | '/configuracoes'
     | '/dashboard'
     | '/follow-up'
     | '/funil'
-    | '/google-business'
-    | '/modelos-mensagem'
-    | '/modelos-proposta'
     | '/onboarding'
     | '/tarefas'
-    | '/auditorias/$auditId'
     | '/leads/$leadId'
-    | '/auditorias/'
     | '/leads/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/reset-password'
-    | '/agenda'
     | '/bem-vindo'
     | '/configuracoes'
     | '/dashboard'
     | '/follow-up'
     | '/funil'
-    | '/google-business'
-    | '/modelos-mensagem'
-    | '/modelos-proposta'
     | '/onboarding'
     | '/tarefas'
-    | '/auditorias/$auditId'
     | '/leads/$leadId'
-    | '/auditorias'
     | '/leads'
   id:
     | '__root__'
@@ -240,20 +169,14 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/reset-password'
-    | '/_authenticated/agenda'
     | '/_authenticated/bem-vindo'
     | '/_authenticated/configuracoes'
     | '/_authenticated/dashboard'
     | '/_authenticated/follow-up'
     | '/_authenticated/funil'
-    | '/_authenticated/google-business'
-    | '/_authenticated/modelos-mensagem'
-    | '/_authenticated/modelos-proposta'
     | '/_authenticated/onboarding'
     | '/_authenticated/tarefas'
-    | '/_authenticated/auditorias/$auditId'
     | '/_authenticated/leads/$leadId'
-    | '/_authenticated/auditorias/'
     | '/_authenticated/leads/'
   fileRoutesById: FileRoutesById
 }
@@ -308,27 +231,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/modelos-proposta': {
-      id: '/_authenticated/modelos-proposta'
-      path: '/modelos-proposta'
-      fullPath: '/modelos-proposta'
-      preLoaderRoute: typeof AuthenticatedModelosPropostaRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/modelos-mensagem': {
-      id: '/_authenticated/modelos-mensagem'
-      path: '/modelos-mensagem'
-      fullPath: '/modelos-mensagem'
-      preLoaderRoute: typeof AuthenticatedModelosMensagemRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/google-business': {
-      id: '/_authenticated/google-business'
-      path: '/google-business'
-      fullPath: '/google-business'
-      preLoaderRoute: typeof AuthenticatedGoogleBusinessRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/funil': {
       id: '/_authenticated/funil'
       path: '/funil'
@@ -364,25 +266,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBemVindoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/agenda': {
-      id: '/_authenticated/agenda'
-      path: '/agenda'
-      fullPath: '/agenda'
-      preLoaderRoute: typeof AuthenticatedAgendaRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/leads/': {
       id: '/_authenticated/leads/'
       path: '/leads'
       fullPath: '/leads/'
       preLoaderRoute: typeof AuthenticatedLeadsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/auditorias/': {
-      id: '/_authenticated/auditorias/'
-      path: '/auditorias'
-      fullPath: '/auditorias/'
-      preLoaderRoute: typeof AuthenticatedAuditoriasIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/leads/$leadId': {
@@ -392,49 +280,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLeadsLeadIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/auditorias/$auditId': {
-      id: '/_authenticated/auditorias/$auditId'
-      path: '/auditorias/$auditId'
-      fullPath: '/auditorias/$auditId'
-      preLoaderRoute: typeof AuthenticatedAuditoriasAuditIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedBemVindoRoute: typeof AuthenticatedBemVindoRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFollowUpRoute: typeof AuthenticatedFollowUpRoute
   AuthenticatedFunilRoute: typeof AuthenticatedFunilRoute
-  AuthenticatedGoogleBusinessRoute: typeof AuthenticatedGoogleBusinessRoute
-  AuthenticatedModelosMensagemRoute: typeof AuthenticatedModelosMensagemRoute
-  AuthenticatedModelosPropostaRoute: typeof AuthenticatedModelosPropostaRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
-  AuthenticatedAuditoriasAuditIdRoute: typeof AuthenticatedAuditoriasAuditIdRoute
   AuthenticatedLeadsLeadIdRoute: typeof AuthenticatedLeadsLeadIdRoute
-  AuthenticatedAuditoriasIndexRoute: typeof AuthenticatedAuditoriasIndexRoute
   AuthenticatedLeadsIndexRoute: typeof AuthenticatedLeadsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedBemVindoRoute: AuthenticatedBemVindoRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFollowUpRoute: AuthenticatedFollowUpRoute,
   AuthenticatedFunilRoute: AuthenticatedFunilRoute,
-  AuthenticatedGoogleBusinessRoute: AuthenticatedGoogleBusinessRoute,
-  AuthenticatedModelosMensagemRoute: AuthenticatedModelosMensagemRoute,
-  AuthenticatedModelosPropostaRoute: AuthenticatedModelosPropostaRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
-  AuthenticatedAuditoriasAuditIdRoute: AuthenticatedAuditoriasAuditIdRoute,
   AuthenticatedLeadsLeadIdRoute: AuthenticatedLeadsLeadIdRoute,
-  AuthenticatedAuditoriasIndexRoute: AuthenticatedAuditoriasIndexRoute,
   AuthenticatedLeadsIndexRoute: AuthenticatedLeadsIndexRoute,
 }
 
