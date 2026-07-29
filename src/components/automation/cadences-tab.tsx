@@ -175,6 +175,18 @@ export function CadencesTab() {
   const [editing, setEditing] = useState<Cadence | null>(null);
   const [newName, setNewName] = useState("");
 
+  async function handleCreateCadence() {
+    const nome = newName.trim();
+    if (!nome || createCadence.isPending) return;
+    try {
+      const created = await createCadence.mutateAsync({ nome });
+      setNewName("");
+      setEditing(created);
+    } catch {
+      // erro já exibido via toast; mantém o nome digitado
+    }
+  }
+
   const enrollCount = (id: string) => enrollments.filter((e) => e.cadence_id === id && e.status === "ativa").length;
 
   const own = cadences.filter((c) => c.owner_id === uid);
@@ -235,17 +247,29 @@ export function CadencesTab() {
     <div className="space-y-4">
       <Card>
         <CardContent className="flex flex-wrap items-center gap-2 p-3">
-          <Input placeholder="Nome da nova cadência..." value={newName}
-            onChange={(e) => setNewName(e.target.value)} className="max-w-xs" />
-          <Button onClick={async () => {
-            if (!newName.trim()) return;
-            await createCadence.mutateAsync({ nome: newName.trim() });
-            setNewName("");
-          }}>
-            <Plus className="mr-1 h-4 w-4" /> Nova cadência
+          <Input
+            placeholder="Nome da nova cadência..."
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                void handleCreateCadence();
+              }
+            }}
+            disabled={createCadence.isPending}
+            className="max-w-xs"
+          />
+          <Button
+            onClick={() => void handleCreateCadence()}
+            disabled={createCadence.isPending || !newName.trim()}
+          >
+            <Plus className="mr-1 h-4 w-4" />
+            {createCadence.isPending ? "Criando..." : "Nova cadência"}
           </Button>
         </CardContent>
       </Card>
+
 
       <section className="space-y-2">
         <h2 className="text-sm font-semibold text-muted-foreground">Minhas ({own.length})</h2>
