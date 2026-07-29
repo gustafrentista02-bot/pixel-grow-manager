@@ -251,18 +251,18 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
 }) {
   const { data: existingSteps = [] } = useCadenceSteps(open ? cadence.id : null);
   const { saveSteps, updateCadence } = useAutomationMutations();
-  const [nome, setNome] = useState(cadence.nome);
-  const [compartilhada, setCompartilhada] = useState(cadence.compartilhada);
-  const [pararAoResponder, setPararAoResponder] = useState(cadence.parar_ao_responder ?? true);
+  const [nome, setNome] = useState(cadence.nome ?? "");
+  const [compartilhada, setCompartilhada] = useState<boolean>(cadence.compartilhada ?? false);
+  const [pararAoResponder, setPararAoResponder] = useState<boolean>(cadence.parar_ao_responder ?? true);
   const [steps, setSteps] = useState<EditableStep[]>([]);
   const [tab, setTab] = useState<"etapas" | "leads">("etapas");
 
   useEffect(() => {
     if (open) {
-      setNome(cadence.nome);
-      setCompartilhada(cadence.compartilhada);
+      setNome(cadence.nome ?? "");
+      setCompartilhada(cadence.compartilhada ?? false);
       setPararAoResponder(cadence.parar_ao_responder ?? true);
-      setSteps(existingSteps.map((s) => ({ delay_dias: s.delay_dias, horario: s.horario, mensagem: s.mensagem })));
+      setSteps((existingSteps ?? []).map((s) => ({ delay_dias: s.delay_dias, horario: s.horario, mensagem: s.mensagem })));
     }
   }, [open, cadence.nome, cadence.compartilhada, cadence.parar_ao_responder, existingSteps]);
 
@@ -417,8 +417,16 @@ export function CadencesTab() {
     if (!nome || createCadence.isPending) return;
     try {
       const created = await createCadence.mutateAsync({ nome });
+      if (!created?.id) {
+        throw new Error("Não foi possível abrir a cadência recém-criada.");
+      }
       setNewName("");
-      setEditing(created);
+      setEditing({
+        ...created,
+        compartilhada: created.compartilhada ?? false,
+        parar_ao_responder: created.parar_ao_responder ?? true,
+        ativa: created.ativa ?? true,
+      });
     } catch {
       // erro já exibido via toast; mantém o nome digitado
     }
@@ -528,9 +536,15 @@ export function CadencesTab() {
         )}
       </section>
 
-      {editing && (
-        <CadenceEditor cadence={editing} open={!!editing} onOpenChange={(v) => !v && setEditing(null)} isManager={isManager} />
-      )}
+      {editing?.id ? (
+        <CadenceEditor
+          key={editing.id}
+          cadence={editing}
+          open={true}
+          onOpenChange={(v) => { if (!v) setEditing(null); }}
+          isManager={isManager}
+        />
+      ) : null}
     </div>
   );
 }
