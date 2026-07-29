@@ -66,10 +66,37 @@ export async function createCadence(
   const { data, error } = await supabase
     .from("cadences")
     .insert({ nome, owner_id, compartilhada, parar_ao_responder })
-    .select()
+    .select("*")
     .single();
   if (error) throw error;
-  return data;
+  if (data?.id) {
+    return {
+      ...data,
+      compartilhada: data.compartilhada ?? false,
+      parar_ao_responder: data.parar_ao_responder ?? true,
+      ativa: data.ativa ?? true,
+    } as Cadence;
+  }
+  // Fallback: se por algum motivo o insert não retornou a linha completa,
+  // busca pelo owner_id + nome mais recente para hidratar o objeto.
+  const { data: fetched, error: fetchErr } = await supabase
+    .from("cadences")
+    .select("*")
+    .eq("owner_id", owner_id)
+    .eq("nome", nome)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (fetchErr) throw fetchErr;
+  if (!fetched?.id) {
+    throw new Error("A cadência foi criada, mas não foi possível carregar seus dados.");
+  }
+  return {
+    ...fetched,
+    compartilhada: fetched.compartilhada ?? false,
+    parar_ao_responder: fetched.parar_ao_responder ?? true,
+    ativa: fetched.ativa ?? true,
+  } as Cadence;
 }
 
 export async function updateCadence(
