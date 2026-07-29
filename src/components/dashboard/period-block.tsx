@@ -46,21 +46,23 @@ export function PeriodMetricsGrid({
   loading?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7">
-      {INDICATORS.map((ind) => {
-        const value = metrics[ind.key];
-        const percent = pct(value, totalLeads);
-        return (
-          <PeriodTile
-            key={ind.key}
-            indicator={ind}
-            value={value}
-            percent={percent}
-            loading={loading}
-          />
-        );
-      })}
-    </div>
+    <TooltipProvider delayDuration={200}>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7">
+        {INDICATORS.map((ind) => {
+          const value = metrics[ind.key];
+          const percent = pct(value, totalLeads);
+          return (
+            <PeriodTile
+              key={ind.key}
+              indicator={ind}
+              value={value}
+              percent={percent}
+              loading={loading}
+            />
+          );
+        })}
+      </div>
+    </TooltipProvider>
   );
 }
 
