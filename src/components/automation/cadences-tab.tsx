@@ -536,9 +536,15 @@ export function CadencesTab() {
         )}
       </section>
 
-      {editing && (
-        <CadenceEditor cadence={editing} open={!!editing} onOpenChange={(v) => !v && setEditing(null)} isManager={isManager} />
-      )}
+      {editing?.id ? (
+        <CadenceEditor
+          key={editing.id}
+          cadence={editing}
+          open={true}
+          onOpenChange={(v) => { if (!v) setEditing(null); }}
+          isManager={isManager}
+        />
+      ) : null}
     </div>
   );
 }
