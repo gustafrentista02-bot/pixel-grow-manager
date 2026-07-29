@@ -179,7 +179,7 @@ function LeadsPage() {
   const [segmentoFilter, setSegmentoFilter] = useState("");
   const [valorMin, setValorMin] = useState<string>("");
   const [diasMin, setDiasMin] = useState<string>("");
-  const [googleFilter, setGoogleFilter] = useState<"todos" | "sim" | "nao">("todos");
+  
   const [siteFilter, setSiteFilter] = useState<"todos" | "sim" | "nao">("todos");
   const [gadsFilter, setGadsFilter] = useState<"todos" | "sim" | "nao">("todos");
   const [madsFilter, setMadsFilter] = useState<"todos" | "sim" | "nao">("todos");
@@ -203,7 +203,7 @@ function LeadsPage() {
     (segmentoFilter ? 1 : 0) +
     (valorMin ? 1 : 0) +
     (diasMin ? 1 : 0) +
-    (googleFilter !== "todos" ? 1 : 0) +
+    
     (siteFilter !== "todos" ? 1 : 0) +
     (gadsFilter !== "todos" ? 1 : 0) +
     (madsFilter !== "todos" ? 1 : 0);
@@ -219,7 +219,7 @@ function LeadsPage() {
     setSegmentoFilter("");
     setValorMin("");
     setDiasMin("");
-    setGoogleFilter("todos");
+    
     setSiteFilter("todos");
     setGadsFilter("todos");
     setMadsFilter("todos");
@@ -296,7 +296,7 @@ function LeadsPage() {
       if (cQ && !(l.cidade ?? "").toLowerCase().includes(cQ)) return false;
       if (ufQ && !(l.uf ?? "").toLowerCase().includes(ufQ)) return false;
       if (segQ && !(l.segmento ?? "").toLowerCase().includes(segQ)) return false;
-      if (!boolMatch(googleFilter, l.tem_perfil_google)) return false;
+      
       if (!boolMatch(siteFilter, l.tem_site)) return false;
       if (!boolMatch(gadsFilter, l.faz_google_ads)) return false;
       if (!boolMatch(madsFilter, l.faz_meta_ads)) return false;
@@ -313,7 +313,7 @@ function LeadsPage() {
   }, [
     leads, search, quickFilter, stageFilter, tempFilter, origemFilter, potFilter, planoFilter,
     cidadeFilter, ufFilter, segmentoFilter, valorMin, diasMin,
-    googleFilter, siteFilter, gadsFilter, madsFilter,
+    siteFilter, gadsFilter, madsFilter,
   ]);
 
   async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
@@ -657,16 +657,6 @@ function LeadsPage() {
               </FilterGroup>
 
               <FilterGroup title="Presença digital">
-                <FilterField label="Perfil Google">
-                  <Select value={googleFilter} onValueChange={(v) => setGoogleFilter(v as "todos" | "sim" | "nao")}>
-                    <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos</SelectItem>
-                      <SelectItem value="sim">Com Perfil Google</SelectItem>
-                      <SelectItem value="nao">Sem Perfil Google</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FilterField>
                 <FilterField label="Site">
                   <Select value={siteFilter} onValueChange={(v) => setSiteFilter(v as "todos" | "sim" | "nao")}>
                     <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>

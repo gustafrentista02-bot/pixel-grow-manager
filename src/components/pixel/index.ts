@@ -1,14 +1,7 @@
 /**
  * Pixel Design System — barrel único.
- *
- * SEMPRE importe componentes reutilizáveis a partir daqui:
- *   import { StatusBadge, KpiCard, EmptyState } from "@/components/pixel";
- *
- * Não duplicar estilos ad-hoc. Se um componente novo for genérico o suficiente
- * para reuso, adicione aqui e documente em `src/components/pixel/README.md`.
  */
 
-// Badges e indicadores (status, temperatura, origem, pulse do lead)
 export {
   StatusBadge,
   TemperatureBadge,
@@ -18,7 +11,6 @@ export {
   type PulseLevel,
 } from "@/components/pixel-badges";
 
-// Cards de link externo (perfil Google, WhatsApp, site, drive, contratos…)
 export {
   ExternalLinkCard,
   ExternalLinkGrid,
@@ -26,7 +18,6 @@ export {
   type ExternalLinkCardProps,
 } from "@/components/external-link-card";
 
-// KPIs, tiles e blocos do dashboard/operação
 export {
   KpiCard,
   KpiCardSkeleton,
@@ -35,66 +26,8 @@ export {
   TONES,
 } from "@/components/dashboard/shared";
 
-// Novos primitivos Sprint 6
 export { EmptyState, type EmptyStateProps } from "./empty-state";
 export { LoadingState, SkeletonRow, type LoadingStateProps } from "./loading-state";
 export { ErrorState, type ErrorStateProps } from "./error-state";
 export { SectionHeader, type SectionHeaderProps } from "./section-header";
 export { InfoCard, type InfoCardProps } from "./info-card";
-export {
-  SeoScoreCard,
-  getSeoScoreTier,
-  DEFAULT_SEO_INDICATORS,
-  DEFAULT_SEO_OPPORTUNITIES,
-  type SeoScoreCardProps,
-  type SeoScoreTier,
-  type SeoScoreTierMeta,
-  type SeoScoreVariant,
-  type SeoIndicator,
-  type SeoIndicatorStatus,
-  type SeoOpportunity,
-  type SeoEvolutionPoint,
-} from "./seo-score";
-
-// Auditoria Inteligente (Sprint 9)
-export {
-  AuditChecklistCard,
-  AuditActionPlanCard,
-  SmartAuditBlock,
-  AuditStatusBadge,
-  AuditImpactBadge,
-  AuditPriorityBadge,
-  DEFAULT_AUDIT_SECTIONS,
-  DEFAULT_ACTION_PLAN,
-  type AuditChecklistCardProps,
-  type AuditActionPlanCardProps,
-  type SmartAuditBlockProps,
-  type AuditSection,
-  type AuditItem,
-  type AuditStatus,
-  type AuditImpact,
-  type AuditPriority,
-  type AuditFilter,
-  type AuditActionItem,
-} from "./audit-checklist";
-
-// Plano de Ação Inteligente (Sprint 10)
-export {
-  ActionPlanCard,
-  ActionPlanSummary,
-  SmartActionPlanBlock,
-  ActionStatusBadge,
-  ActionCategoryBadge,
-  ActionTimeBadge,
-  DEFAULT_ACTION_PLAN_ITEMS,
-  type ActionPlanCardProps,
-  type ActionPlanSummaryProps,
-  type SmartActionPlanBlockProps,
-  type ActionItem,
-  type ActionStatus,
-  type ActionCategory,
-  type ActionFilter,
-  type ActionPlanHandlers,
-} from "./action-plan";
-
-

@@ -28,7 +28,7 @@ import { CompanySettingsCard } from "@/components/company-settings-card";
 import { OrganizationCard } from "@/components/organization-card";
 import { SubscriptionCard } from "@/components/subscription-card";
 import { WhatsAppCard } from "@/components/whatsapp-card";
-import { ExtensionTokensCard } from "@/components/extension-tokens-card";
+
 import { ROLE_LABELS } from "@/lib/crm";
 import type { AppRole } from "@/lib/crm";
 import { CheckCircle2, XCircle } from "lucide-react";
@@ -189,7 +189,7 @@ function ConfigPage() {
 
       {auth?.user?.id && <WhatsAppCard userId={auth.user.id} />}
 
-      <ExtensionTokensCard />
+      
 
       <OrganizationCard canEdit={isGerente} />
 

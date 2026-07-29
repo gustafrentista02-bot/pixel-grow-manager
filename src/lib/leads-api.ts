@@ -35,8 +35,6 @@ export type LeadInput = {
   observacoes: string;
   motivo_perda: string;
   proximo_followup_at: string | null;
-  tem_perfil_google: boolean;
-  link_perfil_google: string;
   link_whatsapp: string;
   tem_site: boolean;
   faz_google_ads: boolean;
@@ -75,8 +73,6 @@ export const EMPTY_LEAD_INPUT: LeadInput = {
   observacoes: "",
   motivo_perda: "",
   proximo_followup_at: null,
-  tem_perfil_google: false,
-  link_perfil_google: "",
   link_whatsapp: "",
   tem_site: false,
   faz_google_ads: false,
@@ -115,8 +111,6 @@ export function leadToInput(lead: Lead): LeadInput {
     observacoes: lead.observacoes,
     motivo_perda: lead.motivo_perda ?? "",
     proximo_followup_at: lead.proximo_followup_at ?? null,
-    tem_perfil_google: lead.tem_perfil_google,
-    link_perfil_google: lead.link_perfil_google,
     link_whatsapp: lead.link_whatsapp ?? "",
     tem_site: lead.tem_site,
     faz_google_ads: lead.faz_google_ads,
@@ -175,7 +169,7 @@ const LEAD_WRITABLE_KEYS: (keyof LeadInput)[] = [
   "valor_proposta", "valor_fechado", "probabilidade_fechamento", "plano",
   "status_comercial", "potencial", "temperatura", "origem", "responsavel_id",
   "observacoes", "motivo_perda", "proximo_followup_at",
-  "tem_perfil_google", "link_perfil_google", "link_whatsapp", "tem_site",
+  "link_whatsapp", "tem_site",
   "faz_google_ads", "faz_meta_ads", "canais_aquisicao", "tags",
   "objetivo", "dificuldade", "proxima_acao", "stage",
 ];

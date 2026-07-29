@@ -28,7 +28,7 @@ import {
 import { LeadFormDialog } from "@/components/lead-form-dialog";
 import { LeadQuickNotes } from "@/components/lead-quick-notes";
 import { LeadProposalsList } from "@/components/lead-proposals-list";
-import { LeadAuditCard } from "@/components/lead-audit-card";
+
 import { InlineField } from "@/components/inline-field";
 import { LeadActivityCenter } from "@/components/lead-activity-center";
 import {
@@ -534,8 +534,6 @@ function LeadDetailPage() {
               <TabsTrigger value="central">Central de Atividades</TabsTrigger>
               <TabsTrigger value="arquivos">Arquivos</TabsTrigger>
               <TabsTrigger value="propostas">Propostas</TabsTrigger>
-              <TabsTrigger value="auditorias">Auditorias</TabsTrigger>
-              <TabsTrigger value="marketing">Marketing</TabsTrigger>
               <TabsTrigger value="historico">Histórico</TabsTrigger>
             </TabsList>
 
@@ -693,52 +691,6 @@ function LeadDetailPage() {
               <LeadProposalsList leadId={leadId} />
             </TabsContent>
 
-            {/* Auditorias */}
-            <TabsContent value="auditorias" className="mt-4">
-              <LeadAuditCard leadId={leadId} />
-            </TabsContent>
-
-            {/* Marketing */}
-            <TabsContent value="marketing" className="mt-4">
-              <Card className="border-border/60 bg-card/60">
-                <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Presença digital</CardTitle></CardHeader>
-                <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  <div className="space-y-0.5">
-                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Perfil no Google</p>
-                    <YesNo v={lead.tem_perfil_google} />
-                  </div>
-                  <div className="space-y-1 sm:col-span-2">
-                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Link do Perfil</p>
-                    <ExternalLinkCard url={lead.link_perfil_google} kind="google-profile" />
-                  </div>
-
-                  <div className="space-y-0.5">
-                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Possui Site</p>
-                    <YesNo v={lead.tem_site} />
-                  </div>
-                  <div className="space-y-0.5">
-                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Faz Google Ads</p>
-                    <YesNo v={lead.faz_google_ads} />
-                  </div>
-                  <div className="space-y-0.5">
-                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Faz Meta Ads</p>
-                    <YesNo v={lead.faz_meta_ads} />
-                  </div>
-                  <Field label="Instagram" value={lead.instagram} />
-                  <Field label="Área de atendimento" value={lead.area_atendimento} />
-                  <div className="space-y-0.5 sm:col-span-2 lg:col-span-3">
-                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Como chegam clientes hoje</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {lead.canais_aquisicao.length ? lead.canais_aquisicao.map((c) => (
-                        <Badge key={c} variant="secondary">{c}</Badge>
-                      )) : <span className="text-sm text-muted-foreground/50">—</span>}
-                    </div>
-                  </div>
-                  <div className="sm:col-span-2 lg:col-span-3"><Field label="Principal objetivo" value={lead.objetivo} /></div>
-                  <div className="sm:col-span-2 lg:col-span-3"><Field label="Principal dificuldade" value={lead.dificuldade} /></div>
-                </CardContent>
-              </Card>
-            </TabsContent>
 
             {/* Histórico (registrar nota + timeline compact) */}
             <TabsContent value="historico" className="mt-4 space-y-4">

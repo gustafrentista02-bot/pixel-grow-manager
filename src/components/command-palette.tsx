@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Users, KanbanSquare, Repeat, CheckSquare, Calendar,
-  FileText, MessageSquare, Settings, User, Building2, Phone, MessageCircle,
+  LayoutDashboard, Users, KanbanSquare, Repeat, CheckSquare,
+  Settings, User, Building2, Phone, MessageCircle,
 } from "lucide-react";
 import {
   CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator,
@@ -13,12 +13,9 @@ const NAV = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, shortcut: "D" },
   { title: "Leads", url: "/leads", icon: Users, shortcut: "L" },
   { title: "Funil", url: "/funil", icon: KanbanSquare, shortcut: "F" },
-  { title: "Follow-up", url: "/follow-up", icon: Repeat },
+  { title: "Follow-up", url: "/follow-up", icon: Repeat, shortcut: "U" },
   { title: "Tarefas", url: "/tarefas", icon: CheckSquare, shortcut: "T" },
-  { title: "Agenda", url: "/agenda", icon: Calendar, shortcut: "A" },
-  { title: "Modelos de Proposta", url: "/modelos-proposta", icon: FileText },
-  { title: "Modelos de Mensagem", url: "/modelos-mensagem", icon: MessageSquare },
-  { title: "Configurações", url: "/configuracoes", icon: Settings },
+  { title: "Configurações", url: "/configuracoes", icon: Settings, shortcut: "C" },
 ] as const;
 
 export function CommandPalette() {
@@ -38,7 +35,6 @@ export function CommandPalette() {
   }, []);
 
   const run = (fn: () => void) => { setOpen(false); fn(); };
-
   const leadItems = useMemo(() => leads.slice(0, 50), [leads]);
 
   return (
@@ -58,9 +54,7 @@ export function CommandPalette() {
               >
                 <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
                 {n.title}
-                {"shortcut" in n && n.shortcut && (
-                  <span className="ml-auto text-[10px] text-muted-foreground">G+{n.shortcut}</span>
-                )}
+                <span className="ml-auto text-[10px] text-muted-foreground">G+{n.shortcut}</span>
               </CommandItem>
             );
           })}
