@@ -241,6 +241,16 @@ function FollowUpPage() {
                     <Button
                       size="sm"
                       variant="outline"
+                      className="h-8 text-xs text-emerald-300"
+                      title="Marcar follow-up como realizado"
+                      onClick={() => selected && completeMut.mutate(selected.id)}
+                      disabled={completeMut.isPending}
+                    >
+                      <CheckCircle className="mr-1 h-3 w-3" /> Concluir follow-up
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
                       className="h-8 text-xs text-sky-300"
                       title="Mover para Conversando"
                       onClick={() => selected && move.mutate({ lead: selected, to: "conversando" })}
