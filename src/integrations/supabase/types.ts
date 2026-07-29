@@ -237,101 +237,6 @@ export type Database = {
           },
         ]
       }
-      extension_tokens: {
-        Row: {
-          created_at: string
-          id: string
-          last_used_at: string | null
-          nome: string
-          organization_id: string
-          owner_id: string
-          revogado: boolean
-          token: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          last_used_at?: string | null
-          nome?: string
-          organization_id: string
-          owner_id: string
-          revogado?: boolean
-          token?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          last_used_at?: string | null
-          nome?: string
-          organization_id?: string
-          owner_id?: string
-          revogado?: boolean
-          token?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "extension_tokens_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      gbp_audits: {
-        Row: {
-          created_at: string
-          dados_brutos: Json
-          id: string
-          lead_id: string
-          metricas: Json
-          organization_id: string
-          owner_id: string
-          score_geral: number
-          status: string
-          tipo_auditoria: string
-        }
-        Insert: {
-          created_at?: string
-          dados_brutos?: Json
-          id?: string
-          lead_id: string
-          metricas?: Json
-          organization_id: string
-          owner_id: string
-          score_geral?: number
-          status?: string
-          tipo_auditoria?: string
-        }
-        Update: {
-          created_at?: string
-          dados_brutos?: Json
-          id?: string
-          lead_id?: string
-          metricas?: Json
-          organization_id?: string
-          owner_id?: string
-          score_geral?: number
-          status?: string
-          tipo_auditoria?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "gbp_audits_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "gbp_audits_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       lead_events: {
         Row: {
           autor_nome: string
@@ -490,7 +395,6 @@ export type Database = {
           canais_aquisicao: string[]
           cidade: string
           created_at: string
-          criado_por_extensao: boolean
           dificuldade: string
           email: string
           empresa: string
@@ -501,7 +405,6 @@ export type Database = {
           id: string
           instagram: string
           last_interaction_at: string
-          link_perfil_google: string
           link_whatsapp: string
           meet_link: string
           motivo_perda: string
@@ -527,7 +430,6 @@ export type Database = {
           status_comercial: string
           tags: string[]
           telefone: string
-          tem_perfil_google: boolean
           tem_site: boolean
           temperatura: Database["public"]["Enums"]["lead_temperatura"] | null
           uf: string
@@ -542,7 +444,6 @@ export type Database = {
           canais_aquisicao?: string[]
           cidade?: string
           created_at?: string
-          criado_por_extensao?: boolean
           dificuldade?: string
           email?: string
           empresa?: string
@@ -553,7 +454,6 @@ export type Database = {
           id?: string
           instagram?: string
           last_interaction_at?: string
-          link_perfil_google?: string
           link_whatsapp?: string
           meet_link?: string
           motivo_perda?: string
@@ -579,7 +479,6 @@ export type Database = {
           status_comercial?: string
           tags?: string[]
           telefone?: string
-          tem_perfil_google?: boolean
           tem_site?: boolean
           temperatura?: Database["public"]["Enums"]["lead_temperatura"] | null
           uf?: string
@@ -594,7 +493,6 @@ export type Database = {
           canais_aquisicao?: string[]
           cidade?: string
           created_at?: string
-          criado_por_extensao?: boolean
           dificuldade?: string
           email?: string
           empresa?: string
@@ -605,7 +503,6 @@ export type Database = {
           id?: string
           instagram?: string
           last_interaction_at?: string
-          link_perfil_google?: string
           link_whatsapp?: string
           meet_link?: string
           motivo_perda?: string
@@ -631,7 +528,6 @@ export type Database = {
           status_comercial?: string
           tags?: string[]
           telefone?: string
-          tem_perfil_google?: boolean
           tem_site?: boolean
           temperatura?: Database["public"]["Enums"]["lead_temperatura"] | null
           uf?: string
@@ -644,53 +540,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "leads_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      message_templates: {
-        Row: {
-          categoria: string
-          compartilhada: boolean
-          conteudo: string
-          created_at: string
-          favorito: boolean
-          id: string
-          nome: string
-          organization_id: string | null
-          owner_id: string
-          updated_at: string
-        }
-        Insert: {
-          categoria?: string
-          compartilhada?: boolean
-          conteudo?: string
-          created_at?: string
-          favorito?: boolean
-          id?: string
-          nome: string
-          organization_id?: string | null
-          owner_id: string
-          updated_at?: string
-        }
-        Update: {
-          categoria?: string
-          compartilhada?: boolean
-          conteudo?: string
-          created_at?: string
-          favorito?: boolean
-          id?: string
-          nome?: string
-          organization_id?: string | null
-          owner_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "message_templates_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -872,60 +721,6 @@ export type Database = {
           },
           {
             foreignKeyName: "proposal_sends_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "proposal_sends_proposal_id_fkey"
-            columns: ["proposal_id"]
-            isOneToOne: false
-            referencedRelation: "proposal_templates"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      proposal_templates: {
-        Row: {
-          conteudo: string
-          created_at: string
-          favorito: boolean
-          id: string
-          nome: string
-          organization_id: string | null
-          owner_id: string
-          tipo: string
-          updated_at: string
-          url: string
-        }
-        Insert: {
-          conteudo?: string
-          created_at?: string
-          favorito?: boolean
-          id?: string
-          nome: string
-          organization_id?: string | null
-          owner_id: string
-          tipo?: string
-          updated_at?: string
-          url?: string
-        }
-        Update: {
-          conteudo?: string
-          created_at?: string
-          favorito?: boolean
-          id?: string
-          nome?: string
-          organization_id?: string | null
-          owner_id?: string
-          tipo?: string
-          updated_at?: string
-          url?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "proposal_templates_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
