@@ -297,19 +297,6 @@ export function LeadFormDialog({ open, onOpenChange, lead, onSubmit, saving }: P
             {/* -------- Marketing -------- */}
             <TabsContent value="marketing" className="mt-4 space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="flex items-center justify-between rounded-lg border border-border p-3">
-                  <Label>Possui Perfil no Google?</Label>
-                  <Switch checked={form.tem_perfil_google} onCheckedChange={(v) => set("tem_perfil_google", v)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Link do Perfil Google</Label>
-                  <Input
-                    value={form.link_perfil_google}
-                    onChange={(e) => set("link_perfil_google", e.target.value)}
-                    placeholder="https://g.page/..."
-                    disabled={!form.tem_perfil_google}
-                  />
-                </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label>Link do WhatsApp</Label>
                   <Input value={form.link_whatsapp} onChange={(e) => set("link_whatsapp", e.target.value)}

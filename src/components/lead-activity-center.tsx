@@ -247,23 +247,6 @@ function computeInsights(lead: Lead): Insight[] {
     });
   }
 
-  if (!lead.tem_perfil_google) {
-    insights.push({
-      id: "sem-gbp",
-      icon: Award,
-      tone: "info",
-      title: "Cliente ainda não tem Perfil Google",
-      description: "Oportunidade de venda de SEO Local — abordar criação e otimização do Google Perfil da Empresa.",
-    });
-  } else if (lead.tem_perfil_google) {
-    insights.push({
-      id: "gbp-avaliacoes",
-      icon: Sparkles,
-      tone: "info",
-      title: "Perfil Google pode precisar de mais avaliações",
-      description: "Sugerir campanha de captação de reviews como upsell no plano de SEO Local.",
-    });
-  }
 
   if (!lead.tem_site) {
     insights.push({
