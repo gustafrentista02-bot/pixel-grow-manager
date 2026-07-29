@@ -156,23 +156,25 @@ function LeadsTab({ cadence, hasSavedSteps }: { cadence: Cadence; hasSavedSteps:
             return (
               <label
                 key={l.id}
-                className={`flex cursor-pointer items-center gap-2 rounded-md p-2 text-xs hover:bg-secondary/40 ${
+                className={`flex w-full max-w-full cursor-pointer items-start gap-2 overflow-hidden rounded-md p-2 text-xs hover:bg-secondary/40 ${
                   disabled ? "cursor-not-allowed opacity-60" : ""
                 }`}
               >
-                <Checkbox checked={checked} disabled={disabled} onCheckedChange={() => toggleOne(l.id, disabled)} />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="truncate font-medium">{l.nome}</span>
-                    {l.empresa && <span className="truncate text-muted-foreground">· {l.empresa}</span>}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground">
-                    <span>{l.whatsapp || l.telefone || "—"}</span>
+                <Checkbox className="mt-0.5 shrink-0" checked={checked} disabled={disabled} onCheckedChange={() => toggleOne(l.id, disabled)} />
+                <div className="min-w-0 flex-1 space-y-0.5">
+                  <p className="truncate font-medium">{l.nome}</p>
+                  {l.empresa && l.empresa !== l.nome && (
+                    <p className="truncate text-[11px] text-muted-foreground">{l.empresa}</p>
+                  )}
+                  <p className="truncate text-[10px] text-muted-foreground">{l.whatsapp || l.telefone || "—"}</p>
+                  <div className="flex flex-wrap items-center gap-1 pt-0.5">
                     <Badge variant="outline" className="h-4 px-1 py-0 text-[9px]">{l.stage}</Badge>
-                    {semTel && <span className="text-amber-300">Sem telefone para envio</span>}
-                    {jaNesta && <span className="text-primary">Já está nesta cadência</span>}
+                    {semTel && <Badge variant="outline" className="h-4 border-amber-400/40 bg-amber-400/10 px-1 py-0 text-[9px] text-amber-300">Sem telefone</Badge>}
+                    {jaNesta && <Badge variant="outline" className="h-4 border-primary/40 bg-primary/10 px-1 py-0 text-[9px] text-primary">Já nesta cadência</Badge>}
                     {outra && act && (
-                      <span className="text-amber-300">Já participa de: {cadenceName(act.cadence_id)}</span>
+                      <Badge variant="outline" className="h-4 max-w-full border-amber-400/40 bg-amber-400/10 px-1 py-0 text-[9px] text-amber-300">
+                        <span className="truncate">Em: {cadenceName(act.cadence_id)}</span>
+                      </Badge>
                     )}
                   </div>
                 </div>
@@ -181,6 +183,7 @@ function LeadsTab({ cadence, hasSavedSteps }: { cadence: Cadence; hasSavedSteps:
           })}
         </div>
       </div>
+
 
       {/* Participantes */}
       <div className="space-y-2">
