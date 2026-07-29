@@ -23,25 +23,12 @@ const corsHeaders = {
 };
 
 // ---------- Autenticação do cron ----------
-// verify_jwt = false é intencional: quem chama é o pg_cron/um scheduler externo,
-// que não possui sessão de usuário. A autenticação é feita EXCLUSIVAMENTE pelo
-// segredo dedicado CRON_SECRET no header x-cron-secret. Uma publishable/anon key
-// NÃO é considerada autenticação suficiente e é ignorada.
+// verify_jwt = false é intencional: quem chama é o pg_cron, que não possui
+// sessão de usuário. A autenticação é feita EXCLUSIVAMENTE pelo segredo
+// guardado no Supabase Vault (pixel_crm_cron_secret) e validado no banco pela
+// RPC privada public.verify_cron_secret. O segredo nunca é lido pela função,
+// nunca é logado e não existe em variável de ambiente.
 const CRON_HEADER = "x-cron-secret";
-
-/** Comparação em tempo constante (evita vazamento por timing). */
-function safeCompare(a: string, b: string): boolean {
-  const enc = new TextEncoder();
-  const ba = enc.encode(a);
-  const bb = enc.encode(b);
-  // Compara sempre o mesmo número de bytes; diferença de tamanho já invalida.
-  const len = Math.max(ba.length, bb.length);
-  let diff = ba.length ^ bb.length;
-  for (let i = 0; i < len; i++) {
-    diff |= (ba[i] ?? 0) ^ (bb[i] ?? 0);
-  }
-  return diff === 0;
-}
 
 function jsonResponse(body: unknown, status: number) {
   return new Response(JSON.stringify(body), {
@@ -49,6 +36,7 @@ function jsonResponse(body: unknown, status: number) {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
+
 
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE, {
