@@ -246,30 +246,3 @@ export async function resumeEnrollment(id: string): Promise<void> {
     .eq("id", id);
   if (error) throw error;
 }
-
-/** Retoma uma inscrição pausada por resposta: recalcula next_send_at para a próxima etapa pendente. */
-export async function resumeEnrollment(id: string): Promise<void> {
-  const { data: enr, error: e1 } = await supabase
-    .from("cadence_enrollments")
-    .select("*")
-    .eq("id", id)
-    .single();
-  if (e1) throw e1;
-  const steps = await listCadenceSteps(enr.cadence_id);
-  const next = steps[enr.current_step];
-  if (!next) {
-    // sem próximas etapas: marca como concluída
-    const { error } = await supabase
-      .from("cadence_enrollments")
-      .update({ status: "concluida", next_send_at: null })
-      .eq("id", id);
-    if (error) throw error;
-    return;
-  }
-  const next_send_at = computeNextSend(next.delay_dias, next.horario);
-  const { error } = await supabase
-    .from("cadence_enrollments")
-    .update({ status: "ativa", next_send_at })
-    .eq("id", id);
-  if (error) throw error;
-}
