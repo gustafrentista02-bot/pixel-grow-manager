@@ -315,6 +315,24 @@ export async function moveFollowupStage(lead: Lead, to: FollowupStage): Promise<
   return data;
 }
 
+/**
+ * Marca um follow-up como realizado.
+ *
+ * Registra um evento `followup_realizado` na timeline do lead, atualiza
+ * `last_interaction_at` e limpa `proximo_followup_at`. O dashboard e o
+ * módulo Follow-up reagem a esse evento para calcular follow-ups pendentes
+ * e realizados no período.
+ */
+export async function completeFollowup(leadId: string, descricao?: string): Promise<void> {
+  const now = new Date().toISOString();
+  const { error } = await supabase
+    .from("leads")
+    .update({ proximo_followup_at: null, last_interaction_at: now })
+    .eq("id", leadId);
+  if (error) throw error;
+  await logLeadEvent(leadId, "followup_realizado", descricao || "Follow-up concluído.").catch(() => {});
+}
+
 export async function listNotes(leadId: string): Promise<LeadNote[]> {
   const { data, error } = await supabase
     .from("lead_notes")
