@@ -175,6 +175,18 @@ export function CadencesTab() {
   const [editing, setEditing] = useState<Cadence | null>(null);
   const [newName, setNewName] = useState("");
 
+  async function handleCreateCadence() {
+    const nome = newName.trim();
+    if (!nome || createCadence.isPending) return;
+    try {
+      const created = await createCadence.mutateAsync({ nome });
+      setNewName("");
+      setEditing(created);
+    } catch {
+      // erro já exibido via toast; mantém o nome digitado
+    }
+  }
+
   const enrollCount = (id: string) => enrollments.filter((e) => e.cadence_id === id && e.status === "ativa").length;
 
   const own = cadences.filter((c) => c.owner_id === uid);
