@@ -187,10 +187,10 @@ function LeadsTab({ cadence, hasSavedSteps }: { cadence: Cadence; hasSavedSteps:
 
       {/* Participantes */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <Label className="text-xs">Participantes desta cadência ({participants.length})</Label>
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
-            <SelectTrigger className="h-7 w-40 text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="h-7 w-40 max-w-full text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="ativa">Ativos</SelectItem>
               <SelectItem value="pausada_resposta">Pausados por resposta</SelectItem>
@@ -200,17 +200,19 @@ function LeadsTab({ cadence, hasSavedSteps }: { cadence: Cadence; hasSavedSteps:
             </SelectContent>
           </Select>
         </div>
-        <div className="max-h-[30vh] space-y-1 overflow-y-auto rounded-md border border-border p-1">
+        <div className="max-h-[38vh] space-y-1 overflow-y-auto overflow-x-hidden rounded-md border border-border p-1">
           {participantsFiltered.length === 0 ? (
             <p className="py-4 text-center text-xs text-muted-foreground">Nenhum participante neste filtro.</p>
           ) : participantsFiltered.map((p) => {
             const l = leadById.get(p.lead_id);
             return (
-              <div key={p.id} className="flex items-center gap-2 rounded-md p-2 text-xs hover:bg-secondary/40">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="truncate font-medium">{l?.nome ?? "Lead removido"}</span>
-                    {l?.empresa && <span className="truncate text-muted-foreground">· {l.empresa}</span>}
+              <div key={p.id} className="flex w-full max-w-full items-start gap-2 overflow-hidden rounded-md p-2 text-xs hover:bg-secondary/40">
+                <div className="min-w-0 flex-1 space-y-0.5">
+                  <p className="truncate font-medium">{l?.nome ?? "Lead removido"}</p>
+                  {l?.empresa && l.empresa !== l.nome && (
+                    <p className="truncate text-[11px] text-muted-foreground">{l.empresa}</p>
+                  )}
+                  <div className="flex flex-wrap items-center gap-1 pt-0.5">
                     <Badge variant="outline" className="h-4 px-1 py-0 text-[9px]">
                       {p.status === "ativa" ? "Ativo"
                         : p.status === "pausada_resposta" ? "Pausado (resposta)"
@@ -218,15 +220,15 @@ function LeadsTab({ cadence, hasSavedSteps }: { cadence: Cadence; hasSavedSteps:
                         : p.status === "cancelada_conflito" ? "Cancelado (conflito)"
                         : "Cancelado"}
                     </Badge>
+                    <Badge variant="outline" className="h-4 px-1 py-0 text-[9px]">Etapa {p.current_step + 1}</Badge>
                   </div>
-                  <div className="text-[10px] text-muted-foreground">
-                    Etapa {p.current_step + 1}
-                    {p.next_send_at && <> · próximo: {formatDateTime(p.next_send_at)}</>}
-                  </div>
+                  {p.next_send_at && (
+                    <p className="truncate text-[10px] text-muted-foreground">Próximo: {formatDateTime(p.next_send_at)}</p>
+                  )}
                 </div>
                 {(p.status === "ativa" || p.status === "pausada_resposta") && (
                   <Button
-                    size="icon" variant="ghost" className="h-7 w-7 text-destructive"
+                    size="icon" variant="ghost" className="h-7 w-7 shrink-0 text-destructive"
                     title="Remover da cadência"
                     onClick={() => {
                       if (confirm(`Remover ${l?.nome ?? "este lead"} da cadência? Não haverá mais envios.`)) {
@@ -245,6 +247,7 @@ function LeadsTab({ cadence, hasSavedSteps }: { cadence: Cadence; hasSavedSteps:
     </div>
   );
 }
+
 
 function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
   cadence: Cadence;
