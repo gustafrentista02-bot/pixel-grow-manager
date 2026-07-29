@@ -143,7 +143,7 @@ function LeadsTab({ cadence, hasSavedSteps }: { cadence: Cadence; hasSavedSteps:
           </Button>
         </div>
 
-        <div className="max-h-[38vh] space-y-1 overflow-y-auto rounded-md border border-border p-1">
+        <div className="max-h-[38vh] space-y-1 overflow-y-auto overflow-x-hidden rounded-md border border-border p-1">
           {filteredLeads.length === 0 ? (
             <p className="py-4 text-center text-xs text-muted-foreground">Nenhum lead encontrado.</p>
           ) : filteredLeads.map((l) => {
