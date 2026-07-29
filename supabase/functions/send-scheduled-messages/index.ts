@@ -381,6 +381,17 @@ async function processCadences() {
   return { enviadas, falhas, lidas: enrolls?.length ?? 0 };
 }
 
+/** Devolve à fila itens que ficaram presos em "processando" (crash/timeout). */
+async function recoverStuck() {
+  const cutoff = new Date(Date.now() - 15 * 60_000).toISOString();
+  const { error } = await supabase
+    .from("scheduled_messages")
+    .update({ status: "pendente" })
+    .eq("status", "processando")
+    .lt("updated_at", cutoff);
+  if (error) console.error("recoverStuck falhou:", error.message);
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   const started = Date.now();
