@@ -213,7 +213,7 @@ async function processScheduledMessages() {
     // Claim atômico: só processa se ainda estiver 'pendente'.
     const { data: claimed } = await supabase
       .from("scheduled_messages")
-      .update({ status: "processando" })
+      .update({ status: "processando", updated_at: new Date().toISOString() })
       .eq("id", row.id)
       .eq("status", "pendente")
       .select("id")
