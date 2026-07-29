@@ -424,11 +424,33 @@ async function recoverStuck() {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  // 1) Método: apenas POST processa a fila.
+  if (req.method !== "POST") {
+    return jsonResponse({ ok: false, error: "Método não permitido. Use POST." }, 405);
+  }
+
+  // 2) Fail-closed: sem segredo configurado no ambiente, nada é processado.
+  const expectedSecret = Deno.env.get("CRON_SECRET");
+  if (!expectedSecret) {
+    console.error("send-scheduled-messages: CRON_SECRET ausente no ambiente; requisição recusada.");
+    return jsonResponse({ ok: false, error: "Serviço não configurado." }, 503);
+  }
+
+  // 3) Segredo do cron (nunca logado, nunca devolvido).
+  const receivedSecret = req.headers.get(CRON_HEADER);
+  if (!receivedSecret || !safeCompare(receivedSecret, expectedSecret)) {
+    console.warn("send-scheduled-messages: chamada não autorizada recusada.");
+    return jsonResponse({ ok: false, error: "Não autorizado." }, 401);
+  }
+
+  // Só a partir daqui a fila é tocada.
   const started = Date.now();
   try {
     instanceCache.clear();
     quotaCache.clear();
     await recoverStuck();
+
     const scheduled = await processScheduledMessages();
     const cadences = await processCadences();
     const payload = { ok: true, ms: Date.now() - started, scheduled, cadences };
