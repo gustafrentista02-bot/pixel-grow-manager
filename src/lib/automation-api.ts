@@ -152,16 +152,6 @@ export async function listEnrollments(): Promise<CadenceEnrollment[]> {
   return data ?? [];
 }
 
-function computeNextSend(delayDias: number, horario: string): string {
-  const [h, m] = horario.split(":").map((n) => parseInt(n, 10));
-  const d = new Date();
-  d.setDate(d.getDate() + (delayDias || 0));
-  d.setHours(h ?? 9, m ?? 0, 0, 0);
-  // Se ficou no passado (delay=0), agenda pra daqui a 1 min pra próxima execução do cron
-  if (d.getTime() < Date.now()) return new Date(Date.now() + 60_000).toISOString();
-  return d.toISOString();
-}
-
 async function getOrgId(uid: string): Promise<string | null> {
   const { data } = await supabase.from("profiles").select("organization_id").eq("id", uid).single();
   return data?.organization_id ?? null;
@@ -172,73 +162,39 @@ export type BulkEnrollResult = {
   ignorados_ja_nesta: number;
   ignorados_outra_cadencia: number;
   ignorados_sem_telefone: number;
+  erros: number;
+  detalhes: Array<{
+    lead_id: string | null;
+    status: "adicionado" | "ja_inscrito" | "outra_cadencia" | "sem_telefone" | "erro";
+    message: string;
+    enrollment_id: string | null;
+    next_send_at: string | null;
+  }>;
 };
 
 export async function enrollLeads(cadence_id: string, lead_ids: string[]): Promise<BulkEnrollResult> {
-  const owner_id = await getUid();
-  if (lead_ids.length === 0) {
-    return { inseridos: 0, ignorados_ja_nesta: 0, ignorados_outra_cadencia: 0, ignorados_sem_telefone: 0 };
-  }
-
-  // Cadência precisa existir, estar ativa e ter etapas
-  const { data: cad, error: cadErr } = await supabase
-    .from("cadences").select("id, ativa").eq("id", cadence_id).single();
-  if (cadErr) throw cadErr;
-  if (!cad.ativa) throw new Error("Cadência está pausada. Ative-a antes de inscrever leads.");
-
-  const steps = await listCadenceSteps(cadence_id);
-  if (steps.length === 0) throw new Error("Cadência sem etapas. Salve pelo menos uma etapa.");
-  const first = steps[0];
-  const next_send_at = computeNextSend(first.delay_dias, first.horario);
-
-  // Verifica leads que existem, têm telefone/whatsapp e estão na org (RLS filtra)
-  const { data: leads, error: leadsErr } = await supabase
-    .from("leads").select("id, telefone, whatsapp").in("id", lead_ids);
-  if (leadsErr) throw leadsErr;
-  const leadMap = new Map(leads?.map((l) => [l.id, l]) ?? []);
-
-  // Inscrições ativas existentes
-  const { data: activeEnr, error: enrErr } = await supabase
-    .from("cadence_enrollments")
-    .select("lead_id, cadence_id")
-    .eq("status", "ativa")
-    .in("lead_id", lead_ids);
-  if (enrErr) throw enrErr;
-  const activeByLead = new Map(activeEnr?.map((e) => [e.lead_id, e.cadence_id]) ?? []);
-
-  let ignorados_sem_telefone = 0;
-  let ignorados_ja_nesta = 0;
-  let ignorados_outra_cadencia = 0;
-  const toInsert: TablesInsert<"cadence_enrollments">[] = [];
-
-  const organization_id = await getOrgId(owner_id);
-
-  for (const lid of lead_ids) {
-    const lead = leadMap.get(lid);
-    if (!lead) continue;
-    if (!(lead.telefone?.trim() || lead.whatsapp?.trim())) {
-      ignorados_sem_telefone++;
-      continue;
-    }
-    const activeCad = activeByLead.get(lid);
-    if (activeCad === cadence_id) { ignorados_ja_nesta++; continue; }
-    if (activeCad) { ignorados_outra_cadencia++; continue; }
-    toInsert.push({
-      owner_id, cadence_id, lead_id: lid, current_step: 0, next_send_at, status: "ativa",
-      organization_id,
-    });
-  }
-
-  if (toInsert.length > 0) {
-    const { error } = await supabase.from("cadence_enrollments").insert(toInsert);
-    if (error) throw error;
-  }
-  return {
-    inseridos: toInsert.length,
-    ignorados_ja_nesta,
-    ignorados_outra_cadencia,
-    ignorados_sem_telefone,
+  const empty: BulkEnrollResult = {
+    inseridos: 0, ignorados_ja_nesta: 0, ignorados_outra_cadencia: 0,
+    ignorados_sem_telefone: 0, erros: 0, detalhes: [],
   };
+  if (lead_ids.length === 0) return empty;
+
+  const { data, error } = await supabase.rpc("enroll_leads_in_cadence", {
+    p_cadence_id: cadence_id,
+    p_lead_ids: lead_ids,
+  });
+  if (error) throw error;
+
+  const rows = (data ?? []) as BulkEnrollResult["detalhes"];
+  const summary: BulkEnrollResult = { ...empty, detalhes: rows };
+  for (const r of rows) {
+    if (r.status === "adicionado") summary.inseridos++;
+    else if (r.status === "ja_inscrito") summary.ignorados_ja_nesta++;
+    else if (r.status === "outra_cadencia") summary.ignorados_outra_cadencia++;
+    else if (r.status === "sem_telefone") summary.ignorados_sem_telefone++;
+    else summary.erros++;
+  }
+  return summary;
 }
 
 export async function enrollLead(cadence_id: string, lead_id: string): Promise<void> {
@@ -247,7 +203,8 @@ export async function enrollLead(cadence_id: string, lead_id: string): Promise<v
     if (r.ignorados_ja_nesta > 0) throw new Error("Lead já está nesta cadência.");
     if (r.ignorados_outra_cadencia > 0) throw new Error("Lead já participa de outra cadência ativa.");
     if (r.ignorados_sem_telefone > 0) throw new Error("Lead sem telefone/WhatsApp para envio.");
-    throw new Error("Não foi possível inscrever o lead.");
+    const firstErr = r.detalhes.find((d) => d.status === "erro")?.message;
+    throw new Error(firstErr || "Não foi possível inscrever o lead.");
   }
 }
 
@@ -255,6 +212,37 @@ export async function cancelEnrollment(id: string): Promise<void> {
   const { error } = await supabase
     .from("cadence_enrollments")
     .update({ status: "cancelada", next_send_at: null })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+/** Retoma uma inscrição pausada por resposta: recalcula next_send_at para a próxima etapa pendente. */
+export async function resumeEnrollment(id: string): Promise<void> {
+  const { data: enr, error: e1 } = await supabase
+    .from("cadence_enrollments")
+    .select("*")
+    .eq("id", id)
+    .single();
+  if (e1) throw e1;
+  const steps = await listCadenceSteps(enr.cadence_id);
+  const next = steps[enr.current_step];
+  if (!next) {
+    const { error } = await supabase
+      .from("cadence_enrollments")
+      .update({ status: "concluida", next_send_at: null })
+      .eq("id", id);
+    if (error) throw error;
+    return;
+  }
+  // Cálculo canônico do próximo envio no banco (fuso America/Sao_Paulo).
+  const { data: nextTs, error: eCalc } = await supabase.rpc("compute_next_send_at", {
+    p_delay_dias: next.delay_dias,
+    p_horario: next.horario,
+  });
+  if (eCalc) throw eCalc;
+  const { error } = await supabase
+    .from("cadence_enrollments")
+    .update({ status: "ativa", next_send_at: nextTs as unknown as string })
     .eq("id", id);
   if (error) throw error;
 }
