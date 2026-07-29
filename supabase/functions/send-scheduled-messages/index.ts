@@ -418,19 +418,26 @@ Deno.serve(async (req) => {
     return jsonResponse({ ok: false, error: "Método não permitido. Use POST." }, 405);
   }
 
-  // 2) Fail-closed: sem segredo configurado no ambiente, nada é processado.
-  const expectedSecret = Deno.env.get("CRON_SECRET");
-  if (!expectedSecret) {
-    console.error("send-scheduled-messages: CRON_SECRET ausente no ambiente; requisição recusada.");
-    return jsonResponse({ ok: false, error: "Serviço não configurado." }, 503);
+  // 2) Header obrigatório — sem ele nada é lido nem alterado.
+  const receivedSecret = req.headers.get(CRON_HEADER);
+  if (!receivedSecret || receivedSecret.trim().length === 0) {
+    console.warn("send-scheduled-messages: chamada sem credencial de cron recusada.");
+    return jsonResponse({ ok: false, error: "Não autorizado." }, 401);
   }
 
-  // 3) Segredo do cron (nunca logado, nunca devolvido).
-  const receivedSecret = req.headers.get(CRON_HEADER);
-  if (!receivedSecret || !safeCompare(receivedSecret, expectedSecret)) {
+  // 3) Validação no banco (Vault + RPC privada). O segredo nunca trafega de volta.
+  const { data: valid, error: verifyError } = await supabase.rpc("verify_cron_secret", {
+    p_secret: receivedSecret,
+  });
+  if (verifyError) {
+    console.error("send-scheduled-messages: verificação indisponível:", verifyError.message);
+    return jsonResponse({ ok: false, error: "Serviço indisponível." }, 503);
+  }
+  if (valid !== true) {
     console.warn("send-scheduled-messages: chamada não autorizada recusada.");
     return jsonResponse({ ok: false, error: "Não autorizado." }, 401);
   }
+
 
   // Só a partir daqui a fila é tocada.
   const started = Date.now();
