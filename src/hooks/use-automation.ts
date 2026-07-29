@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import {
   listScheduledMessages, createScheduledMessage, cancelScheduledMessage,
   listCadences, listCadenceSteps, createCadence, updateCadence, deleteCadence, saveCadenceSteps,
-  listEnrollments, enrollLead, cancelEnrollment, resumeEnrollment,
+  listEnrollments, enrollLead, enrollLeads, cancelEnrollment, resumeEnrollment,
 } from "@/lib/automation-api";
 
 export function useScheduledMessages() {
