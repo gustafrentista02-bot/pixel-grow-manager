@@ -251,18 +251,18 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
 }) {
   const { data: existingSteps = [] } = useCadenceSteps(open ? cadence.id : null);
   const { saveSteps, updateCadence } = useAutomationMutations();
-  const [nome, setNome] = useState(cadence.nome);
-  const [compartilhada, setCompartilhada] = useState(cadence.compartilhada);
-  const [pararAoResponder, setPararAoResponder] = useState(cadence.parar_ao_responder ?? true);
+  const [nome, setNome] = useState(cadence.nome ?? "");
+  const [compartilhada, setCompartilhada] = useState<boolean>(cadence.compartilhada ?? false);
+  const [pararAoResponder, setPararAoResponder] = useState<boolean>(cadence.parar_ao_responder ?? true);
   const [steps, setSteps] = useState<EditableStep[]>([]);
   const [tab, setTab] = useState<"etapas" | "leads">("etapas");
 
   useEffect(() => {
     if (open) {
-      setNome(cadence.nome);
-      setCompartilhada(cadence.compartilhada);
+      setNome(cadence.nome ?? "");
+      setCompartilhada(cadence.compartilhada ?? false);
       setPararAoResponder(cadence.parar_ao_responder ?? true);
-      setSteps(existingSteps.map((s) => ({ delay_dias: s.delay_dias, horario: s.horario, mensagem: s.mensagem })));
+      setSteps((existingSteps ?? []).map((s) => ({ delay_dias: s.delay_dias, horario: s.horario, mensagem: s.mensagem })));
     }
   }, [open, cadence.nome, cadence.compartilhada, cadence.parar_ao_responder, existingSteps]);
 
