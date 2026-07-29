@@ -143,7 +143,7 @@ function LeadsTab({ cadence, hasSavedSteps }: { cadence: Cadence; hasSavedSteps:
           </Button>
         </div>
 
-        <div className="max-h-[38vh] space-y-1 overflow-y-auto rounded-md border border-border p-1">
+        <div className="max-h-[38vh] space-y-1 overflow-y-auto overflow-x-hidden rounded-md border border-border p-1">
           {filteredLeads.length === 0 ? (
             <p className="py-4 text-center text-xs text-muted-foreground">Nenhum lead encontrado.</p>
           ) : filteredLeads.map((l) => {
@@ -156,23 +156,25 @@ function LeadsTab({ cadence, hasSavedSteps }: { cadence: Cadence; hasSavedSteps:
             return (
               <label
                 key={l.id}
-                className={`flex cursor-pointer items-center gap-2 rounded-md p-2 text-xs hover:bg-secondary/40 ${
+                className={`flex w-full max-w-full cursor-pointer items-start gap-2 overflow-hidden rounded-md p-2 text-xs hover:bg-secondary/40 ${
                   disabled ? "cursor-not-allowed opacity-60" : ""
                 }`}
               >
-                <Checkbox checked={checked} disabled={disabled} onCheckedChange={() => toggleOne(l.id, disabled)} />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="truncate font-medium">{l.nome}</span>
-                    {l.empresa && <span className="truncate text-muted-foreground">· {l.empresa}</span>}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground">
-                    <span>{l.whatsapp || l.telefone || "—"}</span>
+                <Checkbox className="mt-0.5 shrink-0" checked={checked} disabled={disabled} onCheckedChange={() => toggleOne(l.id, disabled)} />
+                <div className="min-w-0 flex-1 space-y-0.5">
+                  <p className="truncate font-medium">{l.nome}</p>
+                  {l.empresa && l.empresa !== l.nome && (
+                    <p className="truncate text-[11px] text-muted-foreground">{l.empresa}</p>
+                  )}
+                  <p className="truncate text-[10px] text-muted-foreground">{l.whatsapp || l.telefone || "—"}</p>
+                  <div className="flex flex-wrap items-center gap-1 pt-0.5">
                     <Badge variant="outline" className="h-4 px-1 py-0 text-[9px]">{l.stage}</Badge>
-                    {semTel && <span className="text-amber-300">Sem telefone para envio</span>}
-                    {jaNesta && <span className="text-primary">Já está nesta cadência</span>}
+                    {semTel && <Badge variant="outline" className="h-4 border-amber-400/40 bg-amber-400/10 px-1 py-0 text-[9px] text-amber-300">Sem telefone</Badge>}
+                    {jaNesta && <Badge variant="outline" className="h-4 border-primary/40 bg-primary/10 px-1 py-0 text-[9px] text-primary">Já nesta cadência</Badge>}
                     {outra && act && (
-                      <span className="text-amber-300">Já participa de: {cadenceName(act.cadence_id)}</span>
+                      <Badge variant="outline" className="h-4 max-w-full border-amber-400/40 bg-amber-400/10 px-1 py-0 text-[9px] text-amber-300">
+                        <span className="truncate">Em: {cadenceName(act.cadence_id)}</span>
+                      </Badge>
                     )}
                   </div>
                 </div>
@@ -182,12 +184,13 @@ function LeadsTab({ cadence, hasSavedSteps }: { cadence: Cadence; hasSavedSteps:
         </div>
       </div>
 
+
       {/* Participantes */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <Label className="text-xs">Participantes desta cadência ({participants.length})</Label>
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
-            <SelectTrigger className="h-7 w-40 text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="h-7 w-40 max-w-full text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="ativa">Ativos</SelectItem>
               <SelectItem value="pausada_resposta">Pausados por resposta</SelectItem>
@@ -197,17 +200,19 @@ function LeadsTab({ cadence, hasSavedSteps }: { cadence: Cadence; hasSavedSteps:
             </SelectContent>
           </Select>
         </div>
-        <div className="max-h-[30vh] space-y-1 overflow-y-auto rounded-md border border-border p-1">
+        <div className="max-h-[38vh] space-y-1 overflow-y-auto overflow-x-hidden rounded-md border border-border p-1">
           {participantsFiltered.length === 0 ? (
             <p className="py-4 text-center text-xs text-muted-foreground">Nenhum participante neste filtro.</p>
           ) : participantsFiltered.map((p) => {
             const l = leadById.get(p.lead_id);
             return (
-              <div key={p.id} className="flex items-center gap-2 rounded-md p-2 text-xs hover:bg-secondary/40">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="truncate font-medium">{l?.nome ?? "Lead removido"}</span>
-                    {l?.empresa && <span className="truncate text-muted-foreground">· {l.empresa}</span>}
+              <div key={p.id} className="flex w-full max-w-full items-start gap-2 overflow-hidden rounded-md p-2 text-xs hover:bg-secondary/40">
+                <div className="min-w-0 flex-1 space-y-0.5">
+                  <p className="truncate font-medium">{l?.nome ?? "Lead removido"}</p>
+                  {l?.empresa && l.empresa !== l.nome && (
+                    <p className="truncate text-[11px] text-muted-foreground">{l.empresa}</p>
+                  )}
+                  <div className="flex flex-wrap items-center gap-1 pt-0.5">
                     <Badge variant="outline" className="h-4 px-1 py-0 text-[9px]">
                       {p.status === "ativa" ? "Ativo"
                         : p.status === "pausada_resposta" ? "Pausado (resposta)"
@@ -215,15 +220,15 @@ function LeadsTab({ cadence, hasSavedSteps }: { cadence: Cadence; hasSavedSteps:
                         : p.status === "cancelada_conflito" ? "Cancelado (conflito)"
                         : "Cancelado"}
                     </Badge>
+                    <Badge variant="outline" className="h-4 px-1 py-0 text-[9px]">Etapa {p.current_step + 1}</Badge>
                   </div>
-                  <div className="text-[10px] text-muted-foreground">
-                    Etapa {p.current_step + 1}
-                    {p.next_send_at && <> · próximo: {formatDateTime(p.next_send_at)}</>}
-                  </div>
+                  {p.next_send_at && (
+                    <p className="truncate text-[10px] text-muted-foreground">Próximo: {formatDateTime(p.next_send_at)}</p>
+                  )}
                 </div>
                 {(p.status === "ativa" || p.status === "pausada_resposta") && (
                   <Button
-                    size="icon" variant="ghost" className="h-7 w-7 text-destructive"
+                    size="icon" variant="ghost" className="h-7 w-7 shrink-0 text-destructive"
                     title="Remover da cadência"
                     onClick={() => {
                       if (confirm(`Remover ${l?.nome ?? "este lead"} da cadência? Não haverá mais envios.`)) {
@@ -242,6 +247,7 @@ function LeadsTab({ cadence, hasSavedSteps }: { cadence: Cadence; hasSavedSteps:
     </div>
   );
 }
+
 
 function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
   cadence: Cadence;
@@ -298,52 +304,52 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[90vh] w-[calc(100vw-2rem)] max-w-3xl flex-col gap-0 overflow-hidden p-0">
+        <DialogHeader className="shrink-0 border-b border-border px-6 pb-4 pt-6">
           <DialogTitle>Editar cadência</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3">
-          <div className="space-y-1">
+        <div className="min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden px-6 py-4">
+          <div className="min-w-0 space-y-1">
             <Label className="text-xs">Nome</Label>
             <Input value={nome} onChange={(e) => setNome(e.target.value)} />
           </div>
           {isManager && (
-            <div className="flex items-center justify-between rounded-md border border-border bg-secondary/40 p-3">
-              <div>
+            <div className="flex min-w-0 items-center justify-between gap-3 rounded-md border border-border bg-secondary/40 p-3">
+              <div className="min-w-0 flex-1">
                 <Label className="text-sm">Compartilhar com a equipe</Label>
                 <p className="text-[11px] text-muted-foreground">Toda a equipe verá e poderá usar esta cadência.</p>
               </div>
-              <Switch checked={compartilhada} onCheckedChange={setCompartilhada} />
+              <Switch className="shrink-0" checked={compartilhada} onCheckedChange={setCompartilhada} />
             </div>
           )}
-          <div className="flex items-center justify-between rounded-md border border-border bg-secondary/40 p-3">
-            <div>
+          <div className="flex min-w-0 items-center justify-between gap-3 rounded-md border border-border bg-secondary/40 p-3">
+            <div className="min-w-0 flex-1">
               <Label className="text-sm">Parar automaticamente se o cliente responder</Label>
               <p className="text-[11px] text-muted-foreground">Se o lead responder no WhatsApp, as próximas etapas não são enviadas.</p>
             </div>
-            <Switch checked={pararAoResponder} onCheckedChange={setPararAoResponder} />
+            <Switch className="shrink-0" checked={pararAoResponder} onCheckedChange={setPararAoResponder} />
           </div>
 
-          <Tabs value={tab} onValueChange={(v) => setTab(v as "etapas" | "leads")}>
+          <Tabs value={tab} onValueChange={(v) => setTab(v as "etapas" | "leads")} className="min-w-0">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="etapas">Etapas</TabsTrigger>
               <TabsTrigger value="leads">Leads</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="etapas" className="space-y-2">
-              <div className="flex items-center justify-between">
+            <TabsContent value="etapas" className="min-w-0 space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <Label className="text-xs">Etapas ({steps.length})</Label>
                 <Button size="sm" variant="outline" onClick={addStep}>
                   <Plus className="mr-1 h-3 w-3" /> Adicionar etapa
                 </Button>
               </div>
-              <div className="max-h-[45vh] space-y-2 overflow-y-auto pr-1">
+              <div className="space-y-2">
                 {steps.map((s, i) => (
-                  <div key={i} className="rounded-md border border-border bg-secondary/30 p-2">
+                  <div key={i} className="min-w-0 rounded-md border border-border bg-secondary/30 p-2">
                     <div className="mb-2 flex items-center gap-2">
-                      <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span className="text-xs font-semibold">Etapa {i + 1}</span>
-                      <div className="ml-auto flex gap-1">
+                      <GripVertical className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      <span className="truncate text-xs font-semibold">Etapa {i + 1}</span>
+                      <div className="ml-auto flex shrink-0 gap-1">
                         <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => moveStep(i, -1)} disabled={i === 0}>
                           <ChevronUp className="h-3 w-3" />
                         </Button>
@@ -355,18 +361,18 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
                         </Button>
                       </div>
                     </div>
-                    <div className="mb-2 grid grid-cols-2 gap-2">
-                      <div>
+                    <div className="mb-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      <div className="min-w-0">
                         <Label className="text-[10px]">Dias após {i === 0 ? "inscrição" : "etapa anterior"}</Label>
                         <Input type="number" min={0} value={s.delay_dias}
                           onChange={(e) => updateStep(i, { delay_dias: parseInt(e.target.value) || 0 })} />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <Label className="text-[10px]">Horário</Label>
                         <Input type="time" value={s.horario} onChange={(e) => updateStep(i, { horario: e.target.value })} />
                       </div>
                     </div>
-                    <div className="flex justify-end gap-1 pb-1">
+                    <div className="flex flex-wrap justify-end gap-1 pb-1">
                       {VARIAVEIS.map((v) => (
                         <button key={v} type="button"
                           onClick={() => updateStep(i, { mensagem: s.mensagem + " " + v })}
@@ -376,7 +382,7 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
                       ))}
                     </div>
                     <Textarea rows={3} value={s.mensagem} onChange={(e) => updateStep(i, { mensagem: e.target.value })}
-                      placeholder="Mensagem..." className="font-mono text-xs" />
+                      placeholder="Mensagem..." className="w-full font-mono text-xs" />
                   </div>
                 ))}
                 {steps.length === 0 && (
@@ -385,14 +391,14 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
               </div>
             </TabsContent>
 
-            <TabsContent value="leads">
+            <TabsContent value="leads" className="min-w-0">
               <LeadsTab cadence={cadence} hasSavedSteps={existingSteps.length > 0} />
             </TabsContent>
           </Tabs>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Fechar</Button>
-          <Button onClick={save} disabled={saveSteps.isPending || steps.some((s) => !s.mensagem.trim())}>
+        <DialogFooter className="shrink-0 flex-col-reverse gap-2 border-t border-border px-6 py-4 sm:flex-row sm:justify-end">
+          <Button variant="outline" className="w-full sm:w-auto" onClick={() => onOpenChange(false)}>Fechar</Button>
+          <Button className="w-full sm:w-auto" onClick={save} disabled={saveSteps.isPending || steps.some((s) => !s.mensagem.trim())}>
             <Save className="mr-1 h-4 w-4" /> Salvar etapas
           </Button>
         </DialogFooter>
@@ -400,6 +406,7 @@ function CadenceEditor({ cadence, open, onOpenChange, isManager }: {
     </Dialog>
   );
 }
+
 
 export function CadencesTab() {
   const { data: cadences = [] } = useCadences();
