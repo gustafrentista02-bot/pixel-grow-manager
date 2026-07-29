@@ -8,7 +8,7 @@ import {
   Trophy,
   XCircle,
 } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { PeriodMetrics } from "@/hooks/use-dashboard-metrics";
 import { TONES } from "./shared";
