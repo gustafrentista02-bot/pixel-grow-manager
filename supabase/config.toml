@@ -9,9 +9,11 @@ verify_jwt = false
 [functions.gbp-audit-ingest]
 verify_jwt = false
 
-# send-scheduled-messages é chamada por scheduler (pg_cron/externo), que não tem
-# sessão de usuário — por isso verify_jwt = false. A autenticação é feita
-# EXCLUSIVAMENTE pelo segredo dedicado CRON_SECRET enviado no header
-# x-cron-secret; publishable/anon key NÃO é aceita como autenticação.
+# send-scheduled-messages é chamada pelo pg_cron, que não tem sessão de usuário —
+# por isso verify_jwt = false. A autenticação é feita EXCLUSIVAMENTE pelo header
+# x-cron-secret, cujo valor vive no Supabase Vault (pixel_crm_cron_secret) e é
+# validado no banco pela RPC privada public.verify_cron_secret (service_role).
+# Publishable/anon key NÃO é aceita como autenticação.
 [functions.send-scheduled-messages]
 verify_jwt = false
+
