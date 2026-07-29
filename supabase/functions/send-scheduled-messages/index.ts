@@ -387,6 +387,7 @@ Deno.serve(async (req) => {
   try {
     instanceCache.clear();
     quotaCache.clear();
+    await recoverStuck();
     const scheduled = await processScheduledMessages();
     const cadences = await processCadences();
     const payload = { ok: true, ms: Date.now() - started, scheduled, cadences };
