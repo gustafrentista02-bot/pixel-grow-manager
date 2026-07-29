@@ -4,7 +4,8 @@ import {
   DndContext, PointerSensor, useSensor, useSensors, useDroppable, type DragEndEvent,
 } from "@dnd-kit/core";
 import { toast } from "sonner";
-import { Copy, MessageCircle, Sparkles, AlertTriangle, ExternalLink, Trophy, XCircle, ArrowRightCircle } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Copy, MessageCircle, Sparkles, AlertTriangle, ExternalLink, Trophy, XCircle, ArrowRightCircle, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,7 +17,7 @@ import { CadencesTab } from "@/components/automation/cadences-tab";
 import { useLeads, useLeadMutations } from "@/hooks/use-leads";
 import { FOLLOWUP_STAGES, FOLLOWUP_META } from "@/lib/crm";
 import type { FollowupStage } from "@/lib/crm";
-import type { Lead } from "@/lib/leads-api";
+import { completeFollowup, type Lead } from "@/lib/leads-api";
 import { daysSince } from "@/lib/notifications";
 
 export const Route = createFileRoute("/_authenticated/follow-up")({
