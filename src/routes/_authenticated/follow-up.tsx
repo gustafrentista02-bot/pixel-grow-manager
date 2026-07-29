@@ -80,6 +80,16 @@ function Column({ stage, leads }: { stage: FollowupStage; leads: Lead[] }) {
 function FollowUpPage() {
   const { data: leads = [] } = useLeads();
   const { moveFollowup, move } = useLeadMutations();
+  const queryClient = useQueryClient();
+  const completeMut = useMutation({
+    mutationFn: (leadId: string) => completeFollowup(leadId),
+    onSuccess: () => {
+      toast.success("Follow-up concluído");
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-activity"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro ao concluir"),
+  });
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const [template, setTemplate] = useState(DEFAULT_MESSAGE);
 
