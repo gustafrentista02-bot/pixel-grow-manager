@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import {
   listScheduledMessages, createScheduledMessage, cancelScheduledMessage,
   listCadences, listCadenceSteps, createCadence, updateCadence, deleteCadence, saveCadenceSteps,
-  listEnrollments, enrollLead, cancelEnrollment, resumeEnrollment,
+  listEnrollments, enrollLead, enrollLeads, cancelEnrollment, resumeEnrollment,
 } from "@/lib/automation-api";
 
 export function useScheduledMessages() {
@@ -73,6 +73,20 @@ export function useAutomationMutations() {
       mutationFn: ({ cadence_id, lead_id }: { cadence_id: string; lead_id: string }) =>
         enrollLead(cadence_id, lead_id),
       onSuccess: () => { invEnr(); toast.success("Lead inscrito na cadência!"); },
+      onError: (e: Error) => toast.error("Erro ao inscrever", { description: e.message }),
+    }),
+    enrollBulk: useMutation({
+      mutationFn: ({ cadence_id, lead_ids }: { cadence_id: string; lead_ids: string[] }) =>
+        enrollLeads(cadence_id, lead_ids),
+      onSuccess: (r) => {
+        invEnr();
+        const partes: string[] = [`${r.inseridos} adicionado(s)`];
+        if (r.ignorados_ja_nesta) partes.push(`${r.ignorados_ja_nesta} já estava(m) nesta cadência`);
+        if (r.ignorados_outra_cadencia) partes.push(`${r.ignorados_outra_cadencia} em outra cadência ativa`);
+        if (r.ignorados_sem_telefone) partes.push(`${r.ignorados_sem_telefone} sem telefone`);
+        if (r.inseridos > 0) toast.success("Leads inscritos", { description: partes.join(" · ") });
+        else toast.info("Nenhum lead adicionado", { description: partes.join(" · ") });
+      },
       onError: (e: Error) => toast.error("Erro ao inscrever", { description: e.message }),
     }),
     cancelEnrollment: useMutation({

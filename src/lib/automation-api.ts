@@ -124,19 +124,93 @@ function computeNextSend(delayDias: number, horario: string): string {
   return d.toISOString();
 }
 
-export async function enrollLead(cadence_id: string, lead_id: string): Promise<CadenceEnrollment> {
+async function getOrgId(uid: string): Promise<string | null> {
+  const { data } = await supabase.from("profiles").select("organization_id").eq("id", uid).single();
+  return data?.organization_id ?? null;
+}
+
+export type BulkEnrollResult = {
+  inseridos: number;
+  ignorados_ja_nesta: number;
+  ignorados_outra_cadencia: number;
+  ignorados_sem_telefone: number;
+};
+
+export async function enrollLeads(cadence_id: string, lead_ids: string[]): Promise<BulkEnrollResult> {
   const owner_id = await getUid();
+  if (lead_ids.length === 0) {
+    return { inseridos: 0, ignorados_ja_nesta: 0, ignorados_outra_cadencia: 0, ignorados_sem_telefone: 0 };
+  }
+
+  // Cadência precisa existir, estar ativa e ter etapas
+  const { data: cad, error: cadErr } = await supabase
+    .from("cadences").select("id, ativa").eq("id", cadence_id).single();
+  if (cadErr) throw cadErr;
+  if (!cad.ativa) throw new Error("Cadência está pausada. Ative-a antes de inscrever leads.");
+
   const steps = await listCadenceSteps(cadence_id);
-  if (steps.length === 0) throw new Error("Cadência sem etapas");
+  if (steps.length === 0) throw new Error("Cadência sem etapas. Salve pelo menos uma etapa.");
   const first = steps[0];
   const next_send_at = computeNextSend(first.delay_dias, first.horario);
-  const { data, error } = await supabase
+
+  // Verifica leads que existem, têm telefone/whatsapp e estão na org (RLS filtra)
+  const { data: leads, error: leadsErr } = await supabase
+    .from("leads").select("id, telefone, whatsapp").in("id", lead_ids);
+  if (leadsErr) throw leadsErr;
+  const leadMap = new Map(leads?.map((l) => [l.id, l]) ?? []);
+
+  // Inscrições ativas existentes
+  const { data: activeEnr, error: enrErr } = await supabase
     .from("cadence_enrollments")
-    .insert({ owner_id, cadence_id, lead_id, current_step: 0, next_send_at, status: "ativa" })
-    .select()
-    .single();
-  if (error) throw error;
-  return data;
+    .select("lead_id, cadence_id")
+    .eq("status", "ativa")
+    .in("lead_id", lead_ids);
+  if (enrErr) throw enrErr;
+  const activeByLead = new Map(activeEnr?.map((e) => [e.lead_id, e.cadence_id]) ?? []);
+
+  let ignorados_sem_telefone = 0;
+  let ignorados_ja_nesta = 0;
+  let ignorados_outra_cadencia = 0;
+  const toInsert: TablesInsert<"cadence_enrollments">[] = [];
+
+  const organization_id = await getOrgId(owner_id);
+
+  for (const lid of lead_ids) {
+    const lead = leadMap.get(lid);
+    if (!lead) continue;
+    if (!(lead.telefone?.trim() || lead.whatsapp?.trim())) {
+      ignorados_sem_telefone++;
+      continue;
+    }
+    const activeCad = activeByLead.get(lid);
+    if (activeCad === cadence_id) { ignorados_ja_nesta++; continue; }
+    if (activeCad) { ignorados_outra_cadencia++; continue; }
+    toInsert.push({
+      owner_id, cadence_id, lead_id: lid, current_step: 0, next_send_at, status: "ativa",
+      organization_id,
+    });
+  }
+
+  if (toInsert.length > 0) {
+    const { error } = await supabase.from("cadence_enrollments").insert(toInsert);
+    if (error) throw error;
+  }
+  return {
+    inseridos: toInsert.length,
+    ignorados_ja_nesta,
+    ignorados_outra_cadencia,
+    ignorados_sem_telefone,
+  };
+}
+
+export async function enrollLead(cadence_id: string, lead_id: string): Promise<void> {
+  const r = await enrollLeads(cadence_id, [lead_id]);
+  if (r.inseridos === 0) {
+    if (r.ignorados_ja_nesta > 0) throw new Error("Lead já está nesta cadência.");
+    if (r.ignorados_outra_cadencia > 0) throw new Error("Lead já participa de outra cadência ativa.");
+    if (r.ignorados_sem_telefone > 0) throw new Error("Lead sem telefone/WhatsApp para envio.");
+    throw new Error("Não foi possível inscrever o lead.");
+  }
 }
 
 export async function cancelEnrollment(id: string): Promise<void> {
