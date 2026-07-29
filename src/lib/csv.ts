@@ -105,15 +105,14 @@ export function parseLeadsCsv(file: File): Promise<ParsedImport> {
               observacoes: pick(raw, "observacoes", "observações", "obs", "notes"),
               stage,
               temperatura,
-              motivo_perda: pick(raw, "motivo_perda", "motivo_da_perda"),
-              valor_proposta: num(pick(raw, "valor_proposta", "valor_da_proposta")),
-              valor_fechado: num(pick(raw, "valor_fechado")),
-              probabilidade_fechamento: Math.min(100, Math.max(0, Math.round(num(pick(raw, "probabilidade_fechamento", "probabilidade_de_fechamento", "probabilidade"))))),
-              link_perfil_google: pick(raw, "link_perfil_google", "link_do_perfil_da_empresa_no_google", "google"),
-              link_whatsapp: pick(raw, "link_whatsapp", "link_do_whatsapp"),
-              proximo_followup_at: parseDate(pick(raw, "proximo_followup", "próximo_follow_up", "proximo_follow_up", "proximo_followup_at")),
-              tags,
-            });
+            motivo_perda: pick(raw, "motivo_perda", "motivo_da_perda"),
+            valor_proposta: num(pick(raw, "valor_proposta", "valor_da_proposta")),
+            valor_fechado: num(pick(raw, "valor_fechado")),
+            probabilidade_fechamento: Math.min(100, Math.max(0, Math.round(num(pick(raw, "probabilidade_fechamento", "probabilidade_de_fechamento", "probabilidade"))))),
+            link_whatsapp: pick(raw, "link_whatsapp", "link_do_whatsapp"),
+            proximo_followup_at: parseDate(pick(raw, "proximo_followup", "próximo_follow_up", "proximo_follow_up", "proximo_followup_at")),
+            tags,
+          });
           } catch (err) {
             errors.push({
               row: linha,
@@ -146,7 +145,7 @@ export function exportLeadsCsv(leads: Lead[]) {
     valor_fechado: l.valor_fechado ?? 0,
     probabilidade_fechamento: l.probabilidade_fechamento ?? 0,
     motivo_perda: l.motivo_perda ?? "",
-    link_perfil_google: l.link_perfil_google,
+    
     link_whatsapp: l.link_whatsapp ?? "",
     tags: (l.tags ?? []).join("; "),
     data_entrada: formatDateTime(l.created_at),
