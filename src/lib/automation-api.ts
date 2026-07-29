@@ -116,18 +116,29 @@ export async function saveCadenceSteps(
   cadence_id: string,
   steps: { delay_dias: number; horario: string; mensagem: string }[],
 ): Promise<void> {
-  // Substitui todas as etapas
-  const { error: delErr } = await supabase.from("cadence_steps").delete().eq("cadence_id", cadence_id);
-  if (delErr) throw delErr;
-  if (steps.length === 0) return;
-  const rows: TablesInsert<"cadence_steps">[] = steps.map((s, i) => ({
-    cadence_id,
-    ordem: i,
-    delay_dias: s.delay_dias,
-    horario: s.horario,
-    mensagem: s.mensagem,
-  }));
-  const { error } = await supabase.from("cadence_steps").insert(rows);
+  // Validação client-side (o banco é a última barreira via RPC transacional)
+  if (steps.length === 0) throw new Error("Adicione pelo menos uma etapa.");
+  const HHmm = /^([01][0-9]|2[0-3]):[0-5][0-9]$/;
+  steps.forEach((s, i) => {
+    if (!Number.isInteger(s.delay_dias) || s.delay_dias < 0) {
+      throw new Error(`Etapa ${i + 1}: dias deve ser inteiro ≥ 0.`);
+    }
+    if (!HHmm.test(s.horario ?? "")) {
+      throw new Error(`Etapa ${i + 1}: horário inválido (use HH:mm).`);
+    }
+    const msg = (s.mensagem ?? "").trim();
+    if (!msg) throw new Error(`Etapa ${i + 1}: mensagem vazia.`);
+    if (msg.length > 4000) throw new Error(`Etapa ${i + 1}: mensagem excede 4000 caracteres.`);
+  });
+  // Substituição transacional (delete + insert dentro da mesma tx no banco)
+  const { error } = await supabase.rpc("replace_cadence_steps", {
+    p_cadence_id: cadence_id,
+    p_steps: steps.map((s) => ({
+      delay_dias: s.delay_dias,
+      horario: s.horario,
+      mensagem: s.mensagem,
+    })),
+  });
   if (error) throw error;
 }
 
