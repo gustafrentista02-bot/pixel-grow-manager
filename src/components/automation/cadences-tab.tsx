@@ -247,17 +247,29 @@ export function CadencesTab() {
     <div className="space-y-4">
       <Card>
         <CardContent className="flex flex-wrap items-center gap-2 p-3">
-          <Input placeholder="Nome da nova cadência..." value={newName}
-            onChange={(e) => setNewName(e.target.value)} className="max-w-xs" />
-          <Button onClick={async () => {
-            if (!newName.trim()) return;
-            await createCadence.mutateAsync({ nome: newName.trim() });
-            setNewName("");
-          }}>
-            <Plus className="mr-1 h-4 w-4" /> Nova cadência
+          <Input
+            placeholder="Nome da nova cadência..."
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                void handleCreateCadence();
+              }
+            }}
+            disabled={createCadence.isPending}
+            className="max-w-xs"
+          />
+          <Button
+            onClick={() => void handleCreateCadence()}
+            disabled={createCadence.isPending || !newName.trim()}
+          >
+            <Plus className="mr-1 h-4 w-4" />
+            {createCadence.isPending ? "Criando..." : "Nova cadência"}
           </Button>
         </CardContent>
       </Card>
+
 
       <section className="space-y-2">
         <h2 className="text-sm font-semibold text-muted-foreground">Minhas ({own.length})</h2>
