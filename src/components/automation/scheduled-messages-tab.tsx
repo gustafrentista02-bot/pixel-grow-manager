@@ -136,7 +136,7 @@ export function ScheduledMessagesTab() {
           <div className="mt-3 border-t border-border/50 pt-2">
             <p className="mb-1 text-[10px] font-semibold text-muted-foreground">Histórico recente</p>
             <div className="space-y-1">
-              {scheduled.filter((s) => s.status !== "pendente").slice(0, 5).map((s) => {
+              {scheduled.filter((s) => s.status !== "pendente" && s.status !== "processando").slice(0, 5).map((s) => {
                 const l = leadMap.get(s.lead_id);
                 return (
                   <div key={s.id} className="flex items-center justify-between text-[11px]">
