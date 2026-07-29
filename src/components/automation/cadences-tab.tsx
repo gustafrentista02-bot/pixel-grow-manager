@@ -417,8 +417,16 @@ export function CadencesTab() {
     if (!nome || createCadence.isPending) return;
     try {
       const created = await createCadence.mutateAsync({ nome });
+      if (!created?.id) {
+        throw new Error("Não foi possível abrir a cadência recém-criada.");
+      }
       setNewName("");
-      setEditing(created);
+      setEditing({
+        ...created,
+        compartilhada: created.compartilhada ?? false,
+        parar_ao_responder: created.parar_ao_responder ?? true,
+        ativa: created.ativa ?? true,
+      });
     } catch {
       // erro já exibido via toast; mantém o nome digitado
     }
