@@ -4,7 +4,8 @@ import {
   DndContext, PointerSensor, useSensor, useSensors, useDroppable, type DragEndEvent,
 } from "@dnd-kit/core";
 import { toast } from "sonner";
-import { Copy, MessageCircle, Sparkles, AlertTriangle, ExternalLink, Trophy, XCircle, ArrowRightCircle } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Copy, MessageCircle, Sparkles, AlertTriangle, ExternalLink, Trophy, XCircle, ArrowRightCircle, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,7 +17,7 @@ import { CadencesTab } from "@/components/automation/cadences-tab";
 import { useLeads, useLeadMutations } from "@/hooks/use-leads";
 import { FOLLOWUP_STAGES, FOLLOWUP_META } from "@/lib/crm";
 import type { FollowupStage } from "@/lib/crm";
-import type { Lead } from "@/lib/leads-api";
+import { completeFollowup, type Lead } from "@/lib/leads-api";
 import { daysSince } from "@/lib/notifications";
 
 export const Route = createFileRoute("/_authenticated/follow-up")({
@@ -79,6 +80,16 @@ function Column({ stage, leads }: { stage: FollowupStage; leads: Lead[] }) {
 function FollowUpPage() {
   const { data: leads = [] } = useLeads();
   const { moveFollowup, move } = useLeadMutations();
+  const queryClient = useQueryClient();
+  const completeMut = useMutation({
+    mutationFn: (leadId: string) => completeFollowup(leadId),
+    onSuccess: () => {
+      toast.success("Follow-up concluído");
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-activity"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro ao concluir"),
+  });
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const [template, setTemplate] = useState(DEFAULT_MESSAGE);
 
@@ -227,6 +238,16 @@ function FollowUpPage() {
                     </Button>
                   </div>
                   <div className="flex flex-wrap gap-2 pt-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs text-emerald-300"
+                      title="Marcar follow-up como realizado"
+                      onClick={() => selected && completeMut.mutate(selected.id)}
+                      disabled={completeMut.isPending}
+                    >
+                      <CheckCircle className="mr-1 h-3 w-3" /> Concluir follow-up
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
